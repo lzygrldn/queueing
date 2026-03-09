@@ -35,11 +35,62 @@ class QueueModel extends Model
 
     public function getAllQueues()
     {
-        $this->select('q.ticket_number, w.window_name, q.status, q.created_at, q.completed_at');
-        $this->from('queues q');
-        $this->join('windows w', 'w.id = q.window_id');
-        $this->orderBy('q.id', 'DESC');
-        return $this->findAll();
+        try {
+            // First, get all queues with their window_id
+            $builder = $this->db->table('queues');
+            $builder->select('id, ticket_number, window_id, status, created_at, completed_at');
+            $builder->orderBy('id', 'DESC');
+            
+            $queues = $builder->get()->getResultArray();
+            
+            error_log("Queues found: " . count($queues));
+            
+            if (empty($queues)) {
+                return [];
+            }
+            
+            // Get all window names separately
+            $windowBuilder = $this->db->table('windows');
+            $windowBuilder->select('id, window_name');
+            $windows = $windowBuilder->get()->getResultArray();
+            
+            error_log("Windows found: " . count($windows));
+            
+            // Create window name lookup
+            $windowLookup = [];
+            foreach ($windows as $window) {
+                $windowLookup[$window['id']] = $window['window_name'];
+            }
+            
+            error_log("Window lookup: " . json_encode($windowLookup));
+            
+            // Combine queue data with window names
+            $results = [];
+            foreach ($queues as $queue) {
+                $windowName = isset($windowLookup[$queue['window_id']]) 
+                    ? $windowLookup[$queue['window_id']] 
+                    : 'Window ' . $queue['window_id'];
+                
+                $results[] = [
+                    'ticket_number' => $queue['ticket_number'],
+                    'window_name' => $windowName,
+                    'status' => $queue['status'],
+                    'created_at' => $queue['created_at'],
+                    'completed_at' => $queue['completed_at']
+                ];
+            }
+            
+            error_log("Final results count: " . count($results));
+            if (!empty($results)) {
+                error_log("First final result: " . json_encode($results[0]));
+            }
+            
+            return $results;
+            
+        } catch (Exception $e) {
+            error_log("getAllQueues error: " . $e->getMessage());
+            return [];
+        }
     }
 
     public function addToQueue($data)

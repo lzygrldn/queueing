@@ -15,6 +15,8 @@ $routes->post('admin/login', 'Admin::login');
 $routes->get('admin/logout', 'Admin::logout');
 $routes->post('admin/logout', 'Admin::logout');
 $routes->get('admin/get-queue-data', 'Admin::getQueueData');
+$routes->post('admin/reset-daily-stats', 'Admin::resetDailyStats');
+$routes->post('admin/reset-monthly-stats', 'Admin::resetMonthlyStats');
 $routes->get('admin/kiosk', 'Admin::kiosk');
 $routes->get('admin/display', 'Admin::display');
 $routes->post('admin/complete/(:num)', 'Admin::completeQueue/$1');

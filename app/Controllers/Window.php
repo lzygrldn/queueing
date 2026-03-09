@@ -58,7 +58,9 @@ class Window extends BaseController
             'ticket_number' => $queue['ticket_number'],
             'service_date' => date('Y-m-d'),
             'service_type' => 'completed',
-            'created_at' => date('Y-m-d H:i:s')
+            'created_at' => date('Y-m-d H:i:s'),
+            'daily_reset_excluded' => 0, // Include in daily stats
+            'monthly_reset_excluded' => 0 // Include in monthly stats
         ]);
 
         // Serve next
@@ -74,8 +76,19 @@ class Window extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'Queue not found']);
         }
 
-        // Mark as skipped (not recorded in service records)
+        // Mark as skipped
         $this->queueModel->markAsSkipped($queueId);
+
+        // Add to service records for statistics
+        $this->serviceRecordModel->addRecord([
+            'window_id' => $queue['window_id'],
+            'ticket_number' => $queue['ticket_number'],
+            'service_date' => date('Y-m-d'),
+            'service_type' => 'skipped',
+            'created_at' => date('Y-m-d H:i:s'),
+            'daily_reset_excluded' => 0, // Include in daily stats
+            'monthly_reset_excluded' => 0 // Include in monthly stats
+        ]);
 
         // Serve next
         $this->serveNext($queue['window_id']);

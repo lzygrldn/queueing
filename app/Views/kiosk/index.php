@@ -13,7 +13,7 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: url('https://scontent.fdvo2-1.fna.fbcdn.net/v/t39.30808-6/481996106_1170302874765227_8636504788622766923_n.jpg?_nc_cat=109&ccb=1-7&_nc_sid=7b2446&_nc_eui2=AeGoWelGz2qGb2G2OgY23AQFwf9QUj6EIBfB_1BSPoQgF0GUc1ud75aITO5jofhQ6mUKZKKjnecwMPlmXMs6D4d-&_nc_ohc=TSO_7po_srMQ7kNvwEi4E2R&_nc_oc=AdlinGdcvp26k8UQz180kfhR_JgeMTnMIqzu17XBLc1-AqvLiE885PkLOInjGOkVnUc&_nc_zt=23&_nc_ht=scontent.fdvo2-1.fna&_nc_gid=HBpVPPO84QqzqGOFTvBOCw&_nc_ss=8&oh=00_AfzBS49HBVdpxZ9NDIMxaHZ2RfwUeZZ_sdvGrJEVzLEHhw&oe=69B440B8') center center/cover no-repeat fixed;
             min-height: 100vh;
             padding: 20px;
         }
@@ -57,19 +57,20 @@
         
         .instructions {
             text-align: center;
-            color: white;
+            color: #000000;
             margin-top: 50px;
             margin-bottom: 100px;
         }
         
         .instructions h2 {
-            font-size: 2.5rem;
-            margin-bottom: 15px;
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.9);
         }
         
         .instructions p {
-            font-size: 1.5rem;
-            opacity: 0.9;
+            font-size: 2rem;
+            text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.8);
         }
         
         .services-grid {
@@ -79,13 +80,14 @@
         }
         
         .service-btn {
-            background: white;
-            border: none;
-            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
             padding: 30px 20px;
             cursor: pointer;
             transition: all 0.3s;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             text-align: center;
             min-height: 120px;
             display: flex;
@@ -95,19 +97,23 @@
         
         .service-btn:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            background: rgba(0, 0, 0, 0.7);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.4);
         }
         
         .service-name {
             font-size: 1.8rem;
             font-weight: bold;
-            color: #2c3e50;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
             margin-bottom: 5px;
         }
         
         .service-prefix {
             font-size: 1.2rem;
-            color: #667eea;
+            color: rgba(255, 255, 255, 0.9);
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
         }
         
         /* Ticket Modal */

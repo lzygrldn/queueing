@@ -15,6 +15,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #f5f6fa;
             min-height: 100vh;
+            padding-top: 0; /* No padding needed since smooth scroll accounts for header height */
         }
         
         .header {
@@ -24,6 +25,15 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: box-shadow 0.3s ease;
+        }
+        
+        .header:hover {
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
         }
         
         .header h1 {
@@ -321,12 +331,39 @@
         .waiting-item:last-child {
             border-bottom: none;
         }
+        
+        .window-filter-dropdown {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: white;
+            font-size: 14px;
+            min-width: 150px;
+        }
+        
+        .window-filter-dropdown:focus {
+            border-color: #667eea;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+        }
+        
+        .dataTables_filter {
+            margin-bottom: 20px !important;
+        }
+
+        .dataTables_wrapper .dataTables_filter {
+            margin-bottom: 20px !important;
+        }
     </style>
 </head>
 <body>
     <div class="header">
         <h1>Admin Dashboard</h1>
         <div class="header-buttons">
+            <a href="#system-controls" class="btn btn-primary">System Controls</a>
+            <a href="#window-status" class="btn btn-primary">Window Status</a>
+            <a href="#statistics" class="btn btn-primary">Statistics</a>
+            <a href="#data-table" class="btn btn-primary">Data Table</a>
             <a href="<?= base_url('admin/kiosk') ?>" class="btn btn-primary">Kiosk</a>
             <a href="<?= base_url('admin/display') ?>" class="btn btn-primary">Display</a>
             <form action="<?= base_url('admin/logout') ?>" method="POST" style="display: inline;">
@@ -335,8 +372,21 @@
         </div>
     </div>
 
+    <!-- System Controls Section -->
     <div class="container">
-        <h2 class="section-title">Window Status</h2>
+        <div class="reset-section" id="system-controls">
+            <h3>System Controls</h3>
+            <div class="reset-buttons">
+                <button class="btn btn-danger" onclick="confirmResetWindows()">Reset Windows & Queues</button>
+                <button class="btn btn-danger" onclick="confirmResetNumbers()">Reset Released Numbers</button>
+                <button class="btn btn-danger" onclick="confirmResetDailyStats()">Reset Daily Statistics</button>
+                <button class="btn btn-danger" onclick="confirmResetMonthlyStats()">Reset Monthly Statistics</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2 class="section-title" id="window-status">Window Status</h2>
         <div class="windows-grid">
             <?php foreach ($windows as $window): ?>
             <div class="window-widget">
@@ -367,7 +417,7 @@
             <?php endforeach; ?>
         </div>
 
-        <h2 class="section-title">Daily Statistics (<?= date('F d, Y') ?>)</h2>
+        <h2 class="section-title" id="statistics">Daily Statistics (<?= date('F d, Y') ?>)</h2>
         <div class="stats-grid">
             <?php 
             $totalCompleted = 0;
@@ -396,6 +446,7 @@
             <?php 
             $monthlyCompleted = 0;
             $monthlySkipped = 0;
+            error_log("PHP Monthly Stats Raw: " . json_encode($monthly_stats));
             foreach ($monthly_stats as $stat): 
                 $monthlyCompleted += $stat['completed'];
                 $monthlySkipped += $stat['skipped'];
@@ -414,8 +465,9 @@
                 <div class="stat-label">Monthly Skipped</div>
             </div>
         </div>
+        <?php error_log("PHP Monthly Totals - Completed: " . $monthlyCompleted . ", Skipped: " . $monthlySkipped); ?>
 
-        <h2 class="section-title">Queue Data Table</h2>
+        <h2 class="section-title" id="data-table">Queue Data Table</h2>
         <div class="table-container">
             <table id="queueTable" class="table table-striped">
                 <thead>
@@ -432,14 +484,6 @@
                 </tbody>
             </table>
         </div>
-
-        <div class="reset-section">
-            <h3>System Controls</h3>
-            <div class="reset-buttons">
-                <button class="btn btn-danger" onclick="confirmResetWindows()">Reset Windows & Queues</button>
-                <button class="btn btn-danger" onclick="confirmResetNumbers()">Reset Released Numbers</button>
-            </div>
-        </div>
     </div>
 
     <!-- Confirmation Modal -->
@@ -455,12 +499,37 @@
     </div>
     <!-- DataTables JS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/select/1.7.0/css/select.dataTables.min.css">
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/select/1.7.0/js/dataTables.select.min.js"></script>
         
     <script>
         let confirmCallback = null;
+
+        // Smooth scrolling for navigation links
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add smooth scrolling to all anchor links
+            const links = document.querySelectorAll('a[href^="#"]');
+            links.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href').substring(1);
+                    const targetElement = document.getElementById(targetId);
+                    
+                    if (targetElement) {
+                        const headerHeight = document.querySelector('.header').offsetHeight;
+                        const targetPosition = targetElement.offsetTop - headerHeight - 20;
+                        
+                        window.scrollTo({
+                            top: targetPosition,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        });
 
         function confirmResetWindows() {
             document.getElementById('confirmMessage').textContent = 'Are you sure you want to reset all windows and clear all queues?';
@@ -469,8 +538,20 @@
         }
 
         function confirmResetNumbers() {
-            document.getElementById('confirmMessage').textContent = 'Are you sure you want to reset all released numbers back to 001?';
+            document.getElementById('confirmMessage').textContent = 'Are you sure you want to reset all released numbers?';
             confirmCallback = resetNumbers;
+            document.getElementById('confirmModal').classList.add('active');
+        }
+
+        function confirmResetDailyStats() {
+            document.getElementById('confirmMessage').textContent = 'Are you sure you want to reset all daily statistics?';
+            confirmCallback = resetDailyStats;
+            document.getElementById('confirmModal').classList.add('active');
+        }
+
+        function confirmResetMonthlyStats() {
+            document.getElementById('confirmMessage').textContent = 'Are you sure you want to reset all monthly statistics?';
+            confirmCallback = resetMonthlyStats;
             document.getElementById('confirmModal').classList.add('active');
         }
 
@@ -488,7 +569,7 @@
 
         function resetWindows() {
             console.log("resetWindows function called");
-            const url = '/queueing/admin/reset-windows';
+            const url = 'http://localhost/queueing/public/admin/reset-windows';
             console.log("Calling URL:", url);
             fetch(url, {
                 method: 'POST',
@@ -519,7 +600,7 @@
 
         function resetNumbers() {
             console.log("resetNumbers function called");
-            const url = '/queueing/admin/reset-numbers';
+            const url = 'http://localhost/queueing/public/admin/reset-numbers';
             console.log("Calling URL:", url);
             fetch(url, {
                 method: 'POST',
@@ -548,6 +629,68 @@
             });
         }
 
+        function resetDailyStats() {
+            console.log("resetDailyStats function called");
+            const url = 'http://localhost/queueing/public/admin/reset-daily-stats';
+            console.log("Calling URL:", url);
+            fetch(url, {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(r => {
+                console.log("Response received:", r);
+                return r.json();
+            })
+            .then(data => {
+                console.log("Response data:", data);
+                if (data.success) {
+                    showNotification('✅ Daily Statistics Reset Done');
+                    // Refresh data dynamically instead of page reload
+                    refreshData();
+                    // Refresh DataTables
+                    $('#queueTable').DataTable().ajax.reload();
+                } else {
+                    console.error("Reset failed:", data.message);
+                    alert('Reset failed: ' + data.message);
+                }
+            })
+            .catch(err => {
+                console.error('Reset daily stats error:', err);
+                alert('Error resetting daily statistics. Please try again.');
+            });
+        }
+
+        function resetMonthlyStats() {
+            console.log("resetMonthlyStats function called");
+            const url = 'http://localhost/queueing/public/admin/reset-monthly-stats';
+            console.log("Calling URL:", url);
+            fetch(url, {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(r => {
+                console.log("Response received:", r);
+                return r.json();
+            })
+            .then(data => {
+                console.log("Response data:", data);
+                if (data.success) {
+                    showNotification('✅ Monthly Statistics Reset Done');
+                    // Refresh data dynamically instead of page reload
+                    refreshData();
+                    // Refresh DataTables
+                    $('#queueTable').DataTable().ajax.reload();
+                } else {
+                    console.error("Reset failed:", data.message);
+                    alert('Reset failed: ' + data.message);
+                }
+            })
+            .catch(err => {
+                console.error('Reset monthly stats error:', err);
+                alert('Error resetting monthly statistics. Please try again.');
+            });
+        }
+
         function showNotification(message) {
             const notif = document.createElement('div');
             notif.style.cssText = 'position:fixed;top:20px;right:20px;background:#27ae60;color:white;padding:15px 20px;border-radius:8px;z-index:10000;font-size:16px;box-shadow:0 4px 12px rgba(0,0,0,0.3);';
@@ -557,37 +700,81 @@
         }
 
         function completeQueue(id) {
-            fetch('<?= base_url('admin/complete/') ?>' + id, {
+            console.log("completeQueue called with id:", id);
+            const url = 'http://localhost/queueing/public/admin/complete/' + id;
+            console.log("Complete URL:", url);
+            fetch(url, {
                 method: 'POST',
                 headers: { 'X-Requested-With': 'XMLHttpRequest' }
             })
-            .then(r => r.json())
+            .then(r => {
+                console.log("Complete response received:", r);
+                return r.json();
+            })
             .then(data => {
-                if (data.success) refreshData();
+                console.log("Complete response data:", data);
+                if (data.success) {
+                    showNotification('✅ Queue Completed Successfully');
+                    refreshData(); // This will update statistics in real-time
+                    // Refresh DataTables
+                    $('#queueTable').DataTable().ajax.reload();
+                } else {
+                    console.error("Complete failed:", data.message);
+                    alert('Complete failed: ' + data.message);
+                }
+            })
+            .catch(err => {
+                console.error('Complete queue error:', err);
+                alert('Error completing queue. Please try again.');
             });
         }
 
         function skipQueue(id) {
-            fetch('<?= base_url('admin/skip/') ?>' + id, {
+            console.log("skipQueue called with id:", id);
+            const url = 'http://localhost/queueing/public/admin/skip/' + id;
+            console.log("Skip URL:", url);
+            fetch(url, {
                 method: 'POST',
                 headers: { 'X-Requested-With': 'XMLHttpRequest' }
             })
-            .then(r => r.json())
+            .then(r => {
+                console.log("Skip response received:", r);
+                return r.json();
+            })
             .then(data => {
-                if (data.success) refreshData();
+                console.log("Skip response data:", data);
+                if (data.success) {
+                    showNotification('⏭️ Queue Skipped Successfully');
+                    refreshData(); // This will update statistics in real-time
+                    // Refresh DataTables
+                    $('#queueTable').DataTable().ajax.reload();
+                } else {
+                    console.error("Skip failed:", data.message);
+                    alert('Skip failed: ' + data.message);
+                }
+            })
+            .catch(err => {
+                console.error('Skip queue error:', err);
+                alert('Error skipping queue. Please try again.');
             });
         }
 
         function refreshData() {
-            fetch('/queueing/admin/get-data', {
+            console.log("refreshData called - updating all statistics in real-time");
+            fetch('http://localhost/queueing/public/admin/get-data', {
                 headers: { 'X-Requested-With': 'XMLHttpRequest' }
             })
             .then(r => r.json())
             .then(data => {
+                console.log("refreshData response:", data);
                 if (data.success) {
+                    console.log("Updating windows, stats, and table...");
                     updateWindows(data.windows);
                     updateStats(data.daily_stats, data.monthly_stats);
                     updateTable(data.queue_data);
+                    console.log("Real-time statistics update completed");
+                } else {
+                    console.error("refreshData failed:", data);
                 }
             })
             .catch(err => {
@@ -644,47 +831,84 @@
         }
 
         function updateStats(dailyStats, monthlyStats) {
-            // Update daily stats (first stats grid)
-            const dailyCards = document.querySelectorAll('.stats-grid .stat-card');
+            console.log("updateStats called - Daily:", dailyStats, "Monthly:", monthlyStats);
+            
+            // Update daily stats (FIRST stats grid only)
+            const statsGrids = document.querySelectorAll('.stats-grid');
+            const dailyGrid = statsGrids[0]; // First grid is daily stats
+            const dailyCards = dailyGrid.querySelectorAll('.stat-card');
+            
             let dailyCompleted = 0;
             let dailySkipped = 0;
             
+            // Update individual window stats (excluding the last 2 total cards)
             dailyStats.forEach((stat, index) => {
-                dailyCompleted += stat.completed;
-                dailySkipped += stat.skipped;
+                dailyCompleted += parseInt(stat.completed) || 0;
+                dailySkipped += parseInt(stat.skipped) || 0;
                 if (dailyCards[index]) {
-                    dailyCards[index].querySelector('.stat-value').textContent = stat.completed;
+                    const valueElement = dailyCards[index].querySelector('.stat-value');
+                    if (valueElement) {
+                        valueElement.textContent = stat.completed || 0;
+                        console.log(`Updated ${stat.window_name} completed to:`, stat.completed);
+                    }
                 }
             });
             
-            // Update daily totals
-            const dailyTotalCards = dailyCards.length - 2;
-            if (dailyCards[dailyTotalCards]) dailyCards[dailyTotalCards].querySelector('.stat-value').textContent = dailyCompleted;
-            if (dailyCards[dailyTotalCards + 1]) dailyCards[dailyTotalCards + 1].querySelector('.stat-value').textContent = dailySkipped;
+            // Update daily totals (last 2 cards in daily grid)
+            const totalCompletedIndex = dailyCards.length - 2;
+            const totalSkippedIndex = dailyCards.length - 1;
             
-            // Update monthly stats (second stats grid)
-            const allStatsCards = document.querySelectorAll('.stats-grid .stat-card');
-            const monthlyCards = Array.from(allStatsCards).slice(dailyCards.length);
-            let monthlyCompleted = 0;
-            let monthlySkipped = 0;
+            if (dailyCards[totalCompletedIndex]) {
+                dailyCards[totalCompletedIndex].querySelector('.stat-value').textContent = dailyCompleted;
+                console.log("Updated total completed to:", dailyCompleted);
+            }
+            if (dailyCards[totalSkippedIndex]) {
+                dailyCards[totalSkippedIndex].querySelector('.stat-value').textContent = dailySkipped;
+                console.log("Updated total skipped to:", dailySkipped);
+            }
             
-            monthlyStats.forEach((stat, index) => {
-                monthlyCompleted += stat.completed;
-                monthlySkipped += stat.skipped;
-                if (monthlyCards[index]) {
-                    monthlyCards[index].querySelector('.stat-value').textContent = stat.completed;
+            console.log("Daily stats updated - Completed:", dailyCompleted, "Skipped:", dailySkipped);
+            
+            // Update monthly stats (SECOND stats grid)
+            if (statsGrids[1]) {
+                const monthlyGrid = statsGrids[1]; // Second grid is monthly stats
+                const monthlyCards = monthlyGrid.querySelectorAll('.stat-card');
+                let monthlyCompleted = 0;
+                let monthlySkipped = 0;
+                
+                monthlyStats.forEach((stat, index) => {
+                    monthlyCompleted += parseInt(stat.completed) || 0;
+                    monthlySkipped += parseInt(stat.skipped) || 0;
+                    if (monthlyCards[index]) {
+                        const valueElement = monthlyCards[index].querySelector('.stat-value');
+                        if (valueElement) {
+                            valueElement.textContent = stat.completed || 0;
+                            console.log(`Updated monthly ${stat.window_name} completed to:`, stat.completed);
+                        }
+                    }
+                });
+                
+                // Update monthly totals (last 2 cards in monthly grid)
+                const monthlyTotalCompletedIndex = monthlyCards.length - 2;
+                const monthlyTotalSkippedIndex = monthlyCards.length - 1;
+                
+                if (monthlyCards[monthlyTotalCompletedIndex]) {
+                    monthlyCards[monthlyTotalCompletedIndex].querySelector('.stat-value').textContent = monthlyCompleted;
+                    console.log("Updated monthly total completed to:", monthlyCompleted);
                 }
-            });
-            
-            // Update monthly totals
-            const monthlyTotalCards = monthlyCards.length - 2;
-            if (monthlyCards[monthlyTotalCards]) monthlyCards[monthlyTotalCards].querySelector('.stat-value').textContent = monthlyCompleted;
-            if (monthlyCards[monthlyTotalCards + 1]) monthlyCards[monthlyTotalCards + 1].querySelector('.stat-value').textContent = monthlySkipped;
+                if (monthlyCards[monthlyTotalSkippedIndex]) {
+                    monthlyCards[monthlyTotalSkippedIndex].querySelector('.stat-value').textContent = monthlySkipped;
+                    console.log("Updated monthly total skipped to:", monthlySkipped);
+                }
+                
+                console.log("Monthly stats updated - Completed:", monthlyCompleted, "Skipped:", monthlySkipped);
+            }
         }
 
         function updateTable(queueData) {
             const tbody = document.getElementById('queueTableBody');
-            const searchTerm = document.getElementById('tableSearch').value.toLowerCase();
+            const searchInput = document.getElementById('tableSearch');
+            const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
             
             tbody.innerHTML = queueData.map(queue => `
                 <tr>
@@ -718,37 +942,114 @@
             const table = $('#queueTable').DataTable({
 
                 ajax: {
-                    url: "/queueing/admin/get-queue-data",
-                    dataSrc: "data"
+                    url: "http://localhost/queueing/public/admin/get-queue-data",
+                    dataSrc: "data",
+                    cache: false, // Disable caching
+                    data: function(d) {
+                        // Add cache-busting parameter
+                        d._ = new Date().getTime();
+                        return d;
+                    },
+                    error: function(xhr, error, code) {
+                        console.error("DataTables AJAX error:", error, code);
+                        console.error("Response text:", xhr.responseText);
+                    },
+                    dataSrc: function(json) {
+                        // Debug: Log the received data structure
+                        console.log("DataTables received data:", json);
+                        console.log("Data array length:", json.data ? json.data.length : 'no data array');
+                        
+                        if (json.data && json.data.length > 0) {
+                            console.log("First record structure:", json.data[0]);
+                            console.log("Available keys in first record:", Object.keys(json.data[0]));
+                            
+                            // Check if window_name exists
+                            if (json.data[0].hasOwnProperty('window_name')) {
+                                console.log("✅ window_name field exists:", json.data[0].window_name);
+                            } else {
+                                console.log("❌ window_name field MISSING!");
+                                console.log("Available fields:", Object.keys(json.data[0]));
+                            }
+                        }
+                        return json.data;
+                    }
                 },
 
                 columns: [
-                    { data: "ticket_number" },
-                    { data: "window_name" },
+                    { 
+                        data: "ticket_number",
+                        render: function(data, type, row) {
+                            return data || 'N/A';
+                        }
+                    },
+                    { 
+                        data: "window_name",
+                        orderable: false, // Disable sorting on window column
+                        render: function(data, type, row) {
+                            return data || 'Unknown Window';
+                        }
+                    },
                     {
                         data: "status",
                         render: function (data) {
-
                             let badgeClass = "";
-
                             if (data === "waiting") badgeClass = "status-waiting";
                             if (data === "serving") badgeClass = "status-serving";
                             if (data === "completed") badgeClass = "status-completed";
                             if (data === "skipped") badgeClass = "status-skipped";
-
                             return '<span class="status-badge ' + badgeClass + '">' +
                                 data.charAt(0).toUpperCase() + data.slice(1) +
                                 '</span>';
                         }
                     },
-                    { data: "created_at" },
+                    { 
+                        data: "created_at",
+                        render: function(data) {
+                            return data || 'N/A';
+                        }
+                    },
                     {
                         data: "completed_at",
                         render: function (data) {
-                            return data ? data : "-";
+                            return data || "-";
                         }
                     }
                 ],
+
+                // Add custom dropdown filter for window column
+                initComplete: function() {
+                    this.api().columns([1]).every(function() {
+                        var column = this;
+                        var select = $('<select class="window-filter-dropdown"><option value="">All Windows</option></select>')
+                            .appendTo($(column.header()).empty())
+                            .on('change', function() {
+                                var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                                column.search(val ? '^' + val + '$' : '', true, false).draw();
+                            });
+
+                        // Get unique window names from the data
+                        var windowNames = {};
+                        column.data().unique().sort().each(function(d, j) {
+                            if (d && d !== 'Unknown Window') {
+                                windowNames[d] = d;
+                            }
+                        });
+
+                        // Add options to dropdown
+                        Object.keys(windowNames).sort().forEach(function(windowName) {
+                            select.append('<option value="' + windowName + '">' + windowName + '</option>');
+                        });
+                    });
+                },
+
+                // Disable server-side processing for real-time updates
+                serverSide: false,
+                
+                // Enable real-time updates
+                ordering: true,
+                searching: true,
+                paging: true,
+                info: true,
 
                 pageLength: 10,
 

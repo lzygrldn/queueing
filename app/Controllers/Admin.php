@@ -92,13 +92,19 @@ class Admin extends BaseController
             $this->queueModel->markAsCompleted($queueId);
             
             // Add to service records
-            $this->serviceRecordModel->addRecord([
+            $recordData = [
                 'window_id' => $queue['window_id'],
                 'ticket_number' => $queue['ticket_number'],
                 'service_date' => date('Y-m-d'),
                 'service_type' => 'completed',
-                'created_at' => date('Y-m-d H:i:s')
-            ]);
+                'created_at' => date('Y-m-d H:i:s'),
+                'daily_reset_excluded' => 0, // Include in daily stats
+                'monthly_reset_excluded' => 0 // Include in monthly stats
+            ];
+            
+            error_log("Complete queue - Adding service record: " . json_encode($recordData));
+            $result = $this->serviceRecordModel->addRecord($recordData);
+            error_log("Service record result: " . $result);
 
             // Serve next in queue
             $this->serveNext($queue['window_id']);
@@ -117,9 +123,21 @@ class Admin extends BaseController
 
         $queue = $this->queueModel->find($queueId);
         if ($queue) {
+            // Mark queue as skipped
             $this->queueModel->markAsSkipped($queueId);
 
-            // Serve next in queue (skip is not recorded as service)
+            // Record service record for statistics
+            $this->serviceRecordModel->addRecord([
+                'window_id' => $queue['window_id'],
+                'ticket_number' => $queue['ticket_number'],
+                'service_date' => date('Y-m-d'),
+                'service_type' => 'skipped',
+                'created_at' => date('Y-m-d H:i:s'),
+                'daily_reset_excluded' => 0, // Include in daily stats
+                'monthly_reset_excluded' => 0 // Include in monthly stats
+            ]);
+
+            // Serve next in queue
             $this->serveNext($queue['window_id']);
 
             return $this->response->setJSON(['success' => true]);
@@ -139,11 +157,11 @@ class Admin extends BaseController
 
         try {
             // Reset all windows current serving numbers to 0
-            $result1 = $this->windowModel->set(['current_number' => 0])->update();
+            $result1 = $this->windowModel->where('id >', 0)->set(['current_number' => 0])->update();
             error_log("Current numbers reset result: " . $result1);
             
             // Reset all windows last released numbers to 0
-            $result2 = $this->windowModel->set(['last_released' => 0])->update();
+            $result2 = $this->windowModel->where('id >', 0)->set(['last_released' => 0])->update();
             error_log("Released numbers reset result: " . $result2);
             
             // Clear ALL queue records (waiting, serving, completed, skipped)
@@ -171,6 +189,20 @@ class Admin extends BaseController
         $queues = $this->queueModel->getAllQueues();
         error_log("Queues found: " . count($queues));
         
+        // Debug: Log ALL queue data to identify duplication
+        error_log("All queue data: " . json_encode($queues));
+        
+        // Check for duplicates
+        $ticketNumbers = [];
+        foreach ($queues as $index => $queue) {
+            $ticketNumber = $queue['ticket_number'] ?? 'N/A';
+            if (isset($ticketNumbers[$ticketNumber])) {
+                error_log("DUPLICATE FOUND: '$ticketNumber' at index $ticketNumbers[$ticketNumber] and $index");
+            } else {
+                $ticketNumbers[$ticketNumber] = $index;
+            }
+        }
+        
         return $this->response->setJSON([
             'success' => true,
             'data' => $queues
@@ -188,17 +220,73 @@ class Admin extends BaseController
 
         try {
             // Reset last released numbers back to 0 for all windows
-            $result1 = $this->windowModel->set(['last_released' => 0])->update();
+            $result1 = $this->windowModel->where('id >', 0)->set(['last_released' => 0])->update();
             error_log("Released numbers reset result: " . $result1);
             
             // Also reset current serving numbers to 0
-            $result2 = $this->windowModel->set(['current_number' => 0])->update();
+            $result2 = $this->windowModel->where('id >', 0)->set(['current_number' => 0])->update();
             error_log("Current numbers reset result: " . $result2);
 
             error_log("resetNumbers completed successfully");
             return $this->response->setJSON(['success' => true]);
         } catch (Exception $e) {
             error_log("resetNumbers error: " . $e->getMessage());
+            return $this->response->setJSON(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function resetDailyStats()
+    {
+        error_log("resetDailyStats method called");
+        
+        if (!session()->get('admin_logged_in')) {
+            error_log("User not logged in for resetDailyStats");
+            return $this->response->setJSON(['success' => false, 'message' => 'Unauthorized']);
+        }
+
+        try {
+            // Mark today's service records as excluded from daily stats
+            // but keep them for monthly statistics
+            $today = date('Y-m-d');
+            $db = \Config\Database::connect();
+            $result = $db->table('service_records')
+                ->where('service_date', $today)
+                ->update(['daily_reset_excluded' => 1]);
+            
+            error_log("Daily stats reset result: " . $result);
+            error_log("resetDailyStats completed successfully");
+            return $this->response->setJSON(['success' => true]);
+        } catch (Exception $e) {
+            error_log("resetDailyStats error: " . $e->getMessage());
+            return $this->response->setJSON(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function resetMonthlyStats()
+    {
+        error_log("resetMonthlyStats method called");
+        
+        if (!session()->get('admin_logged_in')) {
+            error_log("User not logged in for resetMonthlyStats");
+            return $this->response->setJSON(['success' => false, 'message' => 'Unauthorized']);
+        }
+
+        try {
+            // Mark current month's service records as excluded from monthly stats
+            // but keep them for daily statistics
+            $year = date('Y');
+            $month = date('m');
+            $db = \Config\Database::connect();
+            $result = $db->table('service_records')
+                ->where('MONTH(service_date)', $month)
+                ->where('YEAR(service_date)', $year)
+                ->update(['monthly_reset_excluded' => 1]);
+            
+            error_log("Monthly stats reset result: " . $result);
+            error_log("resetMonthlyStats completed successfully");
+            return $this->response->setJSON(['success' => true]);
+        } catch (Exception $e) {
+            error_log("resetMonthlyStats error: " . $e->getMessage());
             return $this->response->setJSON(['success' => false, 'message' => $e->getMessage()]);
         }
     }
@@ -251,11 +339,27 @@ class Admin extends BaseController
         $year = date('Y');
         $month = date('m');
 
+        $dailyStats = $this->serviceRecordModel->getDailyStats($today);
+        $monthlyStats = $this->serviceRecordModel->getMonthlyStats($year, $month);
+        
+        // Calculate totals to verify
+        $monthlyCompleted = 0;
+        $monthlySkipped = 0;
+        foreach ($monthlyStats as $stat) {
+            $monthlyCompleted += $stat['completed'];
+            $monthlySkipped += $stat['skipped'];
+        }
+        
+        error_log("getData - Today: " . $today);
+        error_log("getData - Daily stats: " . json_encode($dailyStats));
+        error_log("getData - Monthly stats raw: " . json_encode($monthlyStats));
+        error_log("getData - Monthly calculated totals - Completed: " . $monthlyCompleted . ", Skipped: " . $monthlySkipped);
+
         return $this->response->setJSON([
             'success' => true,
             'windows' => $windows,
-            'daily_stats' => $this->serviceRecordModel->getDailyStats($today),
-            'monthly_stats' => $this->serviceRecordModel->getMonthlyStats($year, $month),
+            'daily_stats' => $dailyStats,
+            'monthly_stats' => $monthlyStats,
             'queue_data' => $this->queueModel->getQueueDataTable()
         ]);
     }
