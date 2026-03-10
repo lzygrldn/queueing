@@ -42,31 +42,46 @@ class Window extends BaseController
         return view('window/dashboard', $data);
     }
 
-    public function complete($queueId)
+    public function callNext($windowId)
     {
-        $queue = $this->queueModel->find($queueId);
-        if (!$queue) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Queue not found']);
+        $window = $this->windowModel->find($windowId);
+        if (!$window) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Window not found']);
         }
 
-        // Mark as completed
-        $this->queueModel->markAsCompleted($queueId);
+        // Get next in queue
+        $next = $this->queueModel->getNextInQueue($windowId);
+        if (!$next) {
+            return $this->response->setJSON(['success' => false, 'message' => 'No customers waiting']);
+        }
 
-        // Add to service records
-        $this->serviceRecordModel->addRecord([
-            'window_id' => $queue['window_id'],
-            'ticket_number' => $queue['ticket_number'],
-            'service_date' => date('Y-m-d'),
-            'service_type' => 'completed',
-            'created_at' => date('Y-m-d H:i:s'),
-            'daily_reset_excluded' => 0, // Include in daily stats
-            'monthly_reset_excluded' => 0 // Include in monthly stats
+        // If there's currently someone serving, complete them first
+        $currentServing = $this->queueModel->getServingByWindow($windowId);
+        if ($currentServing) {
+            // Mark current as completed
+            $this->queueModel->markAsCompleted($currentServing['id']);
+            
+            // Add to service records
+            $this->serviceRecordModel->addRecord([
+                'window_id' => $currentServing['window_id'],
+                'ticket_number' => $currentServing['ticket_number'],
+                'service_date' => date('Y-m-d'),
+                'service_type' => 'completed',
+                'created_at' => date('Y-m-d H:i:s'),
+                'daily_reset_excluded' => 0,
+                'monthly_reset_excluded' => 0
+            ]);
+        }
+
+        // Mark next as serving
+        $this->queueModel->markAsServing($next['id']);
+        $this->windowModel->updateCurrentNumber($windowId, $next['queue_number']);
+
+        return $this->response->setJSON([
+            'success' => true,
+            'window_number' => $window['window_number'],
+            'ticket_number' => $next['ticket_number']
         ]);
-
-        // Serve next
-        $this->serveNext($queue['window_id']);
-
-        return $this->response->setJSON(['success' => true]);
     }
 
     public function skip($queueId)

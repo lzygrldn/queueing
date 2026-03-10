@@ -143,18 +143,19 @@
             transition: all 0.3s;
         }
         
-        .btn-complete {
-            background: #27ae60;
+        .btn-call {
+            background: #3498db;
             color: white;
         }
         
-        .btn-complete:hover {
-            background: #219a52;
+        .btn-call:hover {
+            background: #2980b9;
             transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
         }
         
         .btn-skip {
-            background: #e74c3c;
+            background: #e67e22;
             color: white;
         }
         
@@ -230,10 +231,10 @@
         <div class="actions-card">
             <h3>Actions</h3>
             <div class="btn-group">
-                <button class="btn btn-complete" id="completeBtn" 
-                        <?= $now_serving ? '' : 'disabled' ?>
-                        onclick="completeCurrent()">
-                    COMPLETE
+                <button class="btn btn-call" id="callBtn" 
+                        <?= $waiting_count > 0 ? '' : 'disabled' ?>
+                        onclick="callNext()">
+                    CALL NEXT NUMBER
                 </button>
                 <button class="btn btn-skip" id="skipBtn" 
                         <?= $now_serving ? '' : 'disabled' ?>
@@ -248,16 +249,35 @@
         const windowId = <?= $window['id'] ?>;
         let currentQueueId = <?= $now_serving ? $now_serving['id'] : 'null' ?>;
 
-        function completeCurrent() {
-            if (!currentQueueId) return;
+        function callNext() {
+            console.log('Call Next button clicked for window:', windowId);
             
-            fetch('<?= base_url('window/complete/') ?>' + currentQueueId, {
+            fetch('<?= base_url('window/callNext/') ?>' + windowId, {
                 method: 'POST',
                 headers: { 'X-Requested-With': 'XMLHttpRequest' }
             })
             .then(r => r.json())
             .then(data => {
-                if (data.success) refreshData();
+                console.log('Call Next response:', data);
+                if (data.success) {
+                    refreshData();
+                    // Trigger blinking on display dashboard using localStorage
+                    if (data.window_number) {
+                        console.log('Setting blink event for window:', data.window_number);
+                        localStorage.setItem('blinkTicket', JSON.stringify({
+                            windowNumber: data.window_number,
+                            timestamp: Date.now()
+                        }));
+                        console.log('Blink event set in localStorage');
+                    }
+                } else {
+                    console.error('Call Next failed:', data.message);
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Network error:', error);
+                alert('Network error: ' + error.message);
             });
         }
 
@@ -285,16 +305,17 @@
                     document.getElementById('waitingCount').textContent = data.waiting_count;
                     currentQueueId = data.serving_queue_id;
                     
-                    const completeBtn = document.getElementById('completeBtn');
                     const skipBtn = document.getElementById('skipBtn');
+                    const callBtn = document.getElementById('callBtn');
                     
                     if (currentQueueId) {
-                        completeBtn.disabled = false;
                         skipBtn.disabled = false;
                     } else {
-                        completeBtn.disabled = true;
                         skipBtn.disabled = true;
                     }
+                    
+                    // Enable/disable call button based on waiting count
+                    callBtn.disabled = data.waiting_count === 0;
                     
                     // Update waiting list
                     const waitingList = document.getElementById('waitingList');

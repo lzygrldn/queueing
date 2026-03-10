@@ -13,7 +13,7 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: url('https://scontent.fdvo2-1.fna.fbcdn.net/v/t39.30808-6/481996106_1170302874765227_8636504788622766923_n.jpg?_nc_cat=109&ccb=1-7&_nc_sid=7b2446&_nc_eui2=AeGoWelGz2qGb2G2OgY23AQFwf9QUj6EIBfB_1BSPoQgF0GUc1ud75aITO5jofhQ6mUKZKKjnecwMPlmXMs6D4d-&_nc_ohc=TSO_7po_srMQ7kNvwEi4E2R&_nc_oc=AdlinGdcvp26k8UQz180kfhR_JgeMTnMIqzu17XBLc1-AqvLiE885PkLOInjGOkVnUc&_nc_zt=23&_nc_ht=scontent.fdvo2-1.fna&_nc_gid=HBpVPPO84QqzqGOFTvBOCw&_nc_ss=8&oh=00_AfzBS49HBVdpxZ9NDIMxaHZ2RfwUeZZ_sdvGrJEVzLEHhw&oe=69B440B8') center center/cover no-repeat fixed;
+            background: url('https://www.camella.com.ph/wp-content/uploads/2022/09/A-View-of-General-Santos-City-Photo-from-Kyle-Wenchell-via-Gensan-Blogs-.jpg') center center/cover no-repeat fixed;
             min-height: 100vh;
             padding: 20px;
         }
@@ -69,25 +69,26 @@
         }
         
         .instructions p {
-            font-size: 2rem;
-            text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.8);
+            font-size: 2.5rem;
+            style: bold;
+            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.9);
         }
         
         .services-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 30px;
+            gap: 50px;
         }
         
         .service-btn {
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(0, 0, 0, 0.52);
+            backdrop-filter: blur(3px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 15px;
             padding: 30px 20px;
             cursor: pointer;
             transition: all 0.3s;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
             text-align: center;
             min-height: 120px;
             display: flex;
@@ -97,23 +98,23 @@
         
         .service-btn:hover {
             transform: translateY(-5px);
-            background: rgba(0, 0, 0, 0.7);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.4);
+            background: rgba(34, 34, 34, 0.71);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
         
         .service-name {
             font-size: 1.8rem;
             font-weight: bold;
             color: white;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.9);
             margin-bottom: 5px;
         }
         
         .service-prefix {
             font-size: 1.2rem;
-            color: rgba(255, 255, 255, 0.9);
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
+            color: rgba(255, 255, 255, 0.95);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
         }
         
         /* Ticket Modal */

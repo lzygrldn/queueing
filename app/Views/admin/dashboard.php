@@ -13,7 +13,8 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f6fa;
+            background: url('https://www.baltana.com/files/wallpapers-2/Simple-Powerpoint-Background-Pics-07280.jpg') center center/cover no-repeat fixed;
+            background-color: #f5f6fa;
             min-height: 100vh;
             padding-top: 0; /* No padding needed since smooth scroll accounts for header height */
         }
@@ -407,8 +408,8 @@
                     <?php endif; ?>
                 </div>
                 <div class="window-actions">
+                    <button class="btn btn-primary btn-small" onclick="callNext(<?= $window['id'] ?>)">Call Next</button>
                     <?php if ($window['serving_queue_id']): ?>
-                    <button class="btn btn-success btn-small" onclick="completeQueue(<?= $window['serving_queue_id'] ?>)">Complete</button>
                     <button class="btn btn-danger btn-small" onclick="skipQueue(<?= $window['serving_queue_id'] ?>)">Skip</button>
                     <?php endif; ?>
                     <a href="<?= base_url('window/' . $window['window_number']) ?>?from_admin=true" class="btn-go-window btn-small">Go to Window <?= $window['window_number'] ?></a>
@@ -699,33 +700,33 @@
             setTimeout(() => notif.remove(), 3000);
         }
 
-        function completeQueue(id) {
-            console.log("completeQueue called with id:", id);
-            const url = 'http://localhost/queueing/public/admin/complete/' + id;
-            console.log("Complete URL:", url);
+        function callNext(windowId) {
+            console.log("callNext called with windowId:", windowId);
+            const url = '<?= base_url('window/callNext/') ?>' + windowId;
+            console.log("Call Next URL:", url);
             fetch(url, {
                 method: 'POST',
                 headers: { 'X-Requested-With': 'XMLHttpRequest' }
             })
             .then(r => {
-                console.log("Complete response received:", r);
+                console.log("Call Next response received:", r);
                 return r.json();
             })
             .then(data => {
-                console.log("Complete response data:", data);
+                console.log("Call Next response data:", data);
                 if (data.success) {
-                    showNotification('✅ Queue Completed Successfully');
-                    refreshData(); // This will update statistics in real-time
+                    showNotification('✅ Next Customer Called Successfully');
+                    refreshData();
                     // Refresh DataTables
                     $('#queueTable').DataTable().ajax.reload();
                 } else {
-                    console.error("Complete failed:", data.message);
-                    alert('Complete failed: ' + data.message);
+                    console.error("Call Next failed:", data.message);
+                    alert('Call Next failed: ' + data.message);
                 }
             })
             .catch(err => {
-                console.error('Complete queue error:', err);
-                alert('Error completing queue. Please try again.');
+                console.error('Call Next error:', err);
+                alert('Error calling next customer. Please try again.');
             });
         }
 
@@ -814,17 +815,11 @@
                     
                     // Update action buttons
                     if (actionsDiv) {
-                        if (window.serving_queue_id) {
-                            actionsDiv.innerHTML = `
-                                <button class="btn btn-success btn-small" onclick="completeQueue(${window.serving_queue_id})">Complete</button>
-                                <button class="btn btn-danger btn-small" onclick="skipQueue(${window.serving_queue_id})">Skip</button>
-                                <a href="<?= base_url('window/') ?>${window.window_number}?from_admin=true" class="btn-go-window btn-small">Go to Window ${window.window_number}</a>
-                            `;
-                        } else {
-                            actionsDiv.innerHTML = `
-                                <a href="<?= base_url('window/') ?>${window.window_number}?from_admin=true" class="btn-go-window btn-small">Go to Window ${window.window_number}</a>
-                            `;
-                        }
+                        actionsDiv.innerHTML = `
+                            <button class="btn btn-primary btn-small" onclick="callNext(${window.id})">Call Next</button>
+                            ${window.serving_queue_id ? `<button class="btn btn-danger btn-small" onclick="skipQueue(${window.serving_queue_id})">Skip</button>` : ''}
+                            <a href="<?= base_url('window/') ?>${window.window_number}?from_admin=true" class="btn-go-window btn-small">Go to Window ${window.window_number}</a>
+                        `;
                     }
                 }
             });

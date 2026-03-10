@@ -19,7 +19,6 @@ $routes->post('admin/reset-daily-stats', 'Admin::resetDailyStats');
 $routes->post('admin/reset-monthly-stats', 'Admin::resetMonthlyStats');
 $routes->get('admin/kiosk', 'Admin::kiosk');
 $routes->get('admin/display', 'Admin::display');
-$routes->post('admin/complete/(:num)', 'Admin::completeQueue/$1');
 $routes->post('admin/skip/(:num)', 'Admin::skipQueue/$1');
 $routes->post('admin/reset-windows', 'Admin::resetWindows');
 $routes->post('admin/reset-numbers', 'Admin::resetNumbers');
@@ -28,8 +27,8 @@ $routes->get('admin/get-data', 'Admin::getData');
 // Window Routes
 $routes->get('window', 'Window::index');
 $routes->get('window/(:num)', 'Window::index/$1');
-$routes->post('window/complete/(:num)', 'Window::complete/$1');
 $routes->post('window/skip/(:num)', 'Window::skip/$1');
+$routes->post('window/callNext/(:num)', 'Window::callNext/$1');
 $routes->get('window/data/(:num)', 'Window::getData/$1');
 
 // Kiosk Routes

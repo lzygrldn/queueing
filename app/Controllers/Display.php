@@ -41,12 +41,19 @@ class Display extends BaseController
         foreach ($windows as $window) {
             $serving = $this->queueModel->getServingByWindow($window['id']);
             $waiting = $this->queueModel->getWaitingByWindow($window['id']);
+            
+            // Get next ticket (first in waiting list)
+            $nextTicket = null;
+            if (!empty($waiting)) {
+                $nextTicket = $waiting[0]['ticket_number'];
+            }
 
             $data[] = [
                 'window_number' => $window['window_number'],
                 'window_name' => $window['window_name'],
                 'prefix' => $window['prefix'],
                 'now_serving' => $serving ? $serving['ticket_number'] : 'None',
+                'next_ticket' => $nextTicket,
                 'waiting_list' => $waiting
             ];
         }

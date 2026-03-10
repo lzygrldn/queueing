@@ -13,7 +13,8 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background: url('https://images.pexels.com/photos/326055/pexels-photo-326055.jpeg?cs=srgb&dl=pexels-pixabay-326055.jpg&fm=jpg') center center/cover no-repeat fixed;
+            background-color: #1e3c72;
             min-height: 100vh;
             padding: 20px;
         }
@@ -132,6 +133,8 @@
         
         .sort-btn:hover {
             background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
         
         .waiting-list {
@@ -163,6 +166,49 @@
             font-size: 0.9rem;
         }
         
+        .service-section {
+            margin-bottom: 30px;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .service-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .service-header h3 {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin: 0;
+        }
+        
+        .service-count {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        
+        .service-queue {
+            padding: 0;
+        }
+        
+        .no-queue {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 1.2rem;
+            padding: 40px;
+            font-style: italic;
+        }
+        
         .window-display {
             background: white;
             border-radius: 20px;
@@ -175,6 +221,52 @@
         
         .window-display:hover {
             transform: scale(1.02);
+        }
+        
+        .next-compact {
+            margin-top: 15px;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .next-label {
+            font-size: 1.2rem;
+            color: #95a5a6;
+            font-weight: normal;
+        }
+        
+        .next-ticket {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #e74c3c;
+            background: none;
+            padding: 0;
+            border-radius: 0;
+            min-height: auto;
+            display: inline;
+        }
+        
+        .next-ticket.none {
+            color: #bdc3c7;
+            font-size: 1.1rem;
+        }
+        
+        .blink {
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { 
+                background: #f8f9fa; 
+                color: #e74c3c;
+            }
+            25%, 75% { 
+                background: #e74c3c; 
+                color: white; 
+            }
         }
         
         .window-header {
@@ -261,24 +353,19 @@
                     <div class="window-header">
                         <h2 style="font-size: 2.5rem; font-weight: bold; text-align: center;">Window <?= $window['window_number'] ?> - <?= $window['prefix'] ?></h2>
                     </div>
-                    <div class="now-serving-label">Now Serving</div>
+                    <div class="now-serving-label">Now Serving:</div>
                     <div class="ticket-display <?= $window['now_serving'] === 'None' ? 'none' : '' ?>" id="window<?= $window['window_number'] ?>">
                         <?= $window['now_serving'] ?>
                     </div>
+                    
+                    <div class="next-compact">
+                        <span class="next-label">Next:</span>
+                        <span class="next-ticket" id="next<?= $window['window_number'] ?>">
+                            <?= $window['next_ticket'] ?? 'None' ?>
+                        </span>
+                    </div>
                 </div>
                 <?php endforeach; ?>
-            </div>
-        </div>
-        
-        <div class="waiting-queue-section">
-            <div class="queue-header">
-                <div class="queue-title">Waiting Queue</div>
-                <button class="sort-btn" onclick="toggleSort()">
-                    <span id="sortIcon">▼</span> Sort
-                </button>
-            </div>
-            <div class="waiting-list" id="waitingList">
-                <!-- Queue items will be populated by JavaScript -->
             </div>
         </div>
     </div>
@@ -324,45 +411,138 @@
                                 element.classList.remove('none');
                             }
                         }
-                    });
-                    
-                    // Update waiting queue
-                    allWaitingData = [];
-                    data.windows.forEach(window => {
-                        if (window.waiting_list && window.waiting_list.length > 0) {
-                            window.waiting_list.forEach(item => {
-                                allWaitingData.push({
-                                    ticket_number: item.ticket_number,
-                                    created_at: item.created_at,
-                                    window_prefix: window.prefix
-                                });
-                            });
+                        
+                        // Update next ticket display
+                        const nextElement = document.getElementById('next' + window.window_number);
+                        if (nextElement) {
+                            nextElement.textContent = window.next_ticket || 'None';
+                            if (window.next_ticket === 'None' || !window.next_ticket) {
+                                nextElement.classList.add('none');
+                            } else {
+                                nextElement.classList.remove('none');
+                            }
                         }
                     });
-                    
-                    updateWaitingQueue();
                 }
             });
         }
         
+        // Function to handle blinking when called
+        function blinkTicket(windowNumber) {
+            const ticketElement = document.getElementById('window' + windowNumber);
+            if (ticketElement && ticketElement.textContent !== 'None') {
+                ticketElement.classList.add('blink');
+                setTimeout(() => {
+                    ticketElement.classList.remove('blink');
+                }, 3000);
+            }
+        }
+        
+        // Listen for blink events using localStorage
+        window.addEventListener('storage', function(e) {
+            console.log('Storage event detected:', e.key, e.newValue);
+            if (e.key === 'blinkTicket') {
+                try {
+                    const data = JSON.parse(e.newValue);
+                    console.log('Parsed blink data:', data);
+                    if (data.windowNumber && (Date.now() - data.timestamp) < 5000) {
+                        console.log('Triggering blink for window:', data.windowNumber);
+                        blinkTicket(data.windowNumber);
+                    } else {
+                        console.log('Blink event too old or missing window number');
+                    }
+                } catch (err) {
+                    console.error('Error parsing blink event:', err);
+                }
+            }
+        });
+        
+        // Also check for recent blink events on page load
+        const recentBlink = localStorage.getItem('blinkTicket');
+        if (recentBlink) {
+            console.log('Recent blink found:', recentBlink);
+            try {
+                const data = JSON.parse(recentBlink);
+                if (data.windowNumber && (Date.now() - data.timestamp) < 5000) {
+                    console.log('Triggering delayed blink for window:', data.windowNumber);
+                    setTimeout(() => blinkTicket(data.windowNumber), 1000);
+                }
+            } catch (err) {
+                console.error('Error parsing recent blink event:', err);
+            }
+        }
+        
+        // Test function - you can run this in console to test blinking
+        window.testBlink = function(windowNumber) {
+            console.log('Test blink called for window:', windowNumber);
+            blinkTicket(windowNumber);
+        };
+        
+        // Test localStorage event
+        window.testLocalStorage = function() {
+            console.log('Testing localStorage event...');
+            localStorage.setItem('blinkTicket', JSON.stringify({
+                windowNumber: 1,
+                timestamp: Date.now()
+            }));
+        };
+        
         function updateWaitingQueue() {
             const waitingList = document.getElementById('waitingList');
             
-            // Sort data based on current order
-            let sortedData = [...allWaitingData];
-            if (currentSortOrder === 'newest') {
-                sortedData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-            } else {
-                sortedData.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-            }
+            // Group data by service type
+            const groupedData = {};
+            allWaitingData.forEach(item => {
+                const serviceType = item.window_prefix;
+                if (!groupedData[serviceType]) {
+                    groupedData[serviceType] = [];
+                }
+                groupedData[serviceType].push(item);
+            });
             
-            // Generate HTML
-            waitingList.innerHTML = sortedData.map((item, index) => `
-                <div class="queue-item">
-                    <div class="queue-ticket">${item.window_prefix}-${item.ticket_number}</div>
-                    <div class="queue-time">${formatTime(item.created_at)}</div>
-                </div>
-            `).join('');
+            // Sort each group based on current order
+            Object.keys(groupedData).forEach(serviceType => {
+                if (currentSortOrder === 'newest') {
+                    groupedData[serviceType].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                } else {
+                    groupedData[serviceType].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+                }
+            });
+            
+            // Generate HTML with service type headers
+            let html = '';
+            Object.keys(groupedData).forEach(serviceType => {
+                if (groupedData[serviceType].length > 0) {
+                    html += `
+                        <div class="service-section">
+                            <div class="service-header">
+                                <h3>${getServiceName(serviceType)}</h3>
+                                <span class="service-count">${groupedData[serviceType].length} waiting</span>
+                            </div>
+                            <div class="service-queue">
+                                ${groupedData[serviceType].map(item => `
+                                    <div class="queue-item">
+                                        <div class="queue-ticket">${item.window_prefix}-${item.ticket_number}</div>
+                                        <div class="queue-time">${formatTime(item.created_at)}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+            
+            waitingList.innerHTML = html || '<div class="no-queue">No customers waiting</div>';
+        }
+        
+        function getServiceName(prefix) {
+            const serviceNames = {
+                'PSA': 'PSA Services',
+                'BIRTH': 'Birth Registration',
+                'DEATH': 'Death Registration',
+                'MARRIAGE': 'Marriage Registration'
+            };
+            return serviceNames[prefix] || prefix;
         }
         
         function formatTime(dateString) {
@@ -383,7 +563,8 @@
                 currentSortOrder = 'newest';
                 sortIcon.textContent = '▼';
             }
-            updateWaitingQueue();
+            // Refresh data to apply new sort order to all windows
+            refreshData();
         }
         
         // Refresh data every 2 seconds
