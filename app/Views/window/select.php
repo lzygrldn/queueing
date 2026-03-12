@@ -94,7 +94,7 @@
         <div class="window-grid">
             <button class="window-btn" onclick="selectWindow(1)">
                 <div class="window-number">1</div>
-                <div class="window-name">PSA</div>
+                <div class="window-name">BREQS</div>
             </button>
             <button class="window-btn" onclick="selectWindow(2)">
                 <div class="window-number">2</div>

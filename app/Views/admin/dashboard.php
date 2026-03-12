@@ -66,6 +66,18 @@
             background: #f0f0f0;
         }
         
+        .btn-call-next {
+            background: #27ae60;
+            color: white;
+            border: none;
+        }
+        
+        .btn-call-next:hover {
+            background: #219a52;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+        }
+        
         .btn-danger {
             background: #e74c3c;
             color: white;
@@ -138,7 +150,7 @@
         }
         
         .now-serving {
-            font-size: 2.5rem;
+            font-size: 1.8rem;
             font-weight: bold;
             color: #27ae60;
             margin: 10px 0;
@@ -382,6 +394,7 @@
                 <button class="btn btn-danger" onclick="confirmResetNumbers()">Reset Released Numbers</button>
                 <button class="btn btn-danger" onclick="confirmResetDailyStats()">Reset Daily Statistics</button>
                 <button class="btn btn-danger" onclick="confirmResetMonthlyStats()">Reset Monthly Statistics</button>
+                <button class="btn btn-primary" onclick="manualRefreshTable()">🔄 Refresh Table</button>
             </div>
         </div>
     </div>
@@ -393,7 +406,7 @@
             <div class="window-widget">
                 <div class="window-header">
                     <h3>Window <?= $window['window_number'] ?></h3>
-                    <div class="prefix"><?= $window['window_name'] ?> (<?= $window['prefix'] ?>)</div>
+                    <div class="prefix"><?= $window['window_name'] ?></div>
                 </div>
                 <div class="window-info">
                     <div>Now Serving</div>
@@ -408,7 +421,7 @@
                     <?php endif; ?>
                 </div>
                 <div class="window-actions">
-                    <button class="btn btn-primary btn-small" onclick="callNext(<?= $window['id'] ?>)">Call Next</button>
+                    <button class="btn btn-call-next btn-small" onclick="callNext(<?= $window['id'] ?>)">Call Next</button>
                     <?php if ($window['serving_queue_id']): ?>
                     <button class="btn btn-danger btn-small" onclick="skipQueue(<?= $window['serving_queue_id'] ?>)">Skip</button>
                     <?php endif; ?>
@@ -550,6 +563,35 @@
             document.getElementById('confirmModal').classList.add('active');
         }
 
+        function manualRefreshTable() {
+            console.log("Manual table refresh triggered");
+            showNotification('🔄 Refreshing data table...');
+            
+            // Force clear DataTables cache
+            const table = $('#queueTable').DataTable();
+            table.ajax.reload(function(json) {
+                console.log("Manual refresh response:", json);
+                console.log("Data received:", json.data ? json.data.length : 0, "records");
+                
+                // Log all statuses in the refreshed data
+                if (json.data && json.data.length > 0) {
+                    const statuses = {};
+                    json.data.forEach(item => {
+                        const status = item.status;
+                        statuses[status] = (statuses[status] || 0) + 1;
+                    });
+                    console.log("Statuses in refreshed data:", statuses);
+                    
+                    if (statuses.waiting > 0) {
+                        console.error("⚠️ WAITING RECORDS FOUND! This should not happen!");
+                        showNotification('⚠️ Warning: Waiting records still showing!', 'error');
+                    } else {
+                        showNotification('✅ Table refreshed successfully - No waiting records found');
+                    }
+                }
+            }, false); // false = keep current page
+        }
+
         function confirmResetMonthlyStats() {
             document.getElementById('confirmMessage').textContent = 'Are you sure you want to reset all monthly statistics?';
             confirmCallback = resetMonthlyStats;
@@ -570,7 +612,7 @@
 
         function resetWindows() {
             console.log("resetWindows function called");
-            const url = 'http://localhost/queueing/public/admin/reset-windows';
+            const url = '<?= base_url('admin/reset-windows') ?>';
             console.log("Calling URL:", url);
             fetch(url, {
                 method: 'POST',
@@ -601,7 +643,7 @@
 
         function resetNumbers() {
             console.log("resetNumbers function called");
-            const url = 'http://localhost/queueing/public/admin/reset-numbers';
+            const url = '<?= base_url('admin/reset-numbers') ?>';
             console.log("Calling URL:", url);
             fetch(url, {
                 method: 'POST',
@@ -632,7 +674,7 @@
 
         function resetDailyStats() {
             console.log("resetDailyStats function called");
-            const url = 'http://localhost/queueing/public/admin/reset-daily-stats';
+            const url = '<?= base_url('admin/reset-daily-stats') ?>';
             console.log("Calling URL:", url);
             fetch(url, {
                 method: 'POST',
@@ -663,7 +705,7 @@
 
         function resetMonthlyStats() {
             console.log("resetMonthlyStats function called");
-            const url = 'http://localhost/queueing/public/admin/reset-monthly-stats';
+            const url = '<?= base_url('admin/reset-monthly-stats') ?>';
             console.log("Calling URL:", url);
             fetch(url, {
                 method: 'POST',
@@ -719,6 +761,16 @@
                     refreshData();
                     // Refresh DataTables
                     $('#queueTable').DataTable().ajax.reload();
+                    
+                    // Trigger blinking on display dashboard using localStorage
+                    if (data.window_number) {
+                        console.log('Setting blink event for window:', data.window_number);
+                        localStorage.setItem('blinkTicket', JSON.stringify({
+                            windowNumber: data.window_number,
+                            timestamp: Date.now()
+                        }));
+                        console.log('Blink event set in localStorage');
+                    }
                 } else {
                     console.error("Call Next failed:", data.message);
                     alert('Call Next failed: ' + data.message);
@@ -732,7 +784,7 @@
 
         function skipQueue(id) {
             console.log("skipQueue called with id:", id);
-            const url = 'http://localhost/queueing/public/admin/skip/' + id;
+            const url = '<?= base_url('admin/skip/') ?>' + id;
             console.log("Skip URL:", url);
             fetch(url, {
                 method: 'POST',
@@ -747,8 +799,8 @@
                 if (data.success) {
                     showNotification('⏭️ Queue Skipped Successfully');
                     refreshData(); // This will update statistics in real-time
-                    // Refresh DataTables
-                    $('#queueTable').DataTable().ajax.reload();
+                    // Refresh DataTables with cache busting
+                    $('#queueTable').DataTable().ajax.reload(null, false); // false = keep current page
                 } else {
                     console.error("Skip failed:", data.message);
                     alert('Skip failed: ' + data.message);
@@ -762,7 +814,7 @@
 
         function refreshData() {
             console.log("refreshData called - updating all statistics in real-time");
-            fetch('http://localhost/queueing/public/admin/get-data', {
+            fetch('<?= base_url('admin/get-data') ?>', {
                 headers: { 'X-Requested-With': 'XMLHttpRequest' }
             })
             .then(r => r.json())
@@ -816,7 +868,7 @@
                     // Update action buttons
                     if (actionsDiv) {
                         actionsDiv.innerHTML = `
-                            <button class="btn btn-primary btn-small" onclick="callNext(${window.id})">Call Next</button>
+                            <button class="btn btn-call-next btn-small" onclick="callNext(${window.id})">Call Next</button>
                             ${window.serving_queue_id ? `<button class="btn btn-danger btn-small" onclick="skipQueue(${window.serving_queue_id})">Skip</button>` : ''}
                             <a href="<?= base_url('window/') ?>${window.window_number}?from_admin=true" class="btn-go-window btn-small">Go to Window ${window.window_number}</a>
                         `;
@@ -937,12 +989,13 @@
             const table = $('#queueTable').DataTable({
 
                 ajax: {
-                    url: "http://localhost/queueing/public/admin/get-queue-data",
+                    url: "<?= base_url('admin/get-queue-data') ?>",
                     dataSrc: "data",
                     cache: false, // Disable caching
                     data: function(d) {
                         // Add cache-busting parameter
                         d._ = new Date().getTime();
+                        d.nocache = Math.random(); // Additional cache busting
                         return d;
                     },
                     error: function(xhr, error, code) {

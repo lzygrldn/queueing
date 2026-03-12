@@ -215,12 +215,21 @@
             margin-bottom: 8px;
         }
         
+        .preview-window {
+            font-size: 24px;
+            font-weight: bold;
+            color: #000;
+            text-align: center;
+            margin: 8px 0;
+            line-height: 1;
+        }
+        
         .preview-number {
             font-size: 32px;
             font-weight: bold;
             color: #000;
+            text-align: center;
             margin: 8px 0;
-            font-family: 'Courier New', monospace;
             line-height: 1;
         }
         
@@ -245,6 +254,65 @@
         .btn-secondary:hover {
             background: #7f8c8d;
         }
+        
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+        
+        /* Birth Options Modal */
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        /* Death Options Modal - 2 options centered */
+        .death-options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .option-btn {
+            background: rgba(0, 0, 0, 0.52);
+            backdrop-filter: blur(3px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .option-btn:hover {
+            transform: translateY(-5px);
+            background: rgba(34, 34, 34, 0.71);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .option-name {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.9);
+            margin-bottom: 5px;
+        }
+        
+        .option-desc {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.95);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
     </style>
 </head>
 <body>
@@ -255,17 +323,17 @@
         </div>
 
         <div class="services-grid">
-            <button class="service-btn" onclick="printTicket('psa')">
-                <div class="service-name">PSA</div>
+            <button class="service-btn" onclick="printTicket('breqs')">
+                <div class="service-name">BREQS</div>
                 <div class="service-prefix">Window 1</div>
             </button>
             
-            <button class="service-btn" onclick="printTicket('birth')">
+            <button class="service-btn" onclick="showBirthOptions()">
                 <div class="service-name">Birth Registration</div>
                 <div class="service-prefix">Window 2</div>
             </button>
             
-            <button class="service-btn" onclick="printTicket('death')">
+            <button class="service-btn" onclick="showDeathOptions()">
                 <div class="service-name">Death Registration</div>
                 <div class="service-prefix">Window 3</div>
             </button>
@@ -287,11 +355,56 @@
             <div class="ticket-preview" id="ticketPreview">
                 <div class="preview-header">OFFICE OF THE LOCAL CIVIL REGISTRAR</div>
                 <div class="preview-city">GENERAL SANTOS CITY</div>
+                <div class="preview-window" id="previewWindow"></div>
                 <div class="preview-number" id="previewNumber"></div>
                 <div class="preview-datetime" id="previewDateTime"></div>
             </div>
             <button class="btn-primary" onclick="printAndClose()">Print Ticket</button>
             <button class="btn-secondary" onclick="closeTicket()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Birth Options Modal -->
+    <div class="modal-overlay" id="birthOptionsModal">
+        <div class="modal">
+            <h3>Select Birth Registration Type</h3>
+            <div class="options-grid">
+                <button class="option-btn" onclick="printBirthTicket('regular')">
+                    <div class="option-name">Regular</div>
+                    <div class="option-desc">Standard birth registration</div>
+                </button>
+                <button class="option-btn" onclick="printBirthTicket('delayed')">
+                    <div class="option-name">Delayed</div>
+                    <div class="option-desc">Late registration</div>
+                </button>
+                <button class="option-btn" onclick="printBirthTicket('out-of-town')">
+                    <div class="option-name">Out-of-Town</div>
+                    <div class="option-desc">Non-local registration</div>
+                </button>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeBirthOptions()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Death Options Modal -->
+    <div class="modal-overlay" id="deathOptionsModal">
+        <div class="modal">
+            <h3>Select Death Registration Type</h3>
+            <div class="options-grid death-options-grid">
+                <button class="option-btn" onclick="printDeathTicket('regular')">
+                    <div class="option-name">Regular</div>
+                    <div class="option-desc">Standard death registration</div>
+                </button>
+                <button class="option-btn" onclick="printDeathTicket('delayed')">
+                    <div class="option-name">Delayed</div>
+                    <div class="option-desc">Late death registration</div>
+                </button>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeDeathOptions()">Cancel</button>
+            </div>
         </div>
     </div>
 
@@ -311,6 +424,7 @@
             .then(data => {
                 if (data.success) {
                     currentTicketData = data.ticket;
+                    document.getElementById('previewWindow').textContent = 'Window ' + data.ticket.window_number;
                     document.getElementById('previewNumber').textContent = data.ticket.number;
                     document.getElementById('previewDateTime').textContent = data.ticket.datetime;
                     document.getElementById('ticketModal').classList.add('active');
@@ -335,6 +449,13 @@
                             font-family: Arial, sans-serif;
                             text-align: center;
                             width: 288px;
+                        }
+                        .window-info {
+                            font-size: 40px;
+                            font-weight: bold;
+                            line-height: 1.2;
+                            margin-bottom: 8px;
+                            color: #333;
                         }
                         .header {
                             font-size: 10px;
@@ -363,6 +484,7 @@
                 <body>
                     <div class="header">OFFICE OF THE LOCAL CIVIL REGISTRAR</div>
                     <div class="city">GENERAL SANTOS CITY</div>
+                    <div class="window-info">Window ${currentTicketData.window_number}</div>
                     <div class="number">${currentTicketData.number}</div>
                     <div class="datetime">${currentTicketData.datetime}</div>
                 </body>
@@ -382,6 +504,70 @@
         function closeTicket() {
             document.getElementById('ticketModal').classList.remove('active');
             currentTicketData = null;
+        }
+        
+        function showBirthOptions() {
+            document.getElementById('birthOptionsModal').classList.add('active');
+        }
+        
+        function closeBirthOptions() {
+            document.getElementById('birthOptionsModal').classList.remove('active');
+        }
+        
+        function showDeathOptions() {
+            document.getElementById('deathOptionsModal').classList.add('active');
+        }
+        
+        function closeDeathOptions() {
+            document.getElementById('deathOptionsModal').classList.remove('active');
+        }
+        
+        function printDeathTicket(type) {
+            fetch('<?= base_url('kiosk/print') ?>', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: 'service=death-' + type
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    currentTicketData = data.ticket;
+                    document.getElementById('previewWindow').textContent = 'Window ' + data.ticket.window_number;
+                    document.getElementById('previewNumber').textContent = data.ticket.number;
+                    document.getElementById('previewDateTime').textContent = data.ticket.datetime;
+                    document.getElementById('deathOptionsModal').classList.remove('active');
+                    document.getElementById('ticketModal').classList.add('active');
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            });
+        }
+
+        function printBirthTicket(type) {
+            fetch('<?= base_url('kiosk/print') ?>', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: 'service=birth-' + type
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    currentTicketData = data.ticket;
+                    document.getElementById('previewWindow').textContent = 'Window ' + data.ticket.window_number;
+                    document.getElementById('previewNumber').textContent = data.ticket.number;
+                    document.getElementById('previewDateTime').textContent = data.ticket.datetime;
+                    document.getElementById('birthOptionsModal').classList.remove('active');
+                    document.getElementById('ticketModal').classList.add('active');
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            });
         }
 
         // Close modal on outside click

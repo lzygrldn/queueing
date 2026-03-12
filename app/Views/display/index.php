@@ -94,9 +94,11 @@
         
         .windows-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 50px;
-            align-items: left;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+            margin-top: 30px;
+            width: 100%;
+            max-width: 1400px;
         }
         
         .waiting-queue-section {
@@ -537,7 +539,7 @@
         
         function getServiceName(prefix) {
             const serviceNames = {
-                'PSA': 'PSA Services',
+                'BREQS': 'BREQS Services',
                 'BIRTH': 'Birth Registration',
                 'DEATH': 'Death Registration',
                 'MARRIAGE': 'Marriage Registration'

@@ -6,6 +6,9 @@ use CodeIgniter\Router\RouteCollection;
  * @var RouteCollection $routes
  */
 
+// Update PSA to BREQS
+$routes->get('update-psa-to-breqs', 'UpdateController::updatePsaToBreqs');
+
 // Landing page
 $routes->get('/', 'Home::index');
 
@@ -14,7 +17,7 @@ $routes->get('admin', 'Admin::index');
 $routes->post('admin/login', 'Admin::login');
 $routes->get('admin/logout', 'Admin::logout');
 $routes->post('admin/logout', 'Admin::logout');
-$routes->get('admin/get-queue-data', 'Admin::getQueueData');
+$routes->get('admin/update-psa-to-breqs', 'Admin::updatePsaToBreqs');
 $routes->post('admin/reset-daily-stats', 'Admin::resetDailyStats');
 $routes->post('admin/reset-monthly-stats', 'Admin::resetMonthlyStats');
 $routes->get('admin/kiosk', 'Admin::kiosk');

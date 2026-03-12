@@ -139,8 +139,8 @@ class CreateQueueTables extends Migration
         $data = [
             [
                 'window_number' => 1,
-                'window_name' => 'PSA',
-                'prefix' => 'PSA',
+                'window_name' => 'BREQS',
+                'prefix' => 'BREQS',
                 'current_number' => 0,
                 'last_released' => 0,
                 'status' => 'active',

@@ -123,8 +123,11 @@ class Admin extends BaseController
 
         $queue = $this->queueModel->find($queueId);
         if ($queue) {
+            error_log("Skipping queue: " . json_encode($queue));
+            
             // Mark queue as skipped
             $this->queueModel->markAsSkipped($queueId);
+            error_log("Marked queue as skipped");
 
             // Record service record for statistics
             $this->serviceRecordModel->addRecord([
@@ -139,6 +142,7 @@ class Admin extends BaseController
 
             // Serve next in queue
             $this->serveNext($queue['window_id']);
+            error_log("Called serveNext after skip");
 
             return $this->response->setJSON(['success' => true]);
         }
@@ -319,12 +323,51 @@ class Admin extends BaseController
 
     private function serveNext($windowId)
     {
+        error_log("serveNext called for windowId: " . $windowId);
+        
         $next = $this->queueModel->getNextInQueue($windowId);
+        error_log("Next in queue: " . ($next ? json_encode($next) : 'null'));
+        
         if ($next) {
-            $this->queueModel->markAsServing($next['id']);
+            $result = $this->queueModel->markAsServing($next['id']);
+            error_log("Marked as serving result: " . $result);
             $this->windowModel->updateCurrentNumber($windowId, $next['queue_number']);
+            error_log("Updated window current number to: " . $next['queue_number']);
         } else {
             $this->windowModel->updateCurrentNumber($windowId, 0);
+            error_log("No next in queue, set current number to 0");
+        }
+    }
+
+    public function updatePsaToBreqs()
+    {
+        try {
+            $db = \Config\Database::connect();
+            
+            // Update windows table
+            $result1 = $db->query("UPDATE windows SET window_name = 'BREQS', prefix = 'BREQS' WHERE window_number = 1");
+            
+            // Update any existing queue records with PSA prefix
+            $result2 = $db->query("UPDATE queues SET ticket_number = REPLACE(ticket_number, 'PSA-', 'BREQS-') WHERE ticket_number LIKE 'PSA-%'");
+            
+            // Check the results
+            $window = $db->query("SELECT * FROM windows WHERE window_number = 1")->getRow();
+            $queues = $db->query("SELECT ticket_number FROM queues WHERE ticket_number LIKE 'BREQS-%' LIMIT 3")->getResult();
+            
+            $message = "Database Updated Successfully!<br>";
+            $message .= "Window 1: " . $window->window_name . " / " . $window->prefix . "<br>";
+            $message .= "Updated " . count($queues) . " existing tickets to BREQS format";
+            
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => $message
+            ]);
+            
+        } catch (Exception $e) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ]);
         }
     }
 

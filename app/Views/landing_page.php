@@ -216,7 +216,7 @@
             <div class="menu-item window" onclick="openWindowModal()">
                 <div class="icon">🏢</div>
                 <h2>Window Staff</h2>
-                <p>Serve customers and manage queue</p>
+                <p>Serve customers and manage queue</p> 
             </div>
             
             <a href="<?= base_url('kiosk') ?>" class="menu-item kiosk">
@@ -262,7 +262,7 @@
         <div class="modal">
             <h2>Select Window</h2>
             <div class="window-grid">
-                <button class="window-btn" onclick="selectWindow(1)">Window 1<br><small>PSA</small></button>
+                <button class="window-btn" onclick="selectWindow(1)">Window 1<br><small>BREQS</small></button>
                 <button class="window-btn" onclick="selectWindow(2)">Window 2<br><small>Birth</small></button>
                 <button class="window-btn" onclick="selectWindow(3)">Window 3<br><small>Death</small></button>
                 <button class="window-btn" onclick="selectWindow(4)">Window 4<br><small>Marriage</small></button>

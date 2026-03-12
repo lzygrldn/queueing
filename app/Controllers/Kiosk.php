@@ -27,11 +27,31 @@ class Kiosk extends BaseController
         
         // Map service to window
         $serviceMap = [
-            'psa' => 1,
-            'birth' => 2,
-            'death' => 3,
+            'breqs' => 1,
+            'birth-regular' => 2,
+            'birth-delayed' => 2,
+            'birth-out-of-town' => 2,
+            'death-regular' => 3,
+            'death-delayed' => 3,
             'marriage' => 4
         ];
+        
+        // Determine ticket prefix based on service type
+        $ticketPrefix = '';
+        if (strpos($service, 'birth-') === 0) {
+            $type = substr($service, 6); // Get 'regular', 'delayed', or 'out-of-town'
+            $ticketPrefix = 'BIRTH-' . strtoupper($type);
+        } elseif (strpos($service, 'death-') === 0) {
+            $type = substr($service, 6); // Get 'regular' or 'delayed'
+            $ticketPrefix = 'DEATH-' . strtoupper($type);
+        } else {
+            // Use existing prefixes for other services
+            $prefixMap = [
+                'breqs' => 'BREQS',
+                'marriage' => 'MARRIAGE'
+            ];
+            $ticketPrefix = $prefixMap[$service] ?? 'DEATH';
+        }
         
         $windowId = $serviceMap[$service] ?? 1;
         
@@ -41,7 +61,7 @@ class Kiosk extends BaseController
         // Get next number
         $window = $this->windowModel->find($windowId);
         $nextNumber = ($window['last_released'] ?? 0) + 1;
-        $ticketNumber = $window['prefix'] . '-' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+        $ticketNumber = $ticketPrefix . '-' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
 
         // Add to queue
         $queueData = [
@@ -71,7 +91,8 @@ class Kiosk extends BaseController
             'success' => true,
             'ticket' => [
                 'number' => $ticketNumber,
-                'datetime' => $dateTimeStamp
+                'datetime' => $dateTimeStamp,
+                'window_number' => $window['window_number']
             ]
         ]);
     }

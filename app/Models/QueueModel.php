@@ -36,17 +36,40 @@ class QueueModel extends Model
     public function getAllQueues()
     {
         try {
-            // First, get all queues with their window_id
+            // First, get all queues with their window_id, excluding waiting status
             $builder = $this->db->table('queues');
             $builder->select('id, ticket_number, window_id, status, created_at, completed_at');
+            $builder->where('status', 'serving');
+            $builder->orWhere('status', 'completed');
+            $builder->orWhere('status', 'skipped');
             $builder->orderBy('id', 'DESC');
+            
+            // Log the exact SQL query
+            $sql = $builder->getCompiledSelect();
+            error_log("SQL Query: " . $sql);
             
             $queues = $builder->get()->getResultArray();
             
-            error_log("Queues found: " . count($queues));
+            error_log("Queues found (excluding waiting): " . count($queues));
             
             if (empty($queues)) {
                 return [];
+            }
+            
+            // Debug: Log all statuses found
+            $statusCounts = [];
+            foreach ($queues as $queue) {
+                $status = $queue['status'];
+                if (!isset($statusCounts[$status])) {
+                    $statusCounts[$status] = 0;
+                }
+                $statusCounts[$status]++;
+            }
+            error_log("Status distribution: " . json_encode($statusCounts));
+            
+            // Debug: Log individual queue data
+            foreach ($queues as $queue) {
+                error_log("Queue: " . json_encode($queue));
             }
             
             // Get all window names separately
@@ -101,10 +124,13 @@ class QueueModel extends Model
 
     public function markAsServing($id)
     {
-        return $this->update($id, [
+        error_log("markAsServing called for id: $id");
+        $result = $this->update($id, [
             'status' => 'serving',
             'served_at' => date('Y-m-d H:i:s')
         ]);
+        error_log("markAsServing result: $result");
+        return $result;
     }
 
     public function markAsCompleted($id)
@@ -125,21 +151,22 @@ class QueueModel extends Model
 
     public function getNextInQueue($windowId)
     {
-        return $this->where('window_id', $windowId)
+        $result = $this->where('window_id', $windowId)
                     ->where('status', 'waiting')
                     ->orderBy('queue_number', 'ASC')
                     ->first();
-    }
-
-    public function clearAllQueues()
-    {
-        return $this->where('status', 'waiting')->delete();
+        
+        error_log("getNextInQueue for windowId $windowId: " . ($result ? json_encode($result) : 'null'));
+        return $result;
     }
 
     public function getQueueDataTable()
     {
         return $this->select('queues.*, windows.window_name, windows.prefix')
                     ->join('windows', 'windows.id = queues.window_id')
+                    ->where('queues.status', 'serving')
+                    ->orWhere('queues.status', 'completed')
+                    ->orWhere('queues.status', 'skipped')
                     ->orderBy('queues.created_at', 'DESC')
                     ->findAll();
     }
