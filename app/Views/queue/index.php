@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kiosk - Queueing System</title>
+    <title>Queue - Queueing System</title>
     <style>
         * {
             margin: 0;
@@ -277,6 +277,14 @@
             margin: 20px 0;
         }
         
+        /* Marriage Options Modal - 4 options in one line */
+        .marriage-options-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
         .option-btn {
             background: rgba(0, 0, 0, 0.52);
             backdrop-filter: blur(3px);
@@ -338,7 +346,7 @@
                 <div class="service-prefix">Window 3</div>
             </button>
             
-            <button class="service-btn" onclick="printTicket('marriage')">
+            <button class="service-btn" onclick="showMarriageOptions()">
                 <div class="service-name">Marriage Registration</div>
                 <div class="service-prefix">Window 4</div>
             </button>
@@ -408,11 +416,39 @@
         </div>
     </div>
 
+    <!-- Marriage Options Modal -->
+    <div class="modal-overlay" id="marriageOptionsModal">
+        <div class="modal">
+            <h3>Select Marriage Registration Type</h3>
+            <div class="options-grid marriage-options-grid">
+                <button class="option-btn" onclick="printMarriageTicket('regular')">
+                    <div class="option-name">Regular</div>
+                    <div class="option-desc">Standard marriage registration</div>
+                </button>
+                <button class="option-btn" onclick="printMarriageTicket('delayed')">
+                    <div class="option-name">Delayed</div>
+                    <div class="option-desc">Late marriage registration</div>
+                </button>
+                <button class="option-btn" onclick="printMarriageTicket('license-endorsement')">
+                    <div class="option-name">License Endorsement</div>
+                    <div class="option-desc">Marriage license endorsement</div>
+                </button>
+                <button class="option-btn" onclick="printMarriageTicket('license-application')">
+                    <div class="option-name">License Application</div>
+                    <div class="option-desc">Marriage license application</div>
+                </button>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeMarriageOptions()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let currentTicketData = null;
         
         function printTicket(service) {
-            fetch('<?= base_url('kiosk/print') ?>', {
+            fetch('<?= base_url('queue/print') ?>', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -522,8 +558,40 @@
             document.getElementById('deathOptionsModal').classList.remove('active');
         }
         
+        function showMarriageOptions() {
+            document.getElementById('marriageOptionsModal').classList.add('active');
+        }
+        
+        function closeMarriageOptions() {
+            document.getElementById('marriageOptionsModal').classList.remove('active');
+        }
+        
+        function printMarriageTicket(type) {
+            fetch('<?= base_url('queue/print') ?>', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: 'service=marriage-' + type
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    currentTicketData = data.ticket;
+                    document.getElementById('previewWindow').textContent = 'Window ' + data.ticket.window_number;
+                    document.getElementById('previewNumber').textContent = data.ticket.number;
+                    document.getElementById('previewDateTime').textContent = data.ticket.datetime;
+                    document.getElementById('marriageOptionsModal').classList.remove('active');
+                    document.getElementById('ticketModal').classList.add('active');
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            });
+        }
+
         function printDeathTicket(type) {
-            fetch('<?= base_url('kiosk/print') ?>', {
+            fetch('<?= base_url('queue/print') ?>', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -547,7 +615,7 @@
         }
 
         function printBirthTicket(type) {
-            fetch('<?= base_url('kiosk/print') ?>', {
+            fetch('<?= base_url('queue/print') ?>', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',

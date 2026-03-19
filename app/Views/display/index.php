@@ -83,9 +83,8 @@
             display: flex;
             gap: 40px;
             max-width: 1600px;
-            margin: 0 auto;
             padding: 0 20px;
-            justify-content: space-between;
+            justify-content: center;
         }
         
         .windows-section {

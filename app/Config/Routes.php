@@ -18,6 +18,7 @@ $routes->post('admin/login', 'Admin::login');
 $routes->get('admin/logout', 'Admin::logout');
 $routes->post('admin/logout', 'Admin::logout');
 $routes->get('admin/update-psa-to-breqs', 'Admin::updatePsaToBreqs');
+$routes->post('admin/update-window-status', 'Admin::updateWindowStatus');
 $routes->post('admin/reset-daily-stats', 'Admin::resetDailyStats');
 $routes->post('admin/reset-monthly-stats', 'Admin::resetMonthlyStats');
 $routes->get('admin/kiosk', 'Admin::kiosk');
@@ -26,18 +27,25 @@ $routes->post('admin/skip/(:num)', 'Admin::skipQueue/$1');
 $routes->post('admin/reset-windows', 'Admin::resetWindows');
 $routes->post('admin/reset-numbers', 'Admin::resetNumbers');
 $routes->get('admin/get-data', 'Admin::getData');
+$routes->get('admin/customer-records', 'CustomerRecords::index');
 
 // Window Routes
-$routes->get('window', 'Window::index');
+$routes->get('window', 'Window::select');
 $routes->get('window/(:num)', 'Window::index/$1');
-$routes->post('window/skip/(:num)', 'Window::skip/$1');
 $routes->post('window/callNext/(:num)', 'Window::callNext/$1');
-$routes->get('window/data/(:num)', 'Window::getData/$1');
+$routes->post('window/skip/(:num)', 'Window::skip/$1');
+$routes->post('window/data/(:num)', 'Window::getData/$1');
+$routes->post('window/saveCustomer', 'Window::saveCustomer');
 
-// Kiosk Routes
-$routes->get('kiosk', 'Kiosk::index');
-$routes->post('kiosk/print', 'Kiosk::printTicket');
+// Queue Routes
+$routes->get('queue', 'QueueController::index');
+$routes->post('queue/print', 'QueueController::printTicket');
 
 // Display Routes
 $routes->get('display', 'Display::index');
 $routes->get('display/data', 'Display::getData');
+
+// Customer Records Routes
+$routes->get('customerRecords', 'CustomerRecords::index');
+$routes->get('customerRecords/getData', 'CustomerRecords::getData');
+$routes->get('customerRecords/export', 'CustomerRecords::export');

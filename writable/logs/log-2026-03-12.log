@@ -86,3 +86,13 @@ in APPPATH\Controllers\Admin.php on line 301.
  7 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
  8 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
  9 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2026-03-12 09:25:29 --> CodeIgniter\Exceptions\BadMethodCallException: Call to undefined method App\Models\QueueModel::getSkippedByWindow
+[Method: GET, Route: window/data/1]
+in SYSTEMPATH\Model.php on line 927.
+ 1 APPPATH\Controllers\Window.php(123): CodeIgniter\Model->__call('getSkippedByWindow', [...])
+ 2 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Window->getData('1')
+ 3 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Window))
+ 4 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))

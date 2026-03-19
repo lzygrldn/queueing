@@ -377,7 +377,8 @@
             <a href="#window-status" class="btn btn-primary">Window Status</a>
             <a href="#statistics" class="btn btn-primary">Statistics</a>
             <a href="#data-table" class="btn btn-primary">Data Table</a>
-            <a href="<?= base_url('admin/kiosk') ?>" class="btn btn-primary">Kiosk</a>
+            <a href="<?= base_url('admin/customer-records') ?>" class="btn btn-success">Customer Records</a>
+            <a href="<?= base_url('queue') ?>" class="btn btn-primary">Queue</a>
             <a href="<?= base_url('admin/display') ?>" class="btn btn-primary">Display</a>
             <form action="<?= base_url('admin/logout') ?>" method="POST" style="display: inline;">
                 <button type="submit" class="btn btn-danger">Logout</button>

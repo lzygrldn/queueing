@@ -65,7 +65,7 @@
         
         .menu-item.admin .icon { color: #e74c3c; }
         .menu-item.window .icon { color: #3498db; }
-        .menu-item.kiosk .icon { color: #2ecc71; }
+        .menu-item.queue .icon { color: #2ecc71; }
         .menu-item.display .icon { color: #f39c12; }
         
         .menu-item h2 {
@@ -219,9 +219,9 @@
                 <p>Serve customers and manage queue</p> 
             </div>
             
-            <a href="<?= base_url('kiosk') ?>" class="menu-item kiosk">
+            <a href="<?= base_url('queue') ?>" class="menu-item queue">
                 <div class="icon">🎫</div>
-                <h2>Kiosk</h2>
+                <h2>Queue</h2>
                 <p>Print tickets for customers</p>
             </a>
             

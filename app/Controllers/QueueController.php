@@ -5,7 +5,7 @@ namespace App\Controllers;
 use App\Models\WindowModel;
 use App\Models\QueueModel;
 
-class Kiosk extends BaseController
+class QueueController extends BaseController
 {
     protected $windowModel;
     protected $queueModel;
@@ -18,7 +18,7 @@ class Kiosk extends BaseController
 
     public function index()
     {
-        return view('kiosk/index');
+        return view('queue/index');
     }
 
     public function printTicket()
@@ -33,7 +33,10 @@ class Kiosk extends BaseController
             'birth-out-of-town' => 2,
             'death-regular' => 3,
             'death-delayed' => 3,
-            'marriage' => 4
+            'marriage-regular' => 4,
+            'marriage-delayed' => 4,
+            'marriage-license-endorsement' => 4,
+            'marriage-license-application' => 4
         ];
         
         // Determine ticket prefix based on service type
@@ -44,13 +47,15 @@ class Kiosk extends BaseController
         } elseif (strpos($service, 'death-') === 0) {
             $type = substr($service, 6); // Get 'regular' or 'delayed'
             $ticketPrefix = 'DEATH-' . strtoupper($type);
+        } elseif (strpos($service, 'marriage-') === 0) {
+            $type = substr($service, 9); // Get 'regular', 'delayed', 'license-endorsement', or 'license-application'
+            $ticketPrefix = 'MARRIAGE-' . strtoupper(str_replace('-', '-', $type));
         } else {
             // Use existing prefixes for other services
             $prefixMap = [
-                'breqs' => 'BREQS',
-                'marriage' => 'MARRIAGE'
+                'breqs' => 'BREQS'
             ];
-            $ticketPrefix = $prefixMap[$service] ?? 'DEATH';
+            $ticketPrefix = $prefixMap[$service] ?? 'MARRIAGE';
         }
         
         $windowId = $serviceMap[$service] ?? 1;

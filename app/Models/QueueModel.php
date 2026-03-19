@@ -170,4 +170,29 @@ class QueueModel extends Model
                     ->orderBy('queues.created_at', 'DESC')
                     ->findAll();
     }
+
+    public function getSkippedByWindow($windowId)
+    {
+        return $this->where('window_id', $windowId)
+                    ->where('status', 'skipped')
+                    ->orderBy('completed_at', 'DESC')
+                    ->findAll();
+    }
+
+    public function getCompletedByWindow($windowId)
+    {
+        return $this->where('window_id', $windowId)
+                    ->where('status', 'completed')
+                    ->orderBy('completed_at', 'DESC')
+                    ->findAll();
+    }
+
+    public function markAsWaiting($id)
+    {
+        return $this->update($id, [
+            'status' => 'waiting',
+            'served_at' => null,
+            'completed_at' => null
+        ]);
+    }
 }
