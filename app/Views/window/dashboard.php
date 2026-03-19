@@ -138,8 +138,24 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 12px;
         }
-        
+
+        .queue-item.search-highlight {
+            border: 3px solid #f39c12;
+            box-shadow: 0 0 15px rgba(243, 156, 18, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .queue-item.search-highlight::after {
+            content: '🔍';
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+        }
+
         .queue-item.selected.waiting {
             border-color: #27ae60;
             background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
@@ -320,6 +336,21 @@
             transform: translateY(-3px);
             box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
         }
+
+        .btn-call:disabled {
+            background: #95a5a6;
+            color: #ecf0f1;
+            cursor: not-allowed;
+            opacity: 0.6;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-call:disabled:hover {
+            background: #95a5a6;
+            transform: none;
+            box-shadow: none;
+        }
         
         .btn-skip {
             background: #e67e22;
@@ -386,8 +417,7 @@
             <div class="actions-card">
                 <h3>Actions</h3>
                 <div class="actions-inline">
-                    <button class="btn btn-call" id="callBtn" 
-                            <?= $waiting_count > 0 ? '' : 'disabled' ?>
+                    <button class="btn btn-call" id="callBtn" disabled
                             onclick="callNext()">
                         CALL NEXT
                     </button>
@@ -636,13 +666,43 @@
             });
         }
 
+        // Connection state management
+        let isOnline = navigator.onLine;
+        let retryCount = 0;
+        let maxRetries = 3;
+        let refreshInterval;
+
         function refreshData() {
+            // Check if we're offline
+            if (!navigator.onLine) {
+                console.warn('Device is offline, skipping data refresh');
+                return;
+            }
+
+            // Prevent too many retries
+            if (retryCount >= maxRetries) {
+                console.warn('Max retries reached, stopping refresh');
+                clearInterval(refreshInterval);
+                showConnectionError();
+                return;
+            }
+
             fetch('<?= base_url('window/data/') ?>' + windowId, {
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                timeout: 5000 // 5 second timeout
             })
-            .then(r => r.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.success) {
+                    // Reset retry count on success
+                    retryCount = 0;
+                    hideConnectionError();
+                    
                     // Update now serving
                     document.getElementById('nowServing').textContent = data.now_serving || 'None';
                     currentQueueId = data.current_queue_id || null;
@@ -680,20 +740,87 @@
                     // Restore selection after updating lists
                     setTimeout(restoreSelection, 100);
                     
-                    // Enable/disable call button based on waiting count and selection
+                    // Enable/disable call button based on selection
                     const callBtn = document.getElementById('callBtn');
-                    callBtn.disabled = data.waiting_count === 0 && !selectedQueueId;
+                    // Call button is enabled ONLY when a queue item is selected
+                    callBtn.disabled = !selectedQueueId;
                     
                     // Update customer info if there's a current serving customer
                     if (data.now_serving && data.now_serving !== 'None') {
                         updateCustomerInfo();
                     }
+                } else {
+                    throw new Error(data.message || 'Invalid response format');
+                }
+            })
+            .catch(error => {
+                retryCount++;
+                console.error('Data refresh error:', error.message);
+                
+                // Show connection error after 2 failed attempts
+                if (retryCount >= 2) {
+                    showConnectionError();
                 }
             });
         }
 
-        // Auto refresh every 2 seconds
-        setInterval(refreshData, 2000);
+        function showConnectionError() {
+            // Create or update connection error message
+            let errorDiv = document.getElementById('connectionError');
+            if (!errorDiv) {
+                errorDiv = document.createElement('div');
+                errorDiv.id = 'connectionError';
+                errorDiv.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: #e74c3c;
+                    color: white;
+                    padding: 15px 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                    z-index: 9999;
+                    font-weight: 600;
+                `;
+                document.body.appendChild(errorDiv);
+            }
+            errorDiv.innerHTML = `
+                Connection Lost ⚠️<br>
+                <small>Unable to connect to server. Please check your connection.</small>
+                <button onclick="retryConnection()" style="margin-left: 10px; padding: 5px 10px; background: white; color: #e74c3c; border: none; border-radius: 4px; cursor: pointer;">Retry</button>
+            `;
+        }
+
+        function hideConnectionError() {
+            const errorDiv = document.getElementById('connectionError');
+            if (errorDiv) {
+                errorDiv.remove();
+            }
+        }
+
+        function retryConnection() {
+            retryCount = 0;
+            hideConnectionError();
+            refreshData();
+            // Restart interval if it was stopped
+            if (!refreshInterval) {
+                refreshInterval = setInterval(refreshData, 2000);
+            }
+        }
+
+        // Monitor online/offline status
+        window.addEventListener('online', () => {
+            console.log('Connection restored');
+            retryConnection();
+        });
+
+        window.addEventListener('offline', () => {
+            console.log('Connection lost');
+            showConnectionError();
+        });
+
+        // Auto refresh every 2 seconds with error handling
+        refreshInterval = setInterval(refreshData, 2000);
 
         // Form functionality
         function generateTransactionNumber(ticketNumber) {
@@ -753,27 +880,37 @@
         }
 
         function searchCustomer() {
-            const searchTerm = document.getElementById('searchBar').value.toLowerCase();
+            const searchTerm = document.getElementById('searchBar').value.toLowerCase().trim();
             
-            if (!searchTerm) {
+            if (!searchTerm || searchTerm.length < 2) {
                 clearForm();
                 return;
             }
             
-            // Search in waiting list
-            const waitingItems = document.querySelectorAll('.waiting-item');
+            // Search in all queue items (waiting, skipped, completed)
+            const queueItems = document.querySelectorAll('.queue-item');
             let found = false;
             
-            waitingItems.forEach(item => {
-                if (item.textContent.toLowerCase().includes(searchTerm)) {
-                    const ticketNumber = item.textContent;
+            queueItems.forEach(item => {
+                const ticketNumber = item.textContent.toLowerCase();
+                if (ticketNumber.includes(searchTerm)) {
+                    const actualTicketNumber = item.textContent;
                     
                     // Auto-populate service
-                    autoPopulateService(ticketNumber);
+                    autoPopulateService(actualTicketNumber);
                     
                     // Generate and set transaction number
-                    const transactionNumber = generateTransactionNumber(ticketNumber);
+                    const transactionNumber = generateTransactionNumber(actualTicketNumber);
                     document.getElementById('transactionNumber').value = transactionNumber;
+                    
+                    // Highlight the found item
+                    // Remove previous highlights
+                    document.querySelectorAll('.queue-item.search-highlight').forEach(el => {
+                        el.classList.remove('search-highlight');
+                    });
+                    
+                    // Add highlight to found item
+                    item.classList.add('search-highlight');
                     
                     found = true;
                 }
@@ -789,8 +926,24 @@
             }
             
             if (!found) {
-                alert('Customer not found. Please check the ticket number or transaction number.');
+                // Remove any existing highlights
+                document.querySelectorAll('.queue-item.search-highlight').forEach(el => {
+                    el.classList.remove('search-highlight');
+                });
+                
+                // Only show alert if user has typed at least 3 characters
+                if (searchTerm.length >= 3) {
+                    // Don't show alert immediately, just clear form
+                    clearForm();
+                }
             }
+        }
+
+        // Debounced search function to prevent excessive calls
+        let searchTimeout;
+        function debouncedSearch() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(searchCustomer, 300);
         }
 
         // Form submission
@@ -854,11 +1007,11 @@
         });
 
         // Search functionality
-        document.getElementById('searchBar').addEventListener('input', searchCustomer);
+        document.getElementById('searchBar').addEventListener('input', debouncedSearch);
         document.getElementById('searchBar').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
-                searchCustomer();
+                searchCustomer(); // Immediate search on Enter
             }
         });
 

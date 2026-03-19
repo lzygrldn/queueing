@@ -34,7 +34,7 @@ $routes->get('window', 'Window::select');
 $routes->get('window/(:num)', 'Window::index/$1');
 $routes->post('window/callNext/(:num)', 'Window::callNext/$1');
 $routes->post('window/skip/(:num)', 'Window::skip/$1');
-$routes->post('window/data/(:num)', 'Window::getData/$1');
+$routes->get('window/data/(:num)', 'Window::getData/$1');
 $routes->post('window/saveCustomer', 'Window::saveCustomer');
 
 // Queue Routes
@@ -49,3 +49,5 @@ $routes->get('display/data', 'Display::getData');
 $routes->get('customerRecords', 'CustomerRecords::index');
 $routes->get('customerRecords/getData', 'CustomerRecords::getData');
 $routes->get('customerRecords/export', 'CustomerRecords::export');
+$routes->get('customerRecords/updateDatabase', 'CustomerRecords::updateDatabase');
+$routes->get('customerRecords/runMigration', 'CustomerRecords::runMigration');

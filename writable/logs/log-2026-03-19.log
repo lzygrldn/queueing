@@ -1,0 +1,65 @@
+ERROR - 2026-03-19 01:30:12 --> mysqli_sql_exception: Duplicate entry 'BIRTHREGISTRATION26-0319-018                ' for key 'transaction_number' in C:\xampp\htdocs\queueing\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\queueing\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `cu...', 0)
+#1 C:\xampp\htdocs\queueing\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `cu...')
+#2 C:\xampp\htdocs\queueing\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `cu...')
+#3 C:\xampp\htdocs\queueing\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `cu...', Array, false)
+#4 C:\xampp\htdocs\queueing\system\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+#5 C:\xampp\htdocs\queueing\system\BaseModel.php(838): CodeIgniter\Model->doInsert(Array)
+#6 C:\xampp\htdocs\queueing\system\Model.php(797): CodeIgniter\BaseModel->insert(Array, true)
+#7 C:\xampp\htdocs\queueing\app\Models\CustomerRecordsModel.php(83): CodeIgniter\Model->insert(Array)
+#8 C:\xampp\htdocs\queueing\app\Controllers\Window.php(218): App\Models\CustomerRecordsModel->createCustomerRecord(Array)
+#9 C:\xampp\htdocs\queueing\system\CodeIgniter.php(933): App\Controllers\Window->saveCustomer()
+#10 C:\xampp\htdocs\queueing\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Window))
+#11 C:\xampp\htdocs\queueing\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#12 C:\xampp\htdocs\queueing\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#13 C:\xampp\htdocs\queueing\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#14 C:\xampp\htdocs\queueing\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#15 {main}
+CRITICAL - 2026-03-19 07:30:31 --> Error: Class "App\Models\DateTime" not found
+[Method: GET, Route: customerRecords/updateDatabase]
+in APPPATH\Models\CustomerRecordsModel.php on line 180.
+ 1 APPPATH\Controllers\CustomerRecords.php(109): App\Models\CustomerRecordsModel->updateAllExistingRecords()
+ 2 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\CustomerRecords->updateDatabase()
+ 3 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\CustomerRecords))
+ 4 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2026-03-19 07:37:03 --> Error: Class "App\Database\Migrations\ConvertTimeColumnsToTimeType" not found
+[Method: GET, Route: customerRecords/runMigration]
+in APPPATH\Controllers\CustomerRecords.php on line 130.
+ 1 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\CustomerRecords->runMigration()
+ 2 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\CustomerRecords))
+ 3 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 4 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 5 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 6 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2026-03-19 07:54:00 --> CodeIgniter\Database\Exceptions\DataException: There is no data to update.
+[Method: POST, Route: window/callNext/2]
+in SYSTEMPATH\BaseModel.php on line 1823.
+ 1 SYSTEMPATH\BaseModel.php(1823): CodeIgniter\Database\Exceptions\DataException::forEmptyDataset('update')
+ 2 SYSTEMPATH\BaseModel.php(994): CodeIgniter\BaseModel->transformDataToArray(null, 'update')
+ 3 SYSTEMPATH\Model.php(860): CodeIgniter\BaseModel->update([...], null)
+ 4 APPPATH\Models\CustomerRecordsModel.php(126): CodeIgniter\Model->update([...])
+ 5 APPPATH\Controllers\Window.php(87): App\Models\CustomerRecordsModel->updateCustomerStatusByTicketNumber('BIRTH-017', 'completed', '2026-03-19 07:54:00')
+ 6 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Window->callNext('2')
+ 7 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Window))
+ 8 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2026-03-19 07:54:06 --> CodeIgniter\Database\Exceptions\DataException: There is no data to update.
+[Method: POST, Route: window/callNext/2]
+in SYSTEMPATH\BaseModel.php on line 1823.
+ 1 SYSTEMPATH\BaseModel.php(1823): CodeIgniter\Database\Exceptions\DataException::forEmptyDataset('update')
+ 2 SYSTEMPATH\BaseModel.php(994): CodeIgniter\BaseModel->transformDataToArray(null, 'update')
+ 3 SYSTEMPATH\Model.php(860): CodeIgniter\BaseModel->update([...], null)
+ 4 APPPATH\Models\CustomerRecordsModel.php(100): CodeIgniter\Model->update([...])
+ 5 APPPATH\Controllers\Window.php(113): App\Models\CustomerRecordsModel->updateCustomerStatus('BIRTH-OUT-OF-TOWN-01', 'serving', '2026-03-19 07:54:06')
+ 6 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Window->callNext('2')
+ 7 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Window))
+ 8 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))

@@ -990,7 +990,7 @@
             const table = $('#queueTable').DataTable({
 
                 ajax: {
-                    url: "<?= base_url('admin/get-queue-data') ?>",
+                    url: "<?= base_url('admin/get-data') ?>",
                     dataSrc: "data",
                     cache: false, // Disable caching
                     data: function(d) {

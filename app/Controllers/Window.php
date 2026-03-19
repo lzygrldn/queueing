@@ -77,8 +77,21 @@ class Window extends BaseController
         // If there's currently someone serving, complete them first
         $currentServing = $this->queueModel->getServingByWindow($windowId);
         if ($currentServing) {
-            // Mark current as completed
+            // Mark current as completed in queue
             $this->queueModel->markAsCompleted($currentServing['id']);
+            
+            // Get the completion time
+            $completionTime = date('Y-m-d H:i:s');
+            
+            // Update customer record status to completed using ticket number
+            $updated = $this->customerRecordsModel->updateCustomerStatusByTicketNumber(
+                $currentServing['ticket_number'], 
+                'completed', 
+                $completionTime
+            );
+            
+            // Debug: Log the update attempt
+            log_message('info', 'Updated customer record for ticket ' . $currentServing['ticket_number'] . ' to completed. Result: ' . ($updated ? 'success' : 'failed'));
             
             // Add to service records
             $this->serviceRecordModel->addRecord([
@@ -95,6 +108,13 @@ class Window extends BaseController
         // Mark target as serving
         $this->queueModel->markAsServing($targetQueue['id']);
         $this->windowModel->updateCurrentNumber($windowId, $targetQueue['queue_number']);
+        
+        // Update customer record status to serving for the newly called customer
+        $this->customerRecordsModel->updateCustomerStatus(
+            $targetQueue['ticket_number'], 
+            'serving', 
+            date('Y-m-d H:i:s')
+        );
 
         return $this->response->setJSON([
             'success' => true,

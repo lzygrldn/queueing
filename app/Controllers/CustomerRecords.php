@@ -99,4 +99,49 @@ class CustomerRecords extends BaseController
         fclose($output);
         exit;
     }
+
+    /**
+     * Update all existing customer records with new time format
+     */
+    public function updateDatabase()
+    {
+        try {
+            $result = $this->customerRecordsModel->updateAllExistingRecords();
+            
+            if ($result) {
+                echo "Database update started successfully! Processing all records...<br>";
+                echo "Please refresh the customer records page to see the changes.<br>";
+                echo "All time fields (queueing_time, start_time, end_time) should now show time-only format.<br>";
+                echo "Waiting time and serving time should show 'X hours Y minutes' format.";
+            } else {
+                echo "Failed to update database.";
+            }
+        } catch (Exception $e) {
+            echo "Error updating database: " . $e->getMessage();
+        }
+    }
+
+    /**
+     * Run migration to convert time columns to TIME type
+     */
+    public function runMigration()
+    {
+        try {
+            $db = \Config\Database::connect();
+            
+            // Alter table columns to TIME type
+            $sql = "ALTER TABLE customer_records 
+                    MODIFY COLUMN queueing_time TIME NULL,
+                    MODIFY COLUMN start_time TIME NULL,
+                    MODIFY COLUMN end_time TIME NULL";
+            
+            $db->query($sql);
+            
+            echo "Migration completed successfully!<br>";
+            echo "Time columns (queueing_time, start_time, end_time) are now TIME type (no date).<br>";
+            echo "Please run the database update again to populate the time-only values.";
+        } catch (Exception $e) {
+            echo "Error running migration: " . $e->getMessage();
+        }
+    }
 }
