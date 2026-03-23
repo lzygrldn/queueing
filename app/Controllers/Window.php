@@ -48,13 +48,17 @@ class Window extends BaseController
 
     public function callNext($windowId)
     {
+        log_message('info', 'callNext called for windowId: ' . $windowId);
+        
         $window = $this->windowModel->find($windowId);
         if (!$window) {
+            log_message('error', 'Window not found: ' . $windowId);
             return $this->response->setJSON(['success' => false, 'message' => 'Window not found']);
         }
 
         // Get specific queue ID from POST data if provided
         $queueId = $this->request->getPost('queue_id');
+        log_message('info', 'Queue ID from POST: ' . $queueId);
         $targetQueue = null;
         
         if ($queueId) {
@@ -77,21 +81,35 @@ class Window extends BaseController
         // If there's currently someone serving, complete them first
         $currentServing = $this->queueModel->getServingByWindow($windowId);
         if ($currentServing) {
+            log_message('info', '=== COMPLETING CURRENT SERVING ===');
+            log_message('info', 'Current serving ticket: ' . $currentServing['ticket_number']);
+            
             // Mark current as completed in queue
             $this->queueModel->markAsCompleted($currentServing['id']);
+            log_message('info', 'Marked queue item as completed');
             
-            // Get the completion time
-            $completionTime = date('Y-m-d H:i:s');
-            
-            // Update customer record status to completed using ticket number
-            $updated = $this->customerRecordsModel->updateCustomerStatusByTicketNumber(
-                $currentServing['ticket_number'], 
-                'completed', 
-                $completionTime
-            );
-            
-            // Debug: Log the update attempt
-            log_message('info', 'Updated customer record for ticket ' . $currentServing['ticket_number'] . ' to completed. Result: ' . ($updated ? 'success' : 'failed'));
+            // Complete current customer record
+            // Find by transaction_number since ticket_number was removed from table
+            $currentRecord = $this->customerRecordsModel
+                ->where('window_id', $windowId)
+                ->where('status', 'serving')
+                ->orderBy('id', 'DESC')
+                ->first();
+            if ($currentRecord) {
+                log_message('info', 'Found customer record: ' . $currentRecord['transaction_number']);
+                log_message('info', 'Current status: ' . $currentRecord['status']);
+                log_message('info', 'Start time: ' . ($currentRecord['start_time'] ?? 'NULL'));
+                
+                $updated = $this->customerRecordsModel->updateCustomerStatus($currentRecord['transaction_number'], 'completed');
+                
+                if ($updated) {
+                    log_message('info', '✓ SUCCESSFULLY completed customer record');
+                } else {
+                    log_message('error', '✗ FAILED to complete customer record');
+                }
+            } else {
+                log_message('error', '✗ NO CUSTOMER RECORD found for window: ' . $windowId);
+            }
             
             // Add to service records
             $this->serviceRecordModel->addRecord([
@@ -103,24 +121,78 @@ class Window extends BaseController
                 'daily_reset_excluded' => 0,
                 'monthly_reset_excluded' => 0
             ]);
+            log_message('info', '=== END COMPLETION ===');
+        } else {
+            log_message('info', 'No current serving customer to complete');
         }
 
         // Mark target as serving
         $this->queueModel->markAsServing($targetQueue['id']);
         $this->windowModel->updateCurrentNumber($windowId, $targetQueue['queue_number']);
         
-        // Update customer record status to serving for the newly called customer
-        $this->customerRecordsModel->updateCustomerStatus(
-            $targetQueue['ticket_number'], 
-            'serving', 
-            date('Y-m-d H:i:s')
-        );
-
-        return $this->response->setJSON([
+        // Check if customer record already exists for this window
+        $existingRecord = $this->customerRecordsModel
+            ->where('window_id', $windowId)
+            ->where('status', 'serving')
+            ->orderBy('id', 'DESC')
+            ->first();
+        $transactionNumber = '';
+        
+        if ($existingRecord) {
+            // This shouldn't happen - record should be completed when previous is done
+            log_message('error', 'Unexpected: Record already exists for window: ' . $windowId);
+            $transactionNumber = $existingRecord['transaction_number'];
+        } else {
+            // Create new customer record FIRST
+            log_message('info', 'Creating new customer record for ticket: ' . $targetQueue['ticket_number']);
+            
+            $customerRecordData = [
+                'window_id' => $windowId,
+                'window_name' => $window['window_name'],
+                'ticket_number' => $targetQueue['ticket_number'], // Keep for service extraction
+                'customer_name' => '',
+                'document_name' => '',
+                'service' => '',
+                'remarks' => '',
+                // ✅ Use queue's created_at for queueing time (when ticket was printed)
+                'created_at' => $targetQueue['created_at'] ?? date('Y-m-d H:i:s')
+            ];
+            
+            $recordId = $this->customerRecordsModel->createCustomerRecord($customerRecordData);
+            
+            if (!$recordId) {
+                log_message('error', 'Failed to create customer record for ticket: ' . $targetQueue['ticket_number']);
+                return $this->response->setJSON(['success' => false, 'message' => 'Failed to create customer record']);
+            }
+            
+            $newRecord = $this->customerRecordsModel->find($recordId);
+            if (!$newRecord) {
+                log_message('error', 'Failed to find newly created record ID: ' . $recordId);
+                return $this->response->setJSON(['success' => false, 'message' => 'Failed to find customer record']);
+            }
+            
+            $transactionNumber = $newRecord['transaction_number'];
+            log_message('info', 'Created customer record with transaction: ' . $transactionNumber);
+            log_message('info', 'Queueing time (ticket printed): ' . $newRecord['queueing_time']);
+            
+            // Start service for new record (sets start_time when callNext clicked)
+            $started = $this->customerRecordsModel->startService($transactionNumber);
+            if ($started) {
+                log_message('info', 'Started service for: ' . $transactionNumber);
+            } else {
+                log_message('error', 'Failed to start service for: ' . $transactionNumber);
+            }
+        }
+        
+        $response = [
             'success' => true,
             'window_number' => $window['window_number'],
             'ticket_number' => $targetQueue['ticket_number']
-        ]);
+        ];
+        
+        log_message('info', 'callNext response: ' . json_encode($response));
+        
+        return $this->response->setJSON($response);
     }
 
     public function skip($queueId)
@@ -130,8 +202,19 @@ class Window extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'Queue not found']);
         }
 
-        // Mark as skipped
+        // Mark as skipped in queue
         $this->queueModel->markAsSkipped($queueId);
+
+        // Update customer record status to skipped
+        $record = $this->customerRecordsModel
+            ->where('window_id', $queue['window_id'])
+            ->where('status', 'serving')
+            ->orderBy('id', 'DESC')
+            ->first();
+        if ($record) {
+            $this->customerRecordsModel->updateCustomerStatus($record['transaction_number'], 'skipped');
+            log_message('info', 'Skipped customer record for window: ' . $queue['window_id']);
+        }
 
         // Add to service records for statistics
         $this->serviceRecordModel->addRecord([
@@ -197,56 +280,60 @@ class Window extends BaseController
 
     public function saveCustomer()
     {
-        $transactionNumber = $this->request->getPost('transactionNumber');
         $customerName = $this->request->getPost('customerName');
         $documentName = $this->request->getPost('documentName');
         $service = $this->request->getPost('service');
         $remarks = $this->request->getPost('remarks');
         
-        // Validate required fields
-        if (!$transactionNumber || !$customerName || !$documentName || !$service) {
-            return $this->response->setJSON([
-                'success' => false,
-                'message' => 'Please fill in all required fields'
-            ]);
-        }
-        
-        // Extract window info from transaction number or get from session
+        // Get window info
         $windowId = $this->request->getPost('window_id');
         $windowName = $this->request->getPost('window_name');
         
-        // Get current serving queue item to extract ticket number
-        $currentServing = null;
-        if ($windowId) {
-            $currentServing = $this->queueModel->getServingByWindow($windowId);
+        // Get current serving queue item
+        $currentServing = $this->queueModel->getServingByWindow($windowId);
+        if (!$currentServing) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'No customer currently being served'
+            ]);
         }
         
-        $customerData = [
-            'transaction_number' => $transactionNumber,
-            'window_id' => $windowId,
-            'window_name' => $windowName,
-            'ticket_number' => $currentServing ? $currentServing['ticket_number'] : '',
+        // Find existing customer record for current serving ticket
+        $existingRecord = $this->customerRecordsModel
+            ->where('window_id', $windowId)
+            ->where('status', 'serving')
+            ->orderBy('id', 'DESC')
+            ->first();
+        if (!$existingRecord) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'No customer record found for current serving ticket'
+            ]);
+        }
+        
+        // Update the existing record with customer information
+        $updateData = [
             'customer_name' => $customerName,
             'document_name' => $documentName,
             'service' => $service,
             'remarks' => $remarks,
-            'status' => 'serving',
-            'queue_id' => $currentServing ? $currentServing['id'] : null
+            'window_id' => $windowId,
+            'window_name' => $windowName
         ];
         
         try {
-            $recordId = $this->customerRecordsModel->createCustomerRecord($customerData);
+            $updated = $this->customerRecordsModel->update($existingRecord['id'], $updateData);
             
-            if ($recordId) {
+            if ($updated) {
                 return $this->response->setJSON([
                     'success' => true,
-                    'message' => 'Customer information saved successfully',
-                    'record_id' => $recordId
+                    'message' => 'Customer information updated successfully',
+                    'record_id' => $existingRecord['id']
                 ]);
             } else {
                 return $this->response->setJSON([
                     'success' => false,
-                    'message' => 'Failed to save customer information'
+                    'message' => 'Failed to update customer information'
                 ]);
             }
         } catch (\Exception $e) {

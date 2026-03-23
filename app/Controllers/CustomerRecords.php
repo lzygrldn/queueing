@@ -1,5 +1,5 @@
 <?php
-
+ 
 namespace App\Controllers;
 
 use App\Models\CustomerRecordsModel;
@@ -51,37 +51,34 @@ class CustomerRecords extends BaseController
         $csvData = [];
         $csvData[] = [
             'Transaction Number',
+            'Customer Name',
+            'Document Name',
+            'Service',
+            'Remarks',
             'Window',
             'Status',
-            'Created At',
             'Queueing Time',
             'Start Time',
             'End Time',
             'Waiting Time',
             'Serving Time',
-            'Ticket Number',
-            'Customer Name',
-            'Document Name',
-            'Service',
-            'Remarks'
         ];
         
         foreach ($records as $record) {
             $csvData[] = [
                 $record['transaction_number'],
+                $record['customer_name'],
+                $record['document_name'],
+                $record['service'],
+                $record['remarks'] ?: '',
                 $record['window_name'] . ' (Window ' . $record['window_number'] . ')',
                 ucfirst($record['status']),
-                $record['created_at'],
                 $record['queueing_time'] ?: '',
                 $record['start_time'] ?: '',
                 $record['end_time'] ?: '',
                 $record['waiting_time'] ?: '',
                 $record['serving_time'] ?: '',
-                $record['ticket_number'],
-                $record['customer_name'],
-                $record['document_name'],
-                $record['service'],
-                $record['remarks'] ?: ''
+               
             ];
         }
         

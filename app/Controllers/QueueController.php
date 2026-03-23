@@ -43,13 +43,13 @@ class QueueController extends BaseController
         $ticketPrefix = '';
         if (strpos($service, 'birth-') === 0) {
             $type = substr($service, 6); // Get 'regular', 'delayed', or 'out-of-town'
-            $ticketPrefix = 'BIRTH-' . strtoupper($type);
+            $ticketPrefix = 'BIRTH-' . strtoupper(str_replace('-', '', $type));
         } elseif (strpos($service, 'death-') === 0) {
             $type = substr($service, 6); // Get 'regular' or 'delayed'
-            $ticketPrefix = 'DEATH-' . strtoupper($type);
+            $ticketPrefix = 'DEATH-' . strtoupper(str_replace('-', '', $type));
         } elseif (strpos($service, 'marriage-') === 0) {
             $type = substr($service, 9); // Get 'regular', 'delayed', 'license-endorsement', or 'license-application'
-            $ticketPrefix = 'MARRIAGE-' . strtoupper(str_replace('-', '-', $type));
+            $ticketPrefix = 'MARRIAGE-' . strtoupper(str_replace('-', '', $type));
         } else {
             // Use existing prefixes for other services
             $prefixMap = [

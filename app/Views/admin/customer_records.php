@@ -427,7 +427,7 @@
                         render: function(data) {
                             // Only show Completed and Skipped, hide Serving
                             if (data === 'serving') {
-                                return '<span class="status-badge status-completed">Completed</span>';
+                                return '<span class="status-badge status-serving">Serving</span>';
                             }
                             const statusClass = 'status-' + data.toLowerCase();
                             return '<span class="status-badge ' + statusClass + '">' + data.charAt(0).toUpperCase() + data.slice(1) + '</span>';
