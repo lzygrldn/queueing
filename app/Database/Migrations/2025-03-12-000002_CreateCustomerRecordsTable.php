@@ -52,19 +52,19 @@ class CreateCustomerRecordsTable extends Migration
             ],
             'status' => [
                 'type' => 'ENUM',
-                'constraint' => ['serving', 'completed', 'pending'],
+                'constraint' => ['serving', 'completed', 'skipped'],
                 'default' => 'serving',
             ],
             'queueing_time' => [
-                'type' => 'DATETIME',
+                'type' => 'TIME',
                 'null' => true,
             ],
             'start_time' => [
-                'type' => 'DATETIME',
+                'type' => 'TIME',
                 'null' => true,
             ],
             'end_time' => [
-                'type' => 'DATETIME',
+                'type' => 'TIME',
                 'null' => true,
             ],
             'waiting_time' => [

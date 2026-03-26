@@ -42,12 +42,8 @@ class CustomerRecordsModel extends Model
             $builder->where('customer_records.window_id', $windowId);
         }
 
-        if ($startDate && $endDate) {
-            $builder->where('customer_records.created_at >=', $startDate . ' 00:00:00');
-            $builder->where('customer_records.created_at <=', $endDate . ' 23:59:59');
-        }
-
-        return $builder->orderBy('customer_records.created_at', 'DESC')->findAll();
+        // Since created_at was removed, we'll sort by queueing_time or id
+        return $builder->orderBy('customer_records.id', 'DESC')->findAll();
     }
 
     public function getCustomerRecordByTransactionNumber($transactionNumber)
@@ -102,7 +98,8 @@ class CustomerRecordsModel extends Model
         $transactionNumber = $this->generateTransactionNumber($service, $queueData['ticket_number']);
 
         // Use queue's created_at for queueing time (when ticket was printed)
-        $queueingTime = $queueData['created_at'] ?? date('Y-m-d H:i:s');
+        // Extract TIME part from DATETIME
+        $queueingTime = date('H:i:s', strtotime($queueData['created_at'] ?? date('Y-m-d H:i:s')));
 
         $data = [
             'transaction_number' => $transactionNumber,
@@ -114,7 +111,7 @@ class CustomerRecordsModel extends Model
             'remarks' => $queueData['remarks'],
             'status' => 'serving',
 
-            // ✅ TIME WHEN TICKET WAS PRINTED (from queue created_at)
+            // ✅ TIME ONLY (when ticket was printed)
             'queueing_time' => $queueingTime,
         ];
 
@@ -132,12 +129,25 @@ class CustomerRecordsModel extends Model
 
         if (!$record) return false;
 
-        $startTime = date('Y-m-d H:i:s');
+        // Store TIME only (when callNext clicked)
+        $startTime = date('H:i:s');
 
-        $waitingTime = $this->calculateWaitingTime(
-            $record['queueing_time'],
-            $startTime
-        );
+        // For waiting time calculation, we need to create full datetime
+        // Handle invalid queueing_time format
+        $queueingTime = $record['queueing_time'];
+        if (!$queueingTime || strpos($queueingTime, '0000-00-00') !== false) {
+            log_message('error', 'Invalid queueing_time in startService: ' . $queueingTime);
+            $waitingTime = '0 hours 0 minutes';
+        } else {
+            // Extract time part if it's a full datetime
+            if (strlen($queueingTime) > 8) {
+                $queueingTime = date('H:i:s', strtotime($queueingTime));
+            }
+            
+            $queueingDateTime = date('Y-m-d') . ' ' . $queueingTime;
+            $startDateTime = date('Y-m-d') . ' ' . $startTime;
+            $waitingTime = $this->calculateWaitingTime($queueingDateTime, $startDateTime);
+        }
 
         return $this->update($record['id'], [
             'start_time' => $startTime,
@@ -161,31 +171,58 @@ class CustomerRecordsModel extends Model
             return false;
         }
 
-        log_message('info', 'Found record: ' . json_encode([
-            'id' => $record['id'],
-            'status' => $record['status'],
-            'start_time' => $record['start_time'],
-            'queueing_time' => $record['queueing_time']
-        ]));
+        log_message('info', 'Found record ID: ' . $record['id']);
+        log_message('info', 'Record status: ' . $record['status']);
+        log_message('info', 'Record start_time: ' . ($record['start_time'] ?? 'NULL'));
+        log_message('info', 'Record queueing_time: ' . ($record['queueing_time'] ?? 'NULL'));
 
-        $endTime = date('Y-m-d H:i:s');
+        // Store TIME only (when next callNext clicked)
+        $endTime = date('H:i:s');
         log_message('info', 'Setting end time to: ' . $endTime);
 
-        $servingTime = $this->calculateServiceTime(
-            $record['start_time'],
-            $endTime
-        );
+        $servingTime = '0 hours 0 minutes'; // Default
+        if ($record['start_time'] && strpos($record['start_time'], '0000-00-00') === false) {
+            // For serving time calculation, create full datetime
+            $startDateTime = date('Y-m-d') . ' ' . $record['start_time'];
+            $endDateTime = date('Y-m-d') . ' ' . $endTime;
+            $servingTime = $this->calculateServiceTime($startDateTime, $endDateTime);
+        }
 
-        $result = $this->where('transaction_number', $transactionNumber)
-            ->update([
-                'status' => $status, // completed OR skipped
-                'end_time' => $endTime,
-                'serving_time' => $servingTime
-            ]);
+        $updateData = [
+            'status' => $status,
+            'end_time' => $endTime,
+            'serving_time' => $servingTime
+        ];
 
-        log_message('info', 'Update result: ' . ($result ? 'success' : 'failed'));
-        
-        return $result;
+        // Calculate waiting time if not already set and times are valid
+        if ($record['queueing_time'] && $record['start_time'] && empty($record['waiting_time'])) {
+            if (strpos($record['queueing_time'], '0000-00-00') === false && strpos($record['start_time'], '0000-00-00') === false) {
+                $queueingDateTime = date('Y-m-d') . ' ' . $record['queueing_time'];
+                $startDateTime = date('Y-m-d') . ' ' . $record['start_time'];
+                $updateData['waiting_time'] = $this->calculateWaitingTime($queueingDateTime, $startDateTime);
+            }
+        }
+
+        log_message('info', 'Update data prepared: ' . json_encode($updateData));
+        log_message('info', 'Update data count: ' . count($updateData));
+
+        // Always ensure we have the minimum required data
+        if (count($updateData) < 3) {
+            log_message('error', 'Insufficient data to update for transaction: ' . $transactionNumber);
+            return false;
+        }
+
+        try {
+            $result = $this->where('transaction_number', $transactionNumber)
+                ->update($updateData);
+
+            log_message('info', 'Update result: ' . ($result ? 'success' : 'failed'));
+            
+            return $result;
+        } catch (\Exception $e) {
+            log_message('error', 'Exception during update: ' . $e->getMessage());
+            return false;
+        }
     }
 
     /*
@@ -195,19 +232,89 @@ class CustomerRecordsModel extends Model
     */
     private function calculateWaitingTime($queueingTime, $startTime)
     {
-        $queue = new \DateTime($queueingTime);
-        $start = new \DateTime($startTime);
-        $diff = $queue->diff($start);
+        try {
+            if (!$queueingTime || !$startTime) {
+                return '0 hours 0 minutes';
+            }
+            
+            // Handle invalid time formats like "2026-03-24 0000-00-00 00:00:00"
+            if (strpos($queueingTime, '0000-00-00') !== false) {
+                log_message('error', 'Invalid queueing_time format: ' . $queueingTime);
+                return '0 hours 0 minutes';
+            }
+            
+            if (strpos($startTime, '0000-00-00') !== false) {
+                log_message('error', 'Invalid start_time format: ' . $startTime);
+                return '0 hours 0 minutes';
+            }
+            
+            // Extract time part if it's a full datetime
+            if (strlen($queueingTime) > 8) {
+                $queueingTime = date('H:i:s', strtotime($queueingTime));
+            }
+            if (strlen($startTime) > 8) {
+                $startTime = date('H:i:s', strtotime($startTime));
+            }
+            
+            // Create datetime objects with current date
+            $today = date('Y-m-d');
+            $queue = new \DateTime($today . ' ' . $queueingTime);
+            $start = new \DateTime($today . ' ' . $startTime);
+            $diff = $queue->diff($start);
 
-        return $diff->h . ' hour(s) ' . $diff->i . ' minute(s)';
+            if ($diff->h == 0 && $diff->i == 0) {
+                return 'Less than 1 minute';
+            }
+            
+            return $diff->h . ' hour(s) ' . $diff->i . ' minute(s)';
+        } catch (\Exception $e) {
+            log_message('error', 'Error calculating waiting time: ' . $e->getMessage());
+            log_message('error', 'Queueing time: ' . $queueingTime . ', Start time: ' . $startTime);
+            return '0 hours 0 minutes';
+        }
     }
 
     private function calculateServiceTime($startTime, $endTime)
     {
-        $start = new \DateTime($startTime);
-        $end = new \DateTime($endTime);
-        $diff = $start->diff($end);
+        try {
+            if (!$startTime || !$endTime) {
+                return '0 hours 0 minutes';
+            }
+            
+            // Handle invalid time formats like "2026-03-24 0000-00-00 00:00:00"
+            if (strpos($startTime, '0000-00-00') !== false) {
+                log_message('error', 'Invalid start_time format: ' . $startTime);
+                return '0 hours 0 minutes';
+            }
+            
+            if (strpos($endTime, '0000-00-00') !== false) {
+                log_message('error', 'Invalid end_time format: ' . $endTime);
+                return '0 hours 0 minutes';
+            }
+            
+            // Extract time part if it's a full datetime
+            if (strlen($startTime) > 8) {
+                $startTime = date('H:i:s', strtotime($startTime));
+            }
+            if (strlen($endTime) > 8) {
+                $endTime = date('H:i:s', strtotime($endTime));
+            }
+            
+            // Create datetime objects with current date
+            $today = date('Y-m-d');
+            $start = new \DateTime($today . ' ' . $startTime);
+            $end = new \DateTime($today . ' ' . $endTime);
+            $diff = $start->diff($end);
 
-        return $diff->h . ' hour(s) ' . $diff->i . ' minute(s)';
+            if ($diff->h == 0 && $diff->i == 0) {
+                return 'Less than 1 minute';
+            }
+            
+            return $diff->h . ' hour(s) ' . $diff->i . ' minute(s)';
+        } catch (\Exception $e) {
+            log_message('error', 'Error calculating service time: ' . $e->getMessage());
+            log_message('error', 'Start time: ' . $startTime . ', End time: ' . $endTime);
+            return '0 hours 0 minutes';
+        }
     }
 }

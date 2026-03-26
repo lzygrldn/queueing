@@ -362,6 +362,17 @@
             transform: translateY(-3px);
         }
         
+        .btn-complete {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .btn-complete:hover {
+            background: #229954;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+        }
+        
         .btn:disabled {
             background: #bdc3c7;
             cursor: not-allowed;
@@ -420,6 +431,11 @@
                     <button class="btn btn-call" id="callBtn" disabled
                             onclick="callNext()">
                         CALL NEXT
+                    </button>
+                    <button class="btn btn-complete" id="completeBtn" 
+                            <?= $now_serving ? '' : 'disabled' ?>
+                            onclick="completeCurrent()">
+                        COMPLETE
                     </button>
                     <button class="btn btn-skip" id="skipBtn" 
                             <?= $now_serving ? '' : 'disabled' ?>
@@ -546,6 +562,13 @@
             if (e.target.classList.contains('queue-item')) {
                 const queueId = e.target.dataset.id;
                 const ticketNumber = e.target.dataset.ticket;
+                const isCompleted = e.target.classList.contains('completed');
+                
+                console.log('Queue item clicked:');
+                console.log('- Queue ID:', queueId);
+                console.log('- Ticket Number:', ticketNumber);
+                console.log('- Is Completed:', isCompleted);
+                console.log('- Classes:', e.target.className);
                 
                 // Check if clicking the same item (unselect)
                 if (selectedQueueId === queueId) {
@@ -575,12 +598,20 @@
                     // Enable call button
                     document.getElementById('callBtn').disabled = false;
                     
-                    // Update customer form
-                    autoPopulateService(selectedTicketNumber);
-                    const transactionNumber = generateTransactionNumber(selectedTicketNumber);
-                    document.getElementById('transactionNumber').value = transactionNumber;
+                    // Handle form population based on item status
+                    if (isCompleted) {
+                        console.log('Calling loadCustomerData for completed item');
+                        // Load customer data for completed items
+                        loadCustomerData(ticketNumber);
+                    } else {
+                        console.log('Calling autoPopulateService for non-completed item');
+                        // Auto populate service for waiting/skipped items
+                        autoPopulateService(selectedTicketNumber);
+                        const transactionNumber = generateTransactionNumber(selectedTicketNumber);
+                        document.getElementById('transactionNumber').value = transactionNumber;
+                    }
                     
-                    console.log('Selected queue item:', ticketNumber, 'ID:', queueId);
+                    console.log('Selected queue item:', ticketNumber, 'ID:', queueId, 'Completed:', isCompleted);
                 }
             }
         });
@@ -665,6 +696,70 @@
                 }
             });
         }
+        
+        function completeCurrent() {
+            if (!currentQueueId) return;
+            
+            // Complete current transaction without calling next
+            fetch('<?= base_url('window/complete/') ?>' + currentQueueId, {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    refreshData();
+                    // Enable call next button after completion
+                    document.getElementById('callBtn').disabled = false;
+                }
+            });
+        }
+        
+        function loadCustomerData(ticketNumber) {
+            console.log('loadCustomerData called for ticket:', ticketNumber);
+            
+            // Fetch customer data for completed ticket
+            fetch('<?= base_url('window/getCustomerData/') ?>' + ticketNumber, {
+                method: 'GET',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(r => {
+                console.log('Response status:', r.status);
+                return r.json();
+            })
+            .then(data => {
+                console.log('Received data:', data);
+                
+                if (data.success && data.customer) {
+                    console.log('Customer data found:', data.customer);
+                    
+                    // Populate form with customer data
+                    document.getElementById('customerName').value = data.customer.customer_name || '';
+                    document.getElementById('documentName').value = data.customer.document_name || '';
+                    document.getElementById('service').value = data.customer.service || '';
+                    document.getElementById('remarks').value = data.customer.remarks || '';
+                    document.getElementById('transactionNumber').value = data.customer.transaction_number || '';
+                    
+                    console.log('Form populated successfully');
+                    console.log('Customer Name set to:', data.customer.customer_name);
+                    console.log('Document Name set to:', data.customer.document_name);
+                } else {
+                    console.log('No customer data found, falling back to service auto-population');
+                    // Fallback to auto-populate service if no customer data found
+                    autoPopulateService(ticketNumber);
+                    const transactionNumber = generateTransactionNumber(ticketNumber);
+                    document.getElementById('transactionNumber').value = transactionNumber;
+                    console.log('No customer data found for completed ticket:', ticketNumber);
+                }
+            })
+            .catch(error => {
+                console.error('Error loading customer data:', error);
+                // Fallback to auto-populate service on error
+                autoPopulateService(ticketNumber);
+                const transactionNumber = generateTransactionNumber(ticketNumber);
+                document.getElementById('transactionNumber').value = transactionNumber;
+            });
+        }
 
         // Connection state management
         let isOnline = navigator.onLine;
@@ -740,10 +835,23 @@
                     // Restore selection after updating lists
                     setTimeout(restoreSelection, 100);
                     
-                    // Enable/disable call button based on selection
+                    // Enable/disable call button based on selection and current serving
                     const callBtn = document.getElementById('callBtn');
-                    // Call button is enabled ONLY when a queue item is selected
-                    callBtn.disabled = !selectedQueueId;
+                    const completeBtn = document.getElementById('completeBtn');
+                    const skipBtn = document.getElementById('skipBtn');
+                    
+                    // If there's a current serving customer, disable Call Next and enable Complete/Skip
+                    if (data.now_serving && data.now_serving !== 'None') {
+                        callBtn.disabled = true;
+                        completeBtn.disabled = false;
+                        skipBtn.disabled = false;
+                    } else {
+                        // No current serving, enable Call Next if there are waiting customers
+                        const waitingCount = document.querySelectorAll('#waitingList .queue-item').length;
+                        callBtn.disabled = waitingCount === 0 && !selectedQueueId;
+                        completeBtn.disabled = true;
+                        skipBtn.disabled = true;
+                    }
                     
                     // Update customer info if there's a current serving customer
                     if (data.now_serving && data.now_serving !== 'None') {

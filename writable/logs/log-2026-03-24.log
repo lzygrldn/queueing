@@ -1,0 +1,632 @@
+ERROR - 2026-03-24 00:24:24 --> mysqli_sql_exception: Unknown column 'customer_records.created_at' in 'where clause' in C:\xampp\htdocs\queueing\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\queueing\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT `custome...', 0)
+#1 C:\xampp\htdocs\queueing\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `custome...')
+#2 C:\xampp\htdocs\queueing\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `custome...')
+#3 C:\xampp\htdocs\queueing\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `custome...', Array, false)
+#4 C:\xampp\htdocs\queueing\system\Model.php(286): CodeIgniter\Database\BaseBuilder->get()
+#5 C:\xampp\htdocs\queueing\system\BaseModel.php(677): CodeIgniter\Model->doFindAll(0, 0)
+#6 C:\xampp\htdocs\queueing\app\Models\CustomerRecordsModel.php(50): CodeIgniter\BaseModel->findAll()
+#7 C:\xampp\htdocs\queueing\app\Controllers\CustomerRecords.php(34): App\Models\CustomerRecordsModel->getCustomerRecords('', '2026-03-24', '2026-03-24')
+#8 C:\xampp\htdocs\queueing\system\CodeIgniter.php(933): App\Controllers\CustomerRecords->getData()
+#9 C:\xampp\htdocs\queueing\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\CustomerRecords))
+#10 C:\xampp\htdocs\queueing\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#11 C:\xampp\htdocs\queueing\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#12 C:\xampp\htdocs\queueing\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#13 C:\xampp\htdocs\queueing\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#14 {main}
+CRITICAL - 2026-03-24 00:24:24 --> CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'customer_records.created_at' in 'where clause'
+[Method: GET, Route: customerRecords/getData]
+in SYSTEMPATH\Database\BaseConnection.php on line 684.
+ 1 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `customer_records`.*, `windows`.`window_name`, `windows`.`window_number`
+FROM `customer_records`
+JOIN `windows` ON `windows`.`id` = `customer_records`.`window_id`
+WHERE `customer_records`.`status` IN :customer_records.status:
+AND `customer_records`.`created_at` >= :customer_records.created_at:
+AND `customer_records`.`created_at` <= :customer_records.created_at.1:
+ORDER BY `customer_records`.`created_at` DESC', [...], false)
+ 2 SYSTEMPATH\Model.php(286): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH\BaseModel.php(677): CodeIgniter\Model->doFindAll(0, 0)
+ 4 APPPATH\Models\CustomerRecordsModel.php(50): CodeIgniter\BaseModel->findAll()
+ 5 APPPATH\Controllers\CustomerRecords.php(34): App\Models\CustomerRecordsModel->getCustomerRecords('', '2026-03-24', '2026-03-24')
+ 6 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\CustomerRecords->getData()
+ 7 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\CustomerRecords))
+ 8 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2026-03-24 00:24:24 --> [Caused by] CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'customer_records.created_at' in 'where clause'
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 332.
+ 1 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `customer_records`.*, `windows`.`window_name`, `windows`.`window_number`
+FROM `customer_records`
+JOIN `windows` ON `windows`.`id` = `customer_records`.`window_id`
+WHERE `customer_records`.`status` IN (\'completed\',\'skipped\')
+AND `customer_records`.`created_at` >= \'2026-03-24 00:00:00\'
+AND `customer_records`.`created_at` <= \'2026-03-24 23:59:59\'
+ORDER BY `customer_records`.`created_at` DESC')
+ 2 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `customer_records`.*, `windows`.`window_name`, `windows`.`window_number`
+FROM `customer_records`
+JOIN `windows` ON `windows`.`id` = `customer_records`.`window_id`
+WHERE `customer_records`.`status` IN (\'completed\',\'skipped\')
+AND `customer_records`.`created_at` >= \'2026-03-24 00:00:00\'
+AND `customer_records`.`created_at` <= \'2026-03-24 23:59:59\'
+ORDER BY `customer_records`.`created_at` DESC')
+ 3 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `customer_records`.*, `windows`.`window_name`, `windows`.`window_number`
+FROM `customer_records`
+JOIN `windows` ON `windows`.`id` = `customer_records`.`window_id`
+WHERE `customer_records`.`status` IN :customer_records.status:
+AND `customer_records`.`created_at` >= :customer_records.created_at:
+AND `customer_records`.`created_at` <= :customer_records.created_at.1:
+ORDER BY `customer_records`.`created_at` DESC', [...], false)
+ 4 SYSTEMPATH\Model.php(286): CodeIgniter\Database\BaseBuilder->get()
+ 5 SYSTEMPATH\BaseModel.php(677): CodeIgniter\Model->doFindAll(0, 0)
+ 6 APPPATH\Models\CustomerRecordsModel.php(50): CodeIgniter\BaseModel->findAll()
+ 7 APPPATH\Controllers\CustomerRecords.php(34): App\Models\CustomerRecordsModel->getCustomerRecords('', '2026-03-24', '2026-03-24')
+ 8 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\CustomerRecords->getData()
+ 9 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\CustomerRecords))
+10 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+11 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+12 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+13 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2026-03-24 00:24:24 --> [Caused by] mysqli_sql_exception: Unknown column 'customer_records.created_at' in 'where clause'
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 327.
+ 1 SYSTEMPATH\Database\MySQLi\Connection.php(327): mysqli->query('SELECT `customer_records`.*, `windows`.`window_name`, `windows`.`window_number`
+FROM `customer_records`
+JOIN `windows` ON `windows`.`id` = `customer_records`.`window_id`
+WHERE `customer_records`.`status` IN (\'completed\',\'skipped\')
+AND `customer_records`.`created_at` >= \'2026-03-24 00:00:00\'
+AND `customer_records`.`created_at` <= \'2026-03-24 23:59:59\'
+ORDER BY `customer_records`.`created_at` DESC', 0)
+ 2 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `customer_records`.*, `windows`.`window_name`, `windows`.`window_number`
+FROM `customer_records`
+JOIN `windows` ON `windows`.`id` = `customer_records`.`window_id`
+WHERE `customer_records`.`status` IN (\'completed\',\'skipped\')
+AND `customer_records`.`created_at` >= \'2026-03-24 00:00:00\'
+AND `customer_records`.`created_at` <= \'2026-03-24 23:59:59\'
+ORDER BY `customer_records`.`created_at` DESC')
+ 3 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `customer_records`.*, `windows`.`window_name`, `windows`.`window_number`
+FROM `customer_records`
+JOIN `windows` ON `windows`.`id` = `customer_records`.`window_id`
+WHERE `customer_records`.`status` IN (\'completed\',\'skipped\')
+AND `customer_records`.`created_at` >= \'2026-03-24 00:00:00\'
+AND `customer_records`.`created_at` <= \'2026-03-24 23:59:59\'
+ORDER BY `customer_records`.`created_at` DESC')
+ 4 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `customer_records`.*, `windows`.`window_name`, `windows`.`window_number`
+FROM `customer_records`
+JOIN `windows` ON `windows`.`id` = `customer_records`.`window_id`
+WHERE `customer_records`.`status` IN :customer_records.status:
+AND `customer_records`.`created_at` >= :customer_records.created_at:
+AND `customer_records`.`created_at` <= :customer_records.created_at.1:
+ORDER BY `customer_records`.`created_at` DESC', [...], false)
+ 5 SYSTEMPATH\Model.php(286): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH\BaseModel.php(677): CodeIgniter\Model->doFindAll(0, 0)
+ 7 APPPATH\Models\CustomerRecordsModel.php(50): CodeIgniter\BaseModel->findAll()
+ 8 APPPATH\Controllers\CustomerRecords.php(34): App\Models\CustomerRecordsModel->getCustomerRecords('', '2026-03-24', '2026-03-24')
+ 9 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\CustomerRecords->getData()
+10 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\CustomerRecords))
+11 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+12 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+13 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+14 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ERROR - 2026-03-24 00:38:54 --> Error calculating waiting time: Failed to parse time string (2026-03-24 0000-00-00 00:00:00) at position 11 (0): Double date specification
+ERROR - 2026-03-24 00:39:01 --> Error calculating service time: Failed to parse time string (2026-03-24 0000-00-00 00:00:00) at position 11 (0): Double date specification
+CRITICAL - 2026-03-24 00:39:01 --> CodeIgniter\Database\Exceptions\DataException: There is no data to update.
+[Method: POST, Route: window/callNext/1]
+in SYSTEMPATH\BaseModel.php on line 1823.
+ 1 SYSTEMPATH\BaseModel.php(1823): CodeIgniter\Database\Exceptions\DataException::forEmptyDataset('update')
+ 2 SYSTEMPATH\BaseModel.php(994): CodeIgniter\BaseModel->transformDataToArray(null, 'update')
+ 3 SYSTEMPATH\Model.php(860): CodeIgniter\BaseModel->update([...], null)
+ 4 APPPATH\Models\CustomerRecordsModel.php(196): CodeIgniter\Model->update([...])
+ 5 APPPATH\Controllers\Window.php(103): App\Models\CustomerRecordsModel->updateCustomerStatus('BREQS20260324-001', 'completed')
+ 6 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Window->callNext('1')
+ 7 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Window))
+ 8 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ERROR - 2026-03-24 00:41:06 --> Unexpected: Record already exists for window: 1
+CRITICAL - 2026-03-24 00:41:33 --> CodeIgniter\Database\Exceptions\DataException: There is no data to update.
+[Method: POST, Route: window/callNext/1]
+in SYSTEMPATH\BaseModel.php on line 1823.
+ 1 SYSTEMPATH\BaseModel.php(1823): CodeIgniter\Database\Exceptions\DataException::forEmptyDataset('update')
+ 2 SYSTEMPATH\BaseModel.php(994): CodeIgniter\BaseModel->transformDataToArray(null, 'update')
+ 3 SYSTEMPATH\Model.php(860): CodeIgniter\BaseModel->update([...], null)
+ 4 APPPATH\Models\CustomerRecordsModel.php(215): CodeIgniter\Model->update([...])
+ 5 APPPATH\Controllers\Window.php(103): App\Models\CustomerRecordsModel->updateCustomerStatus('BREQS20260324-001', 'completed')
+ 6 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Window->callNext('1')
+ 7 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Window))
+ 8 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ERROR - 2026-03-24 00:41:42 --> Unexpected: Record already exists for window: 1
+CRITICAL - 2026-03-24 00:52:56 --> ErrorException: file_get_contents(): Read of 8192 bytes failed with errno=13 Permission denied
+[Method: GET, Route: /]
+in SYSTEMPATH\Debug\Toolbar\Collectors\History.php on line 88.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler(8, 'file_get_contents(): Read of 8192 bytes failed with errno=13 Permission denied', 'C:\\xampp\\htdocs\\queueing\\system\\Debug\\Toolbar\\Collectors\\History.php', 88)
+ 2 SYSTEMPATH\Debug\Toolbar\Collectors\History.php(88): file_get_contents('C:\\xampp\\htdocs\\queueing\\writable\\debugbar/debugbar_1774313574.353126.json')
+ 3 SYSTEMPATH\Debug\Toolbar.php(517): CodeIgniter\Debug\Toolbar\Collectors\History->setFiles('1774313573.417324', 20)
+ 4 SYSTEMPATH\Debug\Toolbar.php(496): CodeIgniter\Debug\Toolbar->format([...], 'html')
+ 5 APPPATH\Config\Events.php(47): CodeIgniter\Debug\Toolbar->respond()
+ 6 SYSTEMPATH\Events\Events.php(152): CodeIgniter\Events\Events::Config\{closure}()
+ 7 SYSTEMPATH\CodeIgniter.php(339): CodeIgniter\Events\Events::trigger('pre_system')
+ 8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+10 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ERROR - 2026-03-24 01:15:15 --> Exception during update: There is no data to update.
+ERROR - 2026-03-24 01:15:31 --> Exception during update: There is no data to update.
+ERROR - 2026-03-24 01:15:31 --> ✗ FAILED to complete customer record - but continuing to serve next
+ERROR - 2026-03-24 01:15:31 --> Unexpected: Record already exists for window: 1
+ERROR - 2026-03-24 02:39:11 --> Exception during update: There is no data to update.
+ERROR - 2026-03-24 02:39:11 --> ✗ FAILED to complete customer record - but continuing to serve next
+ERROR - 2026-03-24 02:39:11 --> Unexpected: Record already exists for window: 1
+ERROR - 2026-03-24 02:40:48 --> ✗ NO CUSTOMER RECORD found for window: 2 - but continuing to serve next
+ERROR - 2026-03-24 02:40:48 --> Invalid queueing_time in startService: 0000-00-00 00:00:00
+ERROR - 2026-03-24 06:49:42 --> Exception during update: There is no data to update.
+ERROR - 2026-03-24 06:49:42 --> ✗ FAILED to complete customer record - but continuing to serve next
+ERROR - 2026-03-24 06:49:42 --> Unexpected: Record already exists for window: 1
+ERROR - 2026-03-24 07:04:42 --> Exception during update: There is no data to update.
+ERROR - 2026-03-24 07:04:42 --> ✗ FAILED to complete customer record - but continuing to serve next
+ERROR - 2026-03-24 07:04:42 --> Unexpected: Record already exists for window: 1
+ERROR - 2026-03-24 07:11:19 --> Exception during update: There is no data to update.
+ERROR - 2026-03-24 07:11:27 --> Unexpected: Record already exists for window: 1
+ERROR - 2026-03-24 07:13:08 --> mysqli_sql_exception: Unknown column 'ticket_number' in 'where clause' in C:\xampp\htdocs\queueing\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\queueing\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 C:\xampp\htdocs\queueing\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 C:\xampp\htdocs\queueing\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 C:\xampp\htdocs\queueing\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 C:\xampp\htdocs\queueing\system\Model.php(330): CodeIgniter\Database\BaseBuilder->get()
+#5 C:\xampp\htdocs\queueing\system\BaseModel.php(715): CodeIgniter\Model->doFirst()
+#6 C:\xampp\htdocs\queueing\app\Controllers\Window.php(215): CodeIgniter\BaseModel->first()
+#7 C:\xampp\htdocs\queueing\system\CodeIgniter.php(933): App\Controllers\Window->getCustomerData('BREQS-002')
+#8 C:\xampp\htdocs\queueing\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Window))
+#9 C:\xampp\htdocs\queueing\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#10 C:\xampp\htdocs\queueing\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#11 C:\xampp\htdocs\queueing\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#12 C:\xampp\htdocs\queueing\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#13 {main}
+CRITICAL - 2026-03-24 07:13:08 --> CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'ticket_number' in 'where clause'
+[Method: GET, Route: window/getCustomerData/BREQS-002]
+in SYSTEMPATH\Database\BaseConnection.php on line 684.
+ 1 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *
+FROM `customer_records`
+WHERE `ticket_number` = :ticket_number:
+ORDER BY `id` DESC
+ LIMIT 1', [...], false)
+ 2 SYSTEMPATH\Model.php(330): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH\BaseModel.php(715): CodeIgniter\Model->doFirst()
+ 4 APPPATH\Controllers\Window.php(215): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Window->getCustomerData('BREQS-002')
+ 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Window))
+ 7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+10 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2026-03-24 07:13:08 --> [Caused by] CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'ticket_number' in 'where clause'
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 332.
+ 1 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *
+FROM `customer_records`
+WHERE `ticket_number` = \'BREQS-002\'
+ORDER BY `id` DESC
+ LIMIT 1')
+ 2 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *
+FROM `customer_records`
+WHERE `ticket_number` = \'BREQS-002\'
+ORDER BY `id` DESC
+ LIMIT 1')
+ 3 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *
+FROM `customer_records`
+WHERE `ticket_number` = :ticket_number:
+ORDER BY `id` DESC
+ LIMIT 1', [...], false)
+ 4 SYSTEMPATH\Model.php(330): CodeIgniter\Database\BaseBuilder->get()
+ 5 SYSTEMPATH\BaseModel.php(715): CodeIgniter\Model->doFirst()
+ 6 APPPATH\Controllers\Window.php(215): CodeIgniter\BaseModel->first()
+ 7 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Window->getCustomerData('BREQS-002')
+ 8 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Window))
+ 9 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+10 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+11 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+12 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2026-03-24 07:13:08 --> [Caused by] mysqli_sql_exception: Unknown column 'ticket_number' in 'where clause'
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 327.
+ 1 SYSTEMPATH\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *
+FROM `customer_records`
+WHERE `ticket_number` = \'BREQS-002\'
+ORDER BY `id` DESC
+ LIMIT 1', 0)
+ 2 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *
+FROM `customer_records`
+WHERE `ticket_number` = \'BREQS-002\'
+ORDER BY `id` DESC
+ LIMIT 1')
+ 3 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *
+FROM `customer_records`
+WHERE `ticket_number` = \'BREQS-002\'
+ORDER BY `id` DESC
+ LIMIT 1')
+ 4 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *
+FROM `customer_records`
+WHERE `ticket_number` = :ticket_number:
+ORDER BY `id` DESC
+ LIMIT 1', [...], false)
+ 5 SYSTEMPATH\Model.php(330): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH\BaseModel.php(715): CodeIgniter\Model->doFirst()
+ 7 APPPATH\Controllers\Window.php(215): CodeIgniter\BaseModel->first()
+ 8 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Window->getCustomerData('BREQS-002')
+ 9 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Window))
+10 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+11 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+12 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+13 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ERROR - 2026-03-24 07:13:09 --> Exception during update: There is no data to update.
+ERROR - 2026-03-24 07:13:09 --> ✗ FAILED to complete customer record - but continuing to serve next
+ERROR - 2026-03-24 07:13:09 --> Unexpected: Record already exists for window: 1
+ERROR - 2026-03-24 07:13:33 --> mysqli_sql_exception: Unknown column 'ticket_number' in 'where clause' in C:\xampp\htdocs\queueing\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\queueing\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 C:\xampp\htdocs\queueing\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 C:\xampp\htdocs\queueing\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 C:\xampp\htdocs\queueing\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 C:\xampp\htdocs\queueing\system\Model.php(330): CodeIgniter\Database\BaseBuilder->get()
+#5 C:\xampp\htdocs\queueing\system\BaseModel.php(715): CodeIgniter\Model->doFirst()
+#6 C:\xampp\htdocs\queueing\app\Controllers\Window.php(215): CodeIgniter\BaseModel->first()
+#7 C:\xampp\htdocs\queueing\system\CodeIgniter.php(933): App\Controllers\Window->getCustomerData('BREQS-001')
+#8 C:\xampp\htdocs\queueing\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Window))
+#9 C:\xampp\htdocs\queueing\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#10 C:\xampp\htdocs\queueing\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#11 C:\xampp\htdocs\queueing\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#12 C:\xampp\htdocs\queueing\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#13 {main}
+CRITICAL - 2026-03-24 07:13:33 --> CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'ticket_number' in 'where clause'
+[Method: GET, Route: window/getCustomerData/BREQS-001]
+in SYSTEMPATH\Database\BaseConnection.php on line 684.
+ 1 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *
+FROM `customer_records`
+WHERE `ticket_number` = :ticket_number:
+ORDER BY `id` DESC
+ LIMIT 1', [...], false)
+ 2 SYSTEMPATH\Model.php(330): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH\BaseModel.php(715): CodeIgniter\Model->doFirst()
+ 4 APPPATH\Controllers\Window.php(215): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Window->getCustomerData('BREQS-001')
+ 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Window))
+ 7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+10 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2026-03-24 07:13:33 --> [Caused by] CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'ticket_number' in 'where clause'
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 332.
+ 1 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *
+FROM `customer_records`
+WHERE `ticket_number` = \'BREQS-001\'
+ORDER BY `id` DESC
+ LIMIT 1')
+ 2 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *
+FROM `customer_records`
+WHERE `ticket_number` = \'BREQS-001\'
+ORDER BY `id` DESC
+ LIMIT 1')
+ 3 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *
+FROM `customer_records`
+WHERE `ticket_number` = :ticket_number:
+ORDER BY `id` DESC
+ LIMIT 1', [...], false)
+ 4 SYSTEMPATH\Model.php(330): CodeIgniter\Database\BaseBuilder->get()
+ 5 SYSTEMPATH\BaseModel.php(715): CodeIgniter\Model->doFirst()
+ 6 APPPATH\Controllers\Window.php(215): CodeIgniter\BaseModel->first()
+ 7 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Window->getCustomerData('BREQS-001')
+ 8 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Window))
+ 9 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+10 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+11 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+12 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2026-03-24 07:13:33 --> [Caused by] mysqli_sql_exception: Unknown column 'ticket_number' in 'where clause'
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 327.
+ 1 SYSTEMPATH\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *
+FROM `customer_records`
+WHERE `ticket_number` = \'BREQS-001\'
+ORDER BY `id` DESC
+ LIMIT 1', 0)
+ 2 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *
+FROM `customer_records`
+WHERE `ticket_number` = \'BREQS-001\'
+ORDER BY `id` DESC
+ LIMIT 1')
+ 3 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *
+FROM `customer_records`
+WHERE `ticket_number` = \'BREQS-001\'
+ORDER BY `id` DESC
+ LIMIT 1')
+ 4 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *
+FROM `customer_records`
+WHERE `ticket_number` = :ticket_number:
+ORDER BY `id` DESC
+ LIMIT 1', [...], false)
+ 5 SYSTEMPATH\Model.php(330): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH\BaseModel.php(715): CodeIgniter\Model->doFirst()
+ 7 APPPATH\Controllers\Window.php(215): CodeIgniter\BaseModel->first()
+ 8 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Window->getCustomerData('BREQS-001')
+ 9 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Window))
+10 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+11 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+12 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+13 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ERROR - 2026-03-24 07:13:37 --> Exception during update: There is no data to update.
+ERROR - 2026-03-24 07:13:41 --> Unexpected: Record already exists for window: 1
+ERROR - 2026-03-24 07:17:04 --> mysqli_sql_exception: Unknown column 'ticket_number' in 'where clause' in C:\xampp\htdocs\queueing\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\queueing\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 C:\xampp\htdocs\queueing\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 C:\xampp\htdocs\queueing\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 C:\xampp\htdocs\queueing\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 C:\xampp\htdocs\queueing\system\Model.php(330): CodeIgniter\Database\BaseBuilder->get()
+#5 C:\xampp\htdocs\queueing\system\BaseModel.php(715): CodeIgniter\Model->doFirst()
+#6 C:\xampp\htdocs\queueing\app\Controllers\Window.php(217): CodeIgniter\BaseModel->first()
+#7 C:\xampp\htdocs\queueing\system\CodeIgniter.php(933): App\Controllers\Window->getCustomerData('BREQS-002')
+#8 C:\xampp\htdocs\queueing\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Window))
+#9 C:\xampp\htdocs\queueing\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#10 C:\xampp\htdocs\queueing\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#11 C:\xampp\htdocs\queueing\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#12 C:\xampp\htdocs\queueing\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#13 {main}
+CRITICAL - 2026-03-24 07:17:04 --> CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'ticket_number' in 'where clause'
+[Method: GET, Route: window/getCustomerData/BREQS-002]
+in SYSTEMPATH\Database\BaseConnection.php on line 684.
+ 1 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *
+FROM `customer_records`
+WHERE `ticket_number` = :ticket_number:
+ORDER BY `id` DESC
+ LIMIT 1', [...], false)
+ 2 SYSTEMPATH\Model.php(330): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH\BaseModel.php(715): CodeIgniter\Model->doFirst()
+ 4 APPPATH\Controllers\Window.php(217): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Window->getCustomerData('BREQS-002')
+ 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Window))
+ 7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+10 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2026-03-24 07:17:04 --> [Caused by] CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'ticket_number' in 'where clause'
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 332.
+ 1 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *
+FROM `customer_records`
+WHERE `ticket_number` = \'BREQS-002\'
+ORDER BY `id` DESC
+ LIMIT 1')
+ 2 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *
+FROM `customer_records`
+WHERE `ticket_number` = \'BREQS-002\'
+ORDER BY `id` DESC
+ LIMIT 1')
+ 3 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *
+FROM `customer_records`
+WHERE `ticket_number` = :ticket_number:
+ORDER BY `id` DESC
+ LIMIT 1', [...], false)
+ 4 SYSTEMPATH\Model.php(330): CodeIgniter\Database\BaseBuilder->get()
+ 5 SYSTEMPATH\BaseModel.php(715): CodeIgniter\Model->doFirst()
+ 6 APPPATH\Controllers\Window.php(217): CodeIgniter\BaseModel->first()
+ 7 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Window->getCustomerData('BREQS-002')
+ 8 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Window))
+ 9 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+10 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+11 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+12 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2026-03-24 07:17:04 --> [Caused by] mysqli_sql_exception: Unknown column 'ticket_number' in 'where clause'
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 327.
+ 1 SYSTEMPATH\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *
+FROM `customer_records`
+WHERE `ticket_number` = \'BREQS-002\'
+ORDER BY `id` DESC
+ LIMIT 1', 0)
+ 2 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *
+FROM `customer_records`
+WHERE `ticket_number` = \'BREQS-002\'
+ORDER BY `id` DESC
+ LIMIT 1')
+ 3 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *
+FROM `customer_records`
+WHERE `ticket_number` = \'BREQS-002\'
+ORDER BY `id` DESC
+ LIMIT 1')
+ 4 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *
+FROM `customer_records`
+WHERE `ticket_number` = :ticket_number:
+ORDER BY `id` DESC
+ LIMIT 1', [...], false)
+ 5 SYSTEMPATH\Model.php(330): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH\BaseModel.php(715): CodeIgniter\Model->doFirst()
+ 7 APPPATH\Controllers\Window.php(217): CodeIgniter\BaseModel->first()
+ 8 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Window->getCustomerData('BREQS-002')
+ 9 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Window))
+10 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+11 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+12 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+13 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ERROR - 2026-03-24 07:17:08 --> Exception during update: There is no data to update.
+ERROR - 2026-03-24 07:17:13 --> mysqli_sql_exception: Unknown column 'ticket_number' in 'where clause' in C:\xampp\htdocs\queueing\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\queueing\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 C:\xampp\htdocs\queueing\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 C:\xampp\htdocs\queueing\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 C:\xampp\htdocs\queueing\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 C:\xampp\htdocs\queueing\system\Model.php(330): CodeIgniter\Database\BaseBuilder->get()
+#5 C:\xampp\htdocs\queueing\system\BaseModel.php(715): CodeIgniter\Model->doFirst()
+#6 C:\xampp\htdocs\queueing\app\Controllers\Window.php(217): CodeIgniter\BaseModel->first()
+#7 C:\xampp\htdocs\queueing\system\CodeIgniter.php(933): App\Controllers\Window->getCustomerData('BREQS-001')
+#8 C:\xampp\htdocs\queueing\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Window))
+#9 C:\xampp\htdocs\queueing\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#10 C:\xampp\htdocs\queueing\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#11 C:\xampp\htdocs\queueing\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#12 C:\xampp\htdocs\queueing\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#13 {main}
+CRITICAL - 2026-03-24 07:17:13 --> CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'ticket_number' in 'where clause'
+[Method: GET, Route: window/getCustomerData/BREQS-001]
+in SYSTEMPATH\Database\BaseConnection.php on line 684.
+ 1 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *
+FROM `customer_records`
+WHERE `ticket_number` = :ticket_number:
+ORDER BY `id` DESC
+ LIMIT 1', [...], false)
+ 2 SYSTEMPATH\Model.php(330): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH\BaseModel.php(715): CodeIgniter\Model->doFirst()
+ 4 APPPATH\Controllers\Window.php(217): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Window->getCustomerData('BREQS-001')
+ 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Window))
+ 7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+10 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2026-03-24 07:17:13 --> [Caused by] CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'ticket_number' in 'where clause'
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 332.
+ 1 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *
+FROM `customer_records`
+WHERE `ticket_number` = \'BREQS-001\'
+ORDER BY `id` DESC
+ LIMIT 1')
+ 2 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *
+FROM `customer_records`
+WHERE `ticket_number` = \'BREQS-001\'
+ORDER BY `id` DESC
+ LIMIT 1')
+ 3 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *
+FROM `customer_records`
+WHERE `ticket_number` = :ticket_number:
+ORDER BY `id` DESC
+ LIMIT 1', [...], false)
+ 4 SYSTEMPATH\Model.php(330): CodeIgniter\Database\BaseBuilder->get()
+ 5 SYSTEMPATH\BaseModel.php(715): CodeIgniter\Model->doFirst()
+ 6 APPPATH\Controllers\Window.php(217): CodeIgniter\BaseModel->first()
+ 7 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Window->getCustomerData('BREQS-001')
+ 8 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Window))
+ 9 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+10 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+11 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+12 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2026-03-24 07:17:13 --> [Caused by] mysqli_sql_exception: Unknown column 'ticket_number' in 'where clause'
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 327.
+ 1 SYSTEMPATH\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *
+FROM `customer_records`
+WHERE `ticket_number` = \'BREQS-001\'
+ORDER BY `id` DESC
+ LIMIT 1', 0)
+ 2 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *
+FROM `customer_records`
+WHERE `ticket_number` = \'BREQS-001\'
+ORDER BY `id` DESC
+ LIMIT 1')
+ 3 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *
+FROM `customer_records`
+WHERE `ticket_number` = \'BREQS-001\'
+ORDER BY `id` DESC
+ LIMIT 1')
+ 4 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *
+FROM `customer_records`
+WHERE `ticket_number` = :ticket_number:
+ORDER BY `id` DESC
+ LIMIT 1', [...], false)
+ 5 SYSTEMPATH\Model.php(330): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH\BaseModel.php(715): CodeIgniter\Model->doFirst()
+ 7 APPPATH\Controllers\Window.php(217): CodeIgniter\BaseModel->first()
+ 8 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Window->getCustomerData('BREQS-001')
+ 9 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Window))
+10 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+11 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+12 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+13 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ERROR - 2026-03-24 07:17:14 --> Unexpected: Record already exists for window: 1
+ERROR - 2026-03-24 07:54:58 --> Invalid queueing_time in startService: 0000-00-00 00:00:00
+ERROR - 2026-03-24 07:55:02 --> Exception during update: There is no data to update.
+ERROR - 2026-03-24 07:55:07 --> Unexpected: Record already exists for window: 1
+ERROR - 2026-03-24 08:20:43 --> Exception during update: There is no data to update.
+ERROR - 2026-03-24 08:22:27 --> mysqli_sql_exception: Invalid default value for 'created_at' in C:\xampp\htdocs\queueing\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\queueing\system\Database\MySQLi\Connection.php(327): mysqli->query('ALTER TABLE `cu...', 0)
+#1 C:\xampp\htdocs\queueing\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('ALTER TABLE `cu...')
+#2 C:\xampp\htdocs\queueing\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('ALTER TABLE `cu...')
+#3 C:\xampp\htdocs\queueing\system\Database\Forge.php(772): CodeIgniter\Database\BaseConnection->query('ALTER TABLE `cu...')
+#4 C:\xampp\htdocs\queueing\app\Database\Migrations\2026-03-24-000001_Add_created_at_to_customer_records.php(11): CodeIgniter\Database\Forge->addColumn('customer_record...', Array)
+#5 C:\xampp\htdocs\queueing\system\Database\MigrationRunner.php(876): App\Database\Migrations\AddCreatedAtToCustomerRecords->up()
+#6 C:\xampp\htdocs\queueing\system\Database\MigrationRunner.php(182): CodeIgniter\Database\MigrationRunner->migrate('up', Object(stdClass))
+#7 C:\xampp\htdocs\queueing\system\Commands\Database\Migrate.php(85): CodeIgniter\Database\MigrationRunner->latest(NULL)
+#8 C:\xampp\htdocs\queueing\system\CLI\Commands.php(74): CodeIgniter\Commands\Database\Migrate->run(Array)
+#9 C:\xampp\htdocs\queueing\system\CLI\Console.php(47): CodeIgniter\CLI\Commands->run('migrate', Array)
+#10 C:\xampp\htdocs\queueing\system\Boot.php(388): CodeIgniter\CLI\Console->run()
+#11 C:\xampp\htdocs\queueing\system\Boot.php(133): CodeIgniter\Boot::runCommand(Object(CodeIgniter\CLI\Console))
+#12 C:\xampp\htdocs\queueing\spark(87): CodeIgniter\Boot::bootSpark(Object(Config\Paths))
+#13 {main}
+ERROR - 2026-03-24 08:24:29 --> Unexpected: Record already exists for window: 1
+ERROR - 2026-03-24 08:24:46 --> Exception during update: There is no data to update.
+ERROR - 2026-03-24 08:52:41 --> Invalid queueing_time in startService: 0000-00-00 00:00:00
+ERROR - 2026-03-24 08:52:45 --> Error calculating duration: Failed to parse time string (2026-03-24 0000-00-00 00:00:00) at position 11 (0): Double date specification
+ERROR - 2026-03-24 08:52:53 --> Error calculating duration: Failed to parse time string (2026-03-24 0000-00-00 00:00:00) at position 11 (0): Double date specification
+ERROR - 2026-03-24 08:52:56 --> Error calculating duration: Failed to parse time string (2026-03-24 0000-00-00 00:00:00) at position 11 (0): Double date specification
+ERROR - 2026-03-24 09:02:08 --> mysqli_sql_exception: Duplicate entry 'BREQS20260324-001' for key 'transaction_number' in C:\xampp\htdocs\queueing\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\queueing\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `cu...', 0)
+#1 C:\xampp\htdocs\queueing\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `cu...')
+#2 C:\xampp\htdocs\queueing\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `cu...')
+#3 C:\xampp\htdocs\queueing\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `cu...', Array, false)
+#4 C:\xampp\htdocs\queueing\system\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+#5 C:\xampp\htdocs\queueing\system\BaseModel.php(838): CodeIgniter\Model->doInsert(Array)
+#6 C:\xampp\htdocs\queueing\system\Model.php(797): CodeIgniter\BaseModel->insert(Array, true)
+#7 C:\xampp\htdocs\queueing\app\Models\CustomerRecordsModel.php(118): CodeIgniter\Model->insert(Array)
+#8 C:\xampp\htdocs\queueing\app\Controllers\Window.php(464): App\Models\CustomerRecordsModel->createCustomerRecord(Array)
+#9 C:\xampp\htdocs\queueing\system\CodeIgniter.php(933): App\Controllers\Window->saveCustomer()
+#10 C:\xampp\htdocs\queueing\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Window))
+#11 C:\xampp\htdocs\queueing\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#12 C:\xampp\htdocs\queueing\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#13 C:\xampp\htdocs\queueing\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#14 C:\xampp\htdocs\queueing\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#15 {main}
+CRITICAL - 2026-03-24 09:02:08 --> CodeIgniter\Database\Exceptions\DatabaseException: Duplicate entry 'BREQS20260324-001' for key 'transaction_number'
+[Method: POST, Route: window/saveCustomer]
+in SYSTEMPATH\Database\BaseConnection.php on line 684.
+ 1 SYSTEMPATH\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `customer_records` (`transaction_number`, `window_id`, `window_name`, `customer_name`, `document_name`, `service`, `remarks`, `status`, `queueing_time`) VALUES (:transaction_number:, :window_id:, :window_name:, :customer_name:, :document_name:, :service:, :remarks:, :status:, :queueing_time:)', [...], false)
+ 2 SYSTEMPATH\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+ 3 SYSTEMPATH\BaseModel.php(838): CodeIgniter\Model->doInsert([...])
+ 4 SYSTEMPATH\Model.php(797): CodeIgniter\BaseModel->insert([...], true)
+ 5 APPPATH\Models\CustomerRecordsModel.php(118): CodeIgniter\Model->insert([...])
+ 6 APPPATH\Controllers\Window.php(464): App\Models\CustomerRecordsModel->createCustomerRecord([...])
+ 7 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Window->saveCustomer()
+ 8 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Window))
+ 9 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+10 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+11 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+12 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2026-03-24 09:02:08 --> [Caused by] CodeIgniter\Database\Exceptions\DatabaseException: Duplicate entry 'BREQS20260324-001' for key 'transaction_number'
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 332.
+ 1 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `customer_records` (`transaction_number`, `window_id`, `window_name`, `customer_name`, `document_name`, `service`, `remarks`, `status`, `queueing_time`) VALUES (\'BREQS20260324-001\', \'1\', \'BREQS\', \'Maria\', \'Maria\', \'BREQS\', \'\', \'serving\', \'17:01:08\')')
+ 2 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `customer_records` (`transaction_number`, `window_id`, `window_name`, `customer_name`, `document_name`, `service`, `remarks`, `status`, `queueing_time`) VALUES (\'BREQS20260324-001\', \'1\', \'BREQS\', \'Maria\', \'Maria\', \'BREQS\', \'\', \'serving\', \'17:01:08\')')
+ 3 SYSTEMPATH\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `customer_records` (`transaction_number`, `window_id`, `window_name`, `customer_name`, `document_name`, `service`, `remarks`, `status`, `queueing_time`) VALUES (:transaction_number:, :window_id:, :window_name:, :customer_name:, :document_name:, :service:, :remarks:, :status:, :queueing_time:)', [...], false)
+ 4 SYSTEMPATH\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+ 5 SYSTEMPATH\BaseModel.php(838): CodeIgniter\Model->doInsert([...])
+ 6 SYSTEMPATH\Model.php(797): CodeIgniter\BaseModel->insert([...], true)
+ 7 APPPATH\Models\CustomerRecordsModel.php(118): CodeIgniter\Model->insert([...])
+ 8 APPPATH\Controllers\Window.php(464): App\Models\CustomerRecordsModel->createCustomerRecord([...])
+ 9 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Window->saveCustomer()
+10 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Window))
+11 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+12 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+13 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+14 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2026-03-24 09:02:08 --> [Caused by] mysqli_sql_exception: Duplicate entry 'BREQS20260324-001' for key 'transaction_number'
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 327.
+ 1 SYSTEMPATH\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `customer_records` (`transaction_number`, `window_id`, `window_name`, `customer_name`, `document_name`, `service`, `remarks`, `status`, `queueing_time`) VALUES (\'BREQS20260324-001\', \'1\', \'BREQS\', \'Maria\', \'Maria\', \'BREQS\', \'\', \'serving\', \'17:01:08\')', 0)
+ 2 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `customer_records` (`transaction_number`, `window_id`, `window_name`, `customer_name`, `document_name`, `service`, `remarks`, `status`, `queueing_time`) VALUES (\'BREQS20260324-001\', \'1\', \'BREQS\', \'Maria\', \'Maria\', \'BREQS\', \'\', \'serving\', \'17:01:08\')')
+ 3 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `customer_records` (`transaction_number`, `window_id`, `window_name`, `customer_name`, `document_name`, `service`, `remarks`, `status`, `queueing_time`) VALUES (\'BREQS20260324-001\', \'1\', \'BREQS\', \'Maria\', \'Maria\', \'BREQS\', \'\', \'serving\', \'17:01:08\')')
+ 4 SYSTEMPATH\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `customer_records` (`transaction_number`, `window_id`, `window_name`, `customer_name`, `document_name`, `service`, `remarks`, `status`, `queueing_time`) VALUES (:transaction_number:, :window_id:, :window_name:, :customer_name:, :document_name:, :service:, :remarks:, :status:, :queueing_time:)', [...], false)
+ 5 SYSTEMPATH\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+ 6 SYSTEMPATH\BaseModel.php(838): CodeIgniter\Model->doInsert([...])
+ 7 SYSTEMPATH\Model.php(797): CodeIgniter\BaseModel->insert([...], true)
+ 8 APPPATH\Models\CustomerRecordsModel.php(118): CodeIgniter\Model->insert([...])
+ 9 APPPATH\Controllers\Window.php(464): App\Models\CustomerRecordsModel->createCustomerRecord([...])
+10 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Window->saveCustomer()
+11 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Window))
+12 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+13 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+14 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+15 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ERROR - 2026-03-24 09:02:35 --> Error calculating duration: Failed to parse time string (2026-03-24 0000-00-00 00:00:00) at position 11 (0): Double date specification

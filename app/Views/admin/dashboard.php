@@ -360,24 +360,128 @@
             box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
         }
         
-        .dataTables_filter {
-            margin-bottom: 20px !important;
+        /* System Controls Drawer */
+        #system-controls-container {
+            position: fixed;
+            top: 80px;
+            left: 0;
+            right: 0;
+            z-index: 999;
+            background: #76717185;
+            border-bottom: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transform: translateY(-100%);
+            transition: transform 0.3s ease-in-out;
+            padding: 0;
         }
-
-        .dataTables_wrapper .dataTables_filter {
-            margin-bottom: 20px !important;
+        
+        #system-controls-container.show {
+            transform: translateY(0);
+            padding: 15px 0;
         }
+        
+        #system-controls-container h3 {
+            color: #495057;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        #system-controls-container .dev-warning {
+            background: transparent;
+            border: none;
+            border-radius: 0;
+            padding: 12px 16px;
+            margin: 20px 20px 16px 20px;
+            color: #000000;
+            font-size: 0.95rem;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        #system-controls-container .reset-buttons {
+            padding: 0 20px;
+            text-align: center;
+        }
+        
+        /* Glass-like Reset Buttons */
+        #system-controls-container .btn-reset {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            color: #495057;
+            border: 1px solid rgba(220, 53, 69, 0.5);
+            border-radius: 8px;
+            padding: 14px 24px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 8px 8px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        #system-controls-container .btn-reset:hover {
+            background: rgba(255, 255, 255, 0.95);
+            border-color: rgba(220, 53, 69, 0.8);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transform: translateY(-1px);
+        }
+        
+        #system-controls-container .btn-reset:active {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(0);
+        }
+        
+        /* Button Variants - All Red Borders */
+        #system-controls-container .btn-reset-windows {
+            border-color: rgba(220, 53, 69, 0.5);
+            color: #dc3545;
+        }
+        
+        #system-controls-container .btn-reset-windows:hover {
+            border-color: rgba(220, 53, 69, 0.8);
+            background: rgba(220, 53, 69, 0.05);
+        }
+        
+        #system-controls-container .btn-reset-numbers {
+            border-color: rgba(220, 53, 69, 0.5);
+            color: #dc3545;
+        }
+        
+        #system-controls-container .btn-reset-numbers:hover {
+            border-color: rgba(220, 53, 69, 0.8);
+            background: rgba(220, 53, 69, 0.05);
+        }
+        
+        #system-controls-container .btn-reset-daily {
+            border-color: rgba(220, 53, 69, 0.5);
+            color: #dc3545;
+        }
+        
+        #system-controls-container .btn-reset-daily:hover {
+            border-color: rgba(220, 53, 69, 0.8);
+            background: rgba(220, 53, 69, 0.05);
+        }
+        
+        #system-controls-container .btn-reset-monthly {
+            border-color: rgba(220, 53, 69, 0.5);
+            color: #dc3545;
+        }
+        
+        #system-controls-container .btn-reset-monthly:hover {
+            border-color: rgba(220, 53, 69, 0.8);
+            background: rgba(220, 53, 69, 0.05);
+        }
+        
     </style>
 </head>
 <body>
     <div class="header">
         <h1>Admin Dashboard</h1>
         <div class="header-buttons">
-            <a href="#system-controls" class="btn btn-primary">System Controls</a>
-            <a href="#window-status" class="btn btn-primary">Window Status</a>
-            <a href="#statistics" class="btn btn-primary">Statistics</a>
-            <a href="#data-table" class="btn btn-primary">Data Table</a>
-            <a href="<?= base_url('admin/customer-records') ?>" class="btn btn-success">Customer Records</a>
+            <button class="btn btn-primary" onclick="toggleSystemControls(event)">System Controls</button>
+            <a href="<?= base_url('admin/customer-records') ?>" class="btn btn-primary">Customer Records</a>
             <a href="<?= base_url('queue') ?>" class="btn btn-primary">Queue</a>
             <a href="<?= base_url('admin/display') ?>" class="btn btn-primary">Display</a>
             <form action="<?= base_url('admin/logout') ?>" method="POST" style="display: inline;">
@@ -386,17 +490,16 @@
         </div>
     </div>
 
-    <!-- System Controls Section -->
-    <div class="container">
-        <div class="reset-section" id="system-controls">
-            <h3>System Controls</h3>
-            <div class="reset-buttons">
-                <button class="btn btn-danger" onclick="confirmResetWindows()">Reset Windows & Queues</button>
-                <button class="btn btn-danger" onclick="confirmResetNumbers()">Reset Released Numbers</button>
-                <button class="btn btn-danger" onclick="confirmResetDailyStats()">Reset Daily Statistics</button>
-                <button class="btn btn-danger" onclick="confirmResetMonthlyStats()">Reset Monthly Statistics</button>
-                <button class="btn btn-primary" onclick="manualRefreshTable()">🔄 Refresh Table</button>
-            </div>
+    <!-- System Controls Drawer -->
+    <div class="container" id="system-controls-container">
+        <div class="dev-warning">
+            ⚠️ <strong>Development Use Only</strong> - These controls are for development/testing purposes and should not be used when the system is deployed.
+        </div>
+        <div class="reset-buttons">
+            <button class="btn-reset btn-reset-windows" onclick="confirmResetWindows()">Reset Windows & Queues</button>
+            <button class="btn-reset btn-reset-numbers" onclick="confirmResetNumbers()">Reset Released Numbers</button>
+            <button class="btn-reset btn-reset-daily" onclick="confirmResetDailyStats()">Reset Daily Statistics</button>
+            <button class="btn-reset btn-reset-monthly" onclick="confirmResetMonthlyStats()">Reset Monthly Statistics</button>
         </div>
     </div>
 
@@ -482,23 +585,6 @@
         </div>
         <?php error_log("PHP Monthly Totals - Completed: " . $monthlyCompleted . ", Skipped: " . $monthlySkipped); ?>
 
-        <h2 class="section-title" id="data-table">Queue Data Table</h2>
-        <div class="table-container">
-            <table id="queueTable" class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Ticket Number</th>
-                        <th>Window</th>
-                        <th>Status</th>
-                        <th>Created</th>
-                        <th>Completed</th>
-                    </tr>
-                </thead>
-                <tbody id="queueTableBody">
-                    <!-- Data will be loaded via DataTables AJAX -->
-                </tbody>
-            </table>
-        </div>
     </div>
 
     <!-- Confirmation Modal -->
@@ -512,13 +598,6 @@
             </div>
         </div>
     </div>
-    <!-- DataTables JS -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/select/1.7.0/css/select.dataTables.min.css">
-
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/select/1.7.0/js/dataTables.select.min.js"></script>
         
     <script>
         let confirmCallback = null;
@@ -564,34 +643,6 @@
             document.getElementById('confirmModal').classList.add('active');
         }
 
-        function manualRefreshTable() {
-            console.log("Manual table refresh triggered");
-            showNotification('🔄 Refreshing data table...');
-            
-            // Force clear DataTables cache
-            const table = $('#queueTable').DataTable();
-            table.ajax.reload(function(json) {
-                console.log("Manual refresh response:", json);
-                console.log("Data received:", json.data ? json.data.length : 0, "records");
-                
-                // Log all statuses in the refreshed data
-                if (json.data && json.data.length > 0) {
-                    const statuses = {};
-                    json.data.forEach(item => {
-                        const status = item.status;
-                        statuses[status] = (statuses[status] || 0) + 1;
-                    });
-                    console.log("Statuses in refreshed data:", statuses);
-                    
-                    if (statuses.waiting > 0) {
-                        console.error("⚠️ WAITING RECORDS FOUND! This should not happen!");
-                        showNotification('⚠️ Warning: Waiting records still showing!', 'error');
-                    } else {
-                        showNotification('✅ Table refreshed successfully - No waiting records found');
-                    }
-                }
-            }, false); // false = keep current page
-        }
 
         function confirmResetMonthlyStats() {
             document.getElementById('confirmMessage').textContent = 'Are you sure you want to reset all monthly statistics?';
@@ -617,10 +668,16 @@
             console.log("Calling URL:", url);
             fetch(url, {
                 method: 'POST',
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                headers: { 
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
             })
             .then(r => {
                 console.log("Response received:", r);
+                if (!r.ok) {
+                    throw new Error(`HTTP error! status: ${r.status}`);
+                }
                 return r.json();
             })
             .then(data => {
@@ -629,8 +686,6 @@
                     showNotification('✅ Queues Reset Done');
                     // Refresh data dynamically instead of page reload
                     refreshData();
-                    // Refresh DataTables
-                    $('#queueTable').DataTable().ajax.reload();
                 } else {
                     console.error("Reset failed:", data.message);
                     alert('Reset failed: ' + data.message);
@@ -648,10 +703,16 @@
             console.log("Calling URL:", url);
             fetch(url, {
                 method: 'POST',
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                headers: { 
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
             })
             .then(r => {
                 console.log("Response received:", r);
+                if (!r.ok) {
+                    throw new Error(`HTTP error! status: ${r.status}`);
+                }
                 return r.json();
             })
             .then(data => {
@@ -660,8 +721,6 @@
                     showNotification('✅ Numbers Reset Done');
                     // Refresh data dynamically instead of page reload
                     refreshData();
-                    // Refresh DataTables
-                    $('#queueTable').DataTable().ajax.reload();
                 } else {
                     console.error("Reset failed:", data.message);
                     alert('Reset failed: ' + data.message);
@@ -679,10 +738,16 @@
             console.log("Calling URL:", url);
             fetch(url, {
                 method: 'POST',
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                headers: { 
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
             })
             .then(r => {
                 console.log("Response received:", r);
+                if (!r.ok) {
+                    throw new Error(`HTTP error! status: ${r.status}`);
+                }
                 return r.json();
             })
             .then(data => {
@@ -691,8 +756,6 @@
                     showNotification('✅ Daily Statistics Reset Done');
                     // Refresh data dynamically instead of page reload
                     refreshData();
-                    // Refresh DataTables
-                    $('#queueTable').DataTable().ajax.reload();
                 } else {
                     console.error("Reset failed:", data.message);
                     alert('Reset failed: ' + data.message);
@@ -710,10 +773,16 @@
             console.log("Calling URL:", url);
             fetch(url, {
                 method: 'POST',
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                headers: { 
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
             })
             .then(r => {
                 console.log("Response received:", r);
+                if (!r.ok) {
+                    throw new Error(`HTTP error! status: ${r.status}`);
+                }
                 return r.json();
             })
             .then(data => {
@@ -722,8 +791,6 @@
                     showNotification('✅ Monthly Statistics Reset Done');
                     // Refresh data dynamically instead of page reload
                     refreshData();
-                    // Refresh DataTables
-                    $('#queueTable').DataTable().ajax.reload();
                 } else {
                     console.error("Reset failed:", data.message);
                     alert('Reset failed: ' + data.message);
@@ -800,8 +867,6 @@
                 if (data.success) {
                     showNotification('⏭️ Queue Skipped Successfully');
                     refreshData(); // This will update statistics in real-time
-                    // Refresh DataTables with cache busting
-                    $('#queueTable').DataTable().ajax.reload(null, false); // false = keep current page
                 } else {
                     console.error("Skip failed:", data.message);
                     alert('Skip failed: ' + data.message);
@@ -822,10 +887,9 @@
             .then(data => {
                 console.log("refreshData response:", data);
                 if (data.success) {
-                    console.log("Updating windows, stats, and table...");
+                    console.log("Updating windows and stats...");
                     updateWindows(data.windows);
                     updateStats(data.daily_stats, data.monthly_stats);
-                    updateTable(data.queue_data);
                     console.log("Real-time statistics update completed");
                 } else {
                     console.error("refreshData failed:", data);
@@ -953,167 +1017,24 @@
             }
         }
 
-        function updateTable(queueData) {
-            const tbody = document.getElementById('queueTableBody');
-            const searchInput = document.getElementById('tableSearch');
-            const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
-            
-            tbody.innerHTML = queueData.map(queue => `
-                <tr>
-                    <td>${queue.ticket_number}</td>
-                    <td>${queue.window_name}</td>
-                    <td><span class="status-badge status-${queue.status}">${queue.status.charAt(0).toUpperCase() + queue.status.slice(1)}</span></td>
-                    <td>${queue.created_at}</td>
-                    <td>${queue.completed_at || '-'}</td>
-                </tr>
-            `).join('');
-            
-            // Reapply search filter if search term exists
-            if (searchTerm) {
-                const tableRows = document.querySelectorAll('#queueTableBody tr');
-                tableRows.forEach(row => {
-                    const rowText = row.textContent.toLowerCase();
-                    if (rowText.includes(searchTerm)) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-            }
-        }
-
         // Auto refresh disabled to prevent spam
         // setInterval(refreshData, 3000);
-
-        // DataTables initialization
-       $(document).ready(function () {
-            const table = $('#queueTable').DataTable({
-
-                ajax: {
-                    url: "<?= base_url('admin/get-data') ?>",
-                    dataSrc: "data",
-                    cache: false, // Disable caching
-                    data: function(d) {
-                        // Add cache-busting parameter
-                        d._ = new Date().getTime();
-                        d.nocache = Math.random(); // Additional cache busting
-                        return d;
-                    },
-                    error: function(xhr, error, code) {
-                        console.error("DataTables AJAX error:", error, code);
-                        console.error("Response text:", xhr.responseText);
-                    },
-                    dataSrc: function(json) {
-                        // Debug: Log the received data structure
-                        console.log("DataTables received data:", json);
-                        console.log("Data array length:", json.data ? json.data.length : 'no data array');
-                        
-                        if (json.data && json.data.length > 0) {
-                            console.log("First record structure:", json.data[0]);
-                            console.log("Available keys in first record:", Object.keys(json.data[0]));
-                            
-                            // Check if window_name exists
-                            if (json.data[0].hasOwnProperty('window_name')) {
-                                console.log("✅ window_name field exists:", json.data[0].window_name);
-                            } else {
-                                console.log("❌ window_name field MISSING!");
-                                console.log("Available fields:", Object.keys(json.data[0]));
-                            }
-                        }
-                        return json.data;
-                    }
-                },
-
-                columns: [
-                    { 
-                        data: "ticket_number",
-                        render: function(data, type, row) {
-                            return data || 'N/A';
-                        }
-                    },
-                    { 
-                        data: "window_name",
-                        orderable: false, // Disable sorting on window column
-                        render: function(data, type, row) {
-                            return data || 'Unknown Window';
-                        }
-                    },
-                    {
-                        data: "status",
-                        render: function (data) {
-                            let badgeClass = "";
-                            if (data === "waiting") badgeClass = "status-waiting";
-                            if (data === "serving") badgeClass = "status-serving";
-                            if (data === "completed") badgeClass = "status-completed";
-                            if (data === "skipped") badgeClass = "status-skipped";
-                            return '<span class="status-badge ' + badgeClass + '">' +
-                                data.charAt(0).toUpperCase() + data.slice(1) +
-                                '</span>';
-                        }
-                    },
-                    { 
-                        data: "created_at",
-                        render: function(data) {
-                            return data || 'N/A';
-                        }
-                    },
-                    {
-                        data: "completed_at",
-                        render: function (data) {
-                            return data || "-";
-                        }
-                    }
-                ],
-
-                // Add custom dropdown filter for window column
-                initComplete: function() {
-                    this.api().columns([1]).every(function() {
-                        var column = this;
-                        var select = $('<select class="window-filter-dropdown"><option value="">All Windows</option></select>')
-                            .appendTo($(column.header()).empty())
-                            .on('change', function() {
-                                var val = $.fn.dataTable.util.escapeRegex($(this).val());
-                                column.search(val ? '^' + val + '$' : '', true, false).draw();
-                            });
-
-                        // Get unique window names from the data
-                        var windowNames = {};
-                        column.data().unique().sort().each(function(d, j) {
-                            if (d && d !== 'Unknown Window') {
-                                windowNames[d] = d;
-                            }
-                        });
-
-                        // Add options to dropdown
-                        Object.keys(windowNames).sort().forEach(function(windowName) {
-                            select.append('<option value="' + windowName + '">' + windowName + '</option>');
-                        });
-                    });
-                },
-
-                // Disable server-side processing for real-time updates
-                serverSide: false,
-                
-                // Enable real-time updates
-                ordering: true,
-                searching: true,
-                paging: true,
-                info: true,
-
-                pageLength: 10,
-
-                lengthMenu: [
-                    [10, 25, 50, 100],
-                    [10, 25, 50, 100]
-                ],
-
-                order: [[0, "desc"]],
-
-                responsive: true
-
-            });
-
-        });
+        
+        // Toggle System Controls drawer
+        function toggleSystemControls(event) {
+            event.preventDefault();
+            console.log("Toggle System Controls clicked");
+            const container = document.getElementById('system-controls-container');
+            console.log("Container found:", container);
+            
+            if (container.classList.contains('show')) {
+                container.classList.remove('show');
+                console.log("Hiding System Controls");
+            } else {
+                container.classList.add('show');
+                console.log("Showing System Controls");
+            }
+        }
     </script>
 </body>
 </html>

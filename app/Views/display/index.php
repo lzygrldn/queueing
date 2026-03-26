@@ -210,6 +210,43 @@
             font-style: italic;
         }
         
+        /* Marquee Styles */
+        .marquee-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 15px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
+            z-index: 1000;
+        }
+        
+        .marquee-text {
+            display: flex;
+            animation: marquee 60s linear infinite;
+            white-space: nowrap;
+        }
+        
+        .marquee-text span {
+            padding: 0 30px;
+            font-size: 1.4rem;
+            font-weight: 500;
+        }
+        
+        @keyframes marquee {
+            0% {
+                transform: translateX(0%);
+            }
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+        
         .window-display {
             background: white;
             border-radius: 20px;
@@ -368,6 +405,28 @@
                 </div>
                 <?php endforeach; ?>
             </div>
+        </div>
+    </div>
+
+    <!-- Scrolling Marquee -->
+    <div class="marquee-container">
+        <div class="marquee-text">
+            <span>Local Civil Registry Queue System</span>
+            <span>Take Your Number and Wait for Your Turn</span>
+            <span>PSA Window 1</span>
+            <span>Birth Certificate Window 2</span>
+            <span>Death Certificate Window 3</span>
+            <span>Marriage Certificate Window 4</span>
+            <span>Thank You for Your Patience</span>
+            <span>LCR - Serving the Community</span>
+            <span>Local Civil Registry Queue System</span>
+            <span>Take Your Number and Wait for Your Turn</span>
+            <span>PSA Window 1</span>
+            <span>Birth Certificate Window 2</span>
+            <span>Death Certificate Window 3</span>
+            <span>Marriage Certificate Window 4</span>
+            <span>Thank You for Your Patience</span>
+            <span>LCR - Serving the Community</span>
         </div>
     </div>
 

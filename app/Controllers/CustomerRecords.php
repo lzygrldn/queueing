@@ -31,12 +31,18 @@ class CustomerRecords extends BaseController
         $startDate = $this->request->getGet('start_date');
         $endDate = $this->request->getGet('end_date');
         
-        $records = $this->customerRecordsModel->getCustomerRecords($windowId, $startDate, $endDate);
-        
-        return $this->response->setJSON([
-            'success' => true,
-            'data' => $records
-        ]);
+        try {
+            $records = $this->customerRecordsModel->getCustomerRecords($windowId, $startDate, $endDate);
+            
+            return $this->response->setJSON([
+                'data' => $records
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Error in CustomerRecords getData: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'data' => []
+            ]);
+        }
     }
 
     public function export()
@@ -115,6 +121,49 @@ class CustomerRecords extends BaseController
             }
         } catch (Exception $e) {
             echo "Error updating database: " . $e->getMessage();
+        }
+    }
+
+    /**
+     * Run migration to convert existing DATETIME values to TIME-only
+     */
+    public function convertTimeColumns()
+    {
+        try {
+            $db = \Config\Database::connect();
+            
+            // Convert existing DATETIME values to TIME-only
+            $sql = "UPDATE customer_records SET 
+                    queueing_time = TIME(queueing_time),
+                    start_time = TIME(start_time),
+                    end_time = TIME(end_time)
+                    WHERE queueing_time IS NOT NULL OR start_time IS NOT NULL OR end_time IS NOT NULL";
+            
+            $db->query($sql);
+            
+            // Update waiting_time and serving_time to human-readable format
+            $sql = "UPDATE customer_records SET 
+                    waiting_time = CASE 
+                        WHEN waiting_time LIKE '%hours%' THEN waiting_time
+                        WHEN waiting_time IS NOT NULL THEN CONCAT(HOUR(waiting_time), ' hours ', MINUTE(waiting_time), ' minutes')
+                        ELSE waiting_time
+                    END,
+                    serving_time = CASE 
+                        WHEN serving_time LIKE '%hours%' THEN serving_time
+                        WHEN serving_time IS NOT NULL THEN CONCAT(HOUR(serving_time), ' hours ', MINUTE(serving_time), ' minutes')
+                        ELSE serving_time
+                    END";
+            
+            $db->query($sql);
+            
+            echo "✅ Time columns converted successfully!<br>";
+            echo "- queueing_time, start_time, end_time converted to TIME-only format (HH:MM:SS)<br>";
+            echo "- waiting_time, serving_time converted to human-readable format (X hours Y minutes)<br>";
+            echo "<br><strong>New records will now store time-only values!</strong><br>";
+            echo "<a href='" . base_url('customerRecords') . "'>Back to Customer Records</a>";
+            
+        } catch (Exception $e) {
+            echo "❌ Error converting time columns: " . $e->getMessage();
         }
     }
 
