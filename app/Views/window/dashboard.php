@@ -102,7 +102,6 @@
             background: #f8f9fa;
             border-radius: 8px;
             cursor: pointer;
-            transition: all 0.3s;
             border: 2px solid transparent;
             position: relative;
         }
@@ -438,7 +437,7 @@
                         COMPLETE
                     </button>
                     <button class="btn btn-skip" id="skipBtn" 
-                            <?= $now_serving ? '' : 'disabled' ?>
+                            <?= ($now_serving && !$is_serving_from_completed) ? '' : 'disabled' ?>
                             onclick="skipCurrent()">
                         SKIP
                     </button>
@@ -551,11 +550,53 @@
         </div>
     </div>
 
+    <!-- Custom Modal Popup -->
+    <div id="customModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; justify-content: center; align-items: center;">
+        <div style="background: white; padding: 30px 40px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); text-align: center; max-width: 400px; width: 90%;">
+            <div id="modalMessage" style="font-size: 16px; color: #333; margin-bottom: 20px; line-height: 1.5;"></div>
+            <div id="modalButtons" style="display: flex; gap: 10px; justify-content: center;">
+                <button id="modalOkBtn" style="padding: 10px 30px; background: #3498db; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px;">OK</button>
+                <button id="modalCancelBtn" style="padding: 10px 30px; background: #95a5a6; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; display: none;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // Custom Modal Functions
+        function showModal(message, type = 'alert', callback = null) {
+            const modal = document.getElementById('customModal');
+            const modalMessage = document.getElementById('modalMessage');
+            const okBtn = document.getElementById('modalOkBtn');
+            const cancelBtn = document.getElementById('modalCancelBtn');
+            
+            modalMessage.textContent = message;
+            modal.style.display = 'flex';
+            
+            if (type === 'confirm') {
+                cancelBtn.style.display = 'block';
+            } else {
+                cancelBtn.style.display = 'none';
+            }
+            
+            okBtn.onclick = function() {
+                modal.style.display = 'none';
+                if (callback) callback(true);
+            };
+            
+            cancelBtn.onclick = function() {
+                modal.style.display = 'none';
+                if (callback) callback(false);
+            };
+        }
+
         const windowId = <?= $window['id'] ?>;
         let currentQueueId = <?= $now_serving ? $now_serving['id'] : 'null' ?>;
         let selectedQueueId = null;
         let selectedTicketNumber = null;
+        let isSelectionRestored = false; // Track if selection is already restored
+        // Load isServingCompleted from localStorage on page load
+        let isServingCompleted = localStorage.getItem('isServingCompleted_' + windowId) === 'true';
+        console.log('Initial load - isServingCompleted from localStorage:', isServingCompleted, 'key:', 'isServingCompleted_' + windowId);
 
         // Queue item click handlers
         document.addEventListener('click', function(e) {
@@ -595,8 +636,11 @@
                     selectedQueueId = queueId;
                     selectedTicketNumber = ticketNumber;
                     
-                    // Enable call button
-                    document.getElementById('callBtn').disabled = false;
+                    // Enable call button only if no customer is currently being served
+                    const callBtn = document.getElementById('callBtn');
+                    if (!currentQueueId) {
+                        callBtn.disabled = false;
+                    }
                     
                     // Handle form population based on item status
                     if (isCompleted) {
@@ -644,11 +688,17 @@
             // If a specific queue item is selected, call that one instead
             if (selectedQueueId) {
                 targetQueueId = selectedQueueId;
+                // Check if selected item is from completed list
+                const selectedItem = document.querySelector(`.queue-item[data-id="${selectedQueueId}"]`);
+                isServingCompleted = selectedItem && selectedItem.classList.contains('completed');
+                console.log('isServingCompleted set to:', isServingCompleted);
+            } else {
+                isServingCompleted = false;
             }
             
             if (!targetQueueId) return;
             
-            console.log('Calling queue item:', targetQueueId, selectedTicketNumber || 'next in line');
+            console.log('Calling queue item:', targetQueueId, selectedTicketNumber || 'next in line', 'From completed:', isServingCompleted);
             
             fetch('<?= base_url('window/callNext/') ?>' + windowId, {
                 method: 'POST',
@@ -661,16 +711,25 @@
             .then(r => r.json())
             .then(data => {
                 if (data.success) {
+                    // Set flag based on server response - indicates if called from completed list
+                    isServingCompleted = data.is_from_completed || false;
+                    // Persist to localStorage
+                    localStorage.setItem('isServingCompleted_' + windowId, isServingCompleted.toString());
+                    console.log('callNext success - isServingCompleted:', isServingCompleted);
                     // Clear selection after successful call
                     clearSelection();
                     refreshData();
+                    // If called from completed list, load customer data
+                    if (data.is_from_completed && data.ticket_number) {
+                        loadCustomerData(data.ticket_number);
+                    }
                 } else {
-                    alert('Error: ' + data.message);
+                    showModal('Error: ' + data.message);
                 }
             })
             .catch(error => {
                 console.error('Network error:', error);
-                alert('Network error: ' + error.message);
+                showModal('Network error: ' + error.message);
             });
         }
 
@@ -692,6 +751,9 @@
             .then(r => r.json())
             .then(data => {
                 if (data.success) {
+                    isServingCompleted = false; // Reset flag
+                    // Clear from localStorage
+                    localStorage.removeItem('isServingCompleted_' + windowId);
                     refreshData();
                 }
             });
@@ -708,6 +770,9 @@
             .then(r => r.json())
             .then(data => {
                 if (data.success) {
+                    isServingCompleted = false; // Reset flag
+                    // Clear from localStorage
+                    localStorage.removeItem('isServingCompleted_' + windowId);
                     refreshData();
                     // Enable call next button after completion
                     document.getElementById('callBtn').disabled = false;
@@ -832,8 +897,8 @@
                         ).join('');
                     }
                     
-                    // Restore selection after updating lists
-                    setTimeout(restoreSelection, 100);
+                    // Restore selection immediately after updating lists (no delay to prevent blinking)
+                    restoreSelection();
                     
                     // Enable/disable call button based on selection and current serving
                     const callBtn = document.getElementById('callBtn');
@@ -844,13 +909,21 @@
                     if (data.now_serving && data.now_serving !== 'None') {
                         callBtn.disabled = true;
                         completeBtn.disabled = false;
-                        skipBtn.disabled = false;
+                        // Disable Skip if serving from completed list
+                        // Check server flag first, fallback to local flag
+                        const shouldDisableSkip = data.is_serving_from_completed || isServingCompleted;
+                        skipBtn.disabled = shouldDisableSkip;
+                        console.log('Skip button disabled state:', shouldDisableSkip, 'server:', data.is_serving_from_completed, 'local:', isServingCompleted);
                     } else {
-                        // No current serving, enable Call Next if there are waiting customers
+                        // No current serving, enable Call Next only if there are waiting customers AND a customer is selected
                         const waitingCount = document.querySelectorAll('#waitingList .queue-item').length;
-                        callBtn.disabled = waitingCount === 0 && !selectedQueueId;
+                        callBtn.disabled = waitingCount === 0 || !selectedQueueId;
                         completeBtn.disabled = true;
                         skipBtn.disabled = true;
+                        // Reset flag when no customer is being served
+                        isServingCompleted = false;
+                        // Clear from localStorage
+                        localStorage.removeItem('isServingCompleted_' + windowId);
                     }
                     
                     // Update customer info if there's a current serving customer
@@ -929,6 +1002,9 @@
 
         // Auto refresh every 2 seconds with error handling
         refreshInterval = setInterval(refreshData, 2000);
+        
+        // Initial call to set correct button states immediately
+        refreshData();
 
         // Form functionality
         function generateTransactionNumber(ticketNumber) {
@@ -1065,7 +1141,7 @@
             const transactionNumber = document.getElementById('transactionNumber').value;
             
             if (!customerName || !documentName || !service || !transactionNumber) {
-                alert('Please fill in all required fields (marked with *).');
+                showModal('Please fill in all required fields (marked with *).');
                 return;
             }
             
@@ -1098,19 +1174,18 @@
             .then(response => response.json())
             .then(result => {
                 if (result.success) {
-                    alert('Customer information saved successfully!');
-                    
-                    // Optional: Clear form after saving
-                    if (confirm('Clear form after saving?')) {
-                        clearForm();
-                    }
+                    showModal('Customer information saved successfully!', 'confirm', function(confirmed) {
+                        if (confirmed) {
+                            clearForm();
+                        }
+                    });
                 } else {
-                    alert('Error: ' + result.message);
+                    showModal('Error: ' + result.message);
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Network error: Failed to save customer information.');
+                showModal('Network error: Failed to save customer information.');
             });
         });
 

@@ -50,6 +50,7 @@ $routes->get('display/data', 'Display::getData');
 // Customer Records Routes
 $routes->get('customerRecords', 'CustomerRecords::index');
 $routes->get('customerRecords/getData', 'CustomerRecords::getData');
+$routes->post('customerRecords/createTicket', 'CustomerRecords::createTicket');
 $routes->get('customerRecords/convertTimeColumns', 'CustomerRecords::convertTimeColumns');
 $routes->get('customerRecords/updateDatabase', 'CustomerRecords::updateDatabase');
 $routes->get('customerRecords/runMigration', 'CustomerRecords::runMigration');

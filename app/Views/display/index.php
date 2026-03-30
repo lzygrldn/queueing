@@ -16,15 +16,16 @@
             background: url('https://images.pexels.com/photos/326055/pexels-photo-326055.jpeg?cs=srgb&dl=pexels-pixabay-326055.jpg&fm=jpg') center center/cover no-repeat fixed;
             background-color: #1e3c72;
             min-height: 100vh;
-            padding: 20px;
+            padding: 10px;
+            overflow-x: hidden;
         }
         
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 50px;
-            padding: 20px;
+            margin-bottom: 20px;
+            padding: 15px 20px;
             background: rgba(255,255,255,0.1);
             border-radius: 15px;
             backdrop-filter: blur(10px);
@@ -79,10 +80,68 @@
             color: #2a5298;
         }
         
+        .fullscreen-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.3);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .fullscreen-btn.visible {
+            opacity: 0.6;
+            pointer-events: auto;
+        }
+        
+        .fullscreen-btn.visible:hover {
+            opacity: 1;
+            background: rgba(255,255,255,0.5);
+        }
+        
+        .fullscreen-btn:hover {
+            background: rgba(255,255,255,0.5);
+        }
+        
+        .fullscreen-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: white;
+        }
+        
+        .fullscreen-btn.exit {
+            background: rgba(231, 76, 60, 0.3);
+        }
+        
+        .fullscreen-btn.exit:hover {
+            background: rgba(231, 76, 60, 0.5);
+        }
+        
+        /* Hover area to trigger button visibility */
+        .fullscreen-hover-area {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 150px;
+            height: 150px;
+            z-index: 99;
+        }
+        
         .main-layout {
             display: flex;
-            gap: 40px;
-            max-width: 1600px;
+            gap: 20px;
+            width: 100%;
+            max-width: 100%;
             padding: 0 20px;
             justify-content: center;
         }
@@ -93,11 +152,11 @@
         
         .windows-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 30px;
-            margin-top: 30px;
-            width: 100%;
-            max-width: 1400px;
+            margin: 30px auto;
+            width: 90%;
+            max-width: 1200px;
         }
         
         .waiting-queue-section {
@@ -219,31 +278,38 @@
             background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
             color: white;
             padding: 15px 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            overflow: hidden;
             box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
             z-index: 1000;
         }
         
+        .marquee-wrapper {
+            display: flex;
+            animation: marquee 40s linear infinite;
+            width: max-content;
+        }
+        
+        .marquee-wrapper:hover {
+            animation-play-state: paused;
+        }
+        
         .marquee-text {
             display: flex;
-            animation: marquee 60s linear infinite;
             white-space: nowrap;
         }
         
         .marquee-text span {
-            padding: 0 30px;
+            padding: 0 40px;
             font-size: 1.4rem;
             font-weight: 500;
         }
         
         @keyframes marquee {
             0% {
-                transform: translateX(0%);
+                transform: translateX(0);
             }
             100% {
-                transform: translateX(-100%);
+                transform: translateX(-50%);
             }
         }
         
@@ -254,7 +320,6 @@
             box-shadow: 0 15px 40px rgba(0,0,0,0.3);
             text-align: center;
             transition: all 0.3s;
-            width: 700px;
         }
         
         .window-display:hover {
@@ -316,7 +381,7 @@
         }
         
         .window-header h2 {
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             margin-bottom: 5px;
         }
         
@@ -334,14 +399,14 @@
         }
         
         .ticket-display {
-            font-size: 4rem;
+            font-size: 3rem;
             font-weight: bold;
             color: #27ae60;
-            padding: 30px;
+            padding: 20px;
             background: #f8f9fa;
             border-radius: 15px;
-            margin: 20px 0;
-            min-height: 150px;
+            margin: 15px 0;
+            min-height: 100px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -408,29 +473,139 @@
         </div>
     </div>
 
+    <!-- Fullscreen Toggle Button -->
+    <div class="fullscreen-hover-area" id="fullscreenHoverArea"></div>
+    <button class="fullscreen-btn visible" id="fullscreenBtn" onclick="toggleFullscreen()" title="Toggle Fullscreen">
+        <svg id="fullscreenIcon" viewBox="0 0 24 24">
+            <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+        </svg>
+        <svg id="exitFullscreenIcon" viewBox="0 0 24 24" style="display: none;">
+            <path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/>
+        </svg>
+    </button>
+
     <!-- Scrolling Marquee -->
     <div class="marquee-container">
-        <div class="marquee-text">
-            <span>Local Civil Registry Queue System</span>
-            <span>Take Your Number and Wait for Your Turn</span>
-            <span>PSA Window 1</span>
-            <span>Birth Certificate Window 2</span>
-            <span>Death Certificate Window 3</span>
-            <span>Marriage Certificate Window 4</span>
-            <span>Thank You for Your Patience</span>
-            <span>LCR - Serving the Community</span>
-            <span>Local Civil Registry Queue System</span>
-            <span>Take Your Number and Wait for Your Turn</span>
-            <span>PSA Window 1</span>
-            <span>Birth Certificate Window 2</span>
-            <span>Death Certificate Window 3</span>
-            <span>Marriage Certificate Window 4</span>
-            <span>Thank You for Your Patience</span>
-            <span>LCR - Serving the Community</span>
+        <div class="marquee-wrapper">
+            <div class="marquee-text">
+                <span>Local Civil Registry Queue System</span>
+                <span>Take Your Number and Wait for Your Turn</span>
+                <span>PSA Window 1</span>
+                <span>Birth Certificate Window 2</span>
+                <span>Death Certificate Window 3</span>
+                <span>Marriage Certificate Window 4</span>
+                <span>Thank You for Your Patience</span>
+                <span>LCR - Serving the Community</span>
+            </div>
+            <div class="marquee-text">
+                <span>Local Civil Registry Queue System</span>
+                <span>Take Your Number and Wait for Your Turn</span>
+                <span>PSA Window 1</span>
+                <span>Birth Certificate Window 2</span>
+                <span>Death Certificate Window 3</span>
+                <span>Marriage Certificate Window 4</span>
+                <span>Thank You for Your Patience</span>
+                <span>LCR - Serving the Community</span>
+            </div>
         </div>
     </div>
 
     <script>
+        // Fullscreen toggle function
+        function toggleFullscreen() {
+            const btn = document.getElementById('fullscreenBtn');
+            
+            if (!document.fullscreenElement && 
+                !document.mozFullScreenElement && 
+                !document.webkitFullscreenElement && 
+                !document.msFullscreenElement) {
+                // Enter fullscreen
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen();
+                } else if (document.documentElement.mozRequestFullScreen) {
+                    document.documentElement.mozRequestFullScreen();
+                } else if (document.documentElement.webkitRequestFullscreen) {
+                    document.documentElement.webkitRequestFullscreen();
+                } else if (document.documentElement.msRequestFullscreen) {
+                    document.documentElement.msRequestFullscreen();
+                }
+                const fullscreenIcon = document.getElementById('fullscreenIcon');
+                const exitFullscreenIcon = document.getElementById('exitFullscreenIcon');
+                if (fullscreenIcon) fullscreenIcon.style.display = 'none';
+                if (exitFullscreenIcon) exitFullscreenIcon.style.display = 'block';
+            } else {
+                // Exit fullscreen
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+                const fullscreenIcon = document.getElementById('fullscreenIcon');
+                const exitFullscreenIcon = document.getElementById('exitFullscreenIcon');
+                if (fullscreenIcon) fullscreenIcon.style.display = 'block';
+                if (exitFullscreenIcon) exitFullscreenIcon.style.display = 'none';
+            }
+        }
+        
+        // Listen for fullscreen change events (handles ESC key)
+        document.addEventListener('fullscreenchange', updateFullscreenButton);
+        document.addEventListener('mozfullscreenchange', updateFullscreenButton);
+        document.addEventListener('webkitfullscreenchange', updateFullscreenButton);
+        document.addEventListener('msfullscreenchange', updateFullscreenButton);
+        
+        function updateFullscreenButton() {
+            const btn = document.getElementById('fullscreenBtn');
+            const fullscreenIcon = document.getElementById('fullscreenIcon');
+            const exitFullscreenIcon = document.getElementById('exitFullscreenIcon');
+            if (document.fullscreenElement || 
+                document.mozFullScreenElement || 
+                document.webkitFullscreenElement || 
+                document.msFullscreenElement) {
+                btn.classList.add('exit');
+                if (fullscreenIcon) fullscreenIcon.style.display = 'none';
+                if (exitFullscreenIcon) exitFullscreenIcon.style.display = 'block';
+            } else {
+                btn.classList.remove('exit');
+                if (fullscreenIcon) fullscreenIcon.style.display = 'block';
+                if (exitFullscreenIcon) exitFullscreenIcon.style.display = 'none';
+            }
+        }
+
+        // Auto-hide fullscreen button after 5 seconds
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const fullscreenHoverArea = document.getElementById('fullscreenHoverArea');
+        let hideTimeout;
+        
+        function showFullscreenButton() {
+            fullscreenBtn.classList.add('visible');
+        }
+        
+        function hideFullscreenButton() {
+            fullscreenBtn.classList.remove('visible');
+        }
+        
+        // Initial hide after 5 seconds
+        setTimeout(hideFullscreenButton, 5000);
+        
+        // Show button when hovering over the hover area or the button itself
+        fullscreenHoverArea.addEventListener('mouseenter', showFullscreenButton);
+        fullscreenBtn.addEventListener('mouseenter', showFullscreenButton);
+        
+        // Hide button when leaving the hover area (but not when moving to the button)
+        fullscreenHoverArea.addEventListener('mouseleave', function() {
+            if (!fullscreenBtn.matches(':hover')) {
+                hideFullscreenButton();
+            }
+        });
+        
+        fullscreenBtn.addEventListener('mouseleave', function() {
+            hideFullscreenButton();
+        });
+
         // Real-time clock
         function updateClock() {
             const now = new Date();

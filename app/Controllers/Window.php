@@ -40,6 +40,17 @@ class Window extends BaseController
         $data['skipped_list'] = $this->queueModel->getSkippedByWindow($window['id']);
         $data['completed_list'] = $this->queueModel->getCompletedByWindow($window['id']);
         
+        // Check if current serving was from completed list (for initial skip button state)
+        $data['is_serving_from_completed'] = false;
+        if ($data['now_serving']) {
+            $completedRecord = $this->serviceRecordModel
+                ->where('window_id', $window['id'])
+                ->where('ticket_number', $data['now_serving']['ticket_number'])
+                ->where('service_type', 'completed')
+                ->first();
+            $data['is_serving_from_completed'] = !empty($completedRecord);
+        }
+        
         // Check if coming from admin
         $data['from_admin'] = $this->request->getGet('from_admin') === 'true';
 
@@ -68,6 +79,9 @@ class Window extends BaseController
                 return $this->response->setJSON(['success' => false, 'message' => 'Invalid queue item']);
             }
             
+            // Store if from completed BEFORE changing status
+            $isFromCompleted = ($targetQueue['status'] === 'completed');
+            
             // Move the target queue back to waiting status first
             $this->queueModel->markAsWaiting($queueId);
         } else {
@@ -76,6 +90,7 @@ class Window extends BaseController
             if (!$targetQueue) {
                 return $this->response->setJSON(['success' => false, 'message' => 'No customers waiting']);
             }
+            $isFromCompleted = false;
         }
 
         // If there's currently someone serving, complete them first
@@ -219,7 +234,8 @@ class Window extends BaseController
         $response = [
             'success' => true,
             'window_number' => $window['window_number'],
-            'ticket_number' => $targetQueue['ticket_number']
+            'ticket_number' => $targetQueue['ticket_number'],
+            'is_from_completed' => $isFromCompleted
         ];
         
         log_message('info', 'callNext response: ' . json_encode($response));
@@ -372,11 +388,24 @@ class Window extends BaseController
         $skippedList = $this->queueModel->getSkippedByWindow($windowId);
         $completedList = $this->queueModel->getCompletedByWindow($windowId);
 
+        // Check if current serving was from completed list
+        $isServingFromCompleted = false;
+        if ($nowServing) {
+            // Check if this ticket has a service record as 'completed' before being called again
+            $completedRecord = $this->serviceRecordModel
+                ->where('window_id', $windowId)
+                ->where('ticket_number', $nowServing['ticket_number'])
+                ->where('service_type', 'completed')
+                ->first();
+            $isServingFromCompleted = !empty($completedRecord);
+        }
+
         // Debug: Log window info for verification
         error_log("getData for Window {$window['window_number']} ({$window['window_name']}) - ID: $windowId");
         error_log("Waiting count: " . count($waitingList));
         error_log("Skipped count: " . count($skippedList));
         error_log("Completed count: " . count($completedList));
+        error_log("Is serving from completed: " . ($isServingFromCompleted ? 'YES' : 'NO'));
 
         return $this->response->setJSON([
             'success' => true,
@@ -387,6 +416,7 @@ class Window extends BaseController
             'skipped_list' => $skippedList,
             'completed_list' => $completedList,
             'current_number' => $window['current_number'],
+            'is_serving_from_completed' => $isServingFromCompleted,
             'window_info' => [
                 'window_number' => $window['window_number'],
                 'window_name' => $window['window_name']
@@ -411,10 +441,33 @@ class Window extends BaseController
         $documentName = $this->request->getPost('documentName');
         $service = $this->request->getPost('service');
         $remarks = $this->request->getPost('remarks');
+        $transactionNumber = $this->request->getPost('transactionNumber');
         
         // Get window info
         $windowId = $this->request->getPost('window_id');
         $windowName = $this->request->getPost('window_name');
+        
+        // Validate required fields
+        $errors = [];
+        if (empty($customerName)) {
+            $errors[] = 'Name of Customer must not be empty';
+        }
+        if (empty($documentName)) {
+            $errors[] = 'Name in Document must not be empty';
+        }
+        if (empty($service)) {
+            $errors[] = 'Service must not be empty';
+        }
+        if (empty($transactionNumber)) {
+            $errors[] = 'Transaction Number must not be empty';
+        }
+        
+        if (!empty($errors)) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => implode(', ', $errors)
+            ]);
+        }
         
         // Get current serving queue item
         $currentServing = $this->queueModel->getServingByWindow($windowId);
