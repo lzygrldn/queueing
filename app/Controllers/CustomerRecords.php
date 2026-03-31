@@ -263,7 +263,7 @@ class CustomerRecords extends BaseController
             
             $db->query($sql);
             
-            echo "✅ Time columns converted successfully!<br>";
+            echo "Time columns converted successfully!<br>";
             echo "- queueing_time, start_time, end_time converted to TIME-only format (HH:MM:SS)<br>";
             echo "- waiting_time, serving_time converted to human-readable format (X hours Y minutes)<br>";
             echo "<br><strong>New records will now store time-only values!</strong><br>";

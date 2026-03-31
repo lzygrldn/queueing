@@ -246,12 +246,8 @@
         th:nth-child(4), td:nth-child(4) { min-width: 180px; max-width: 220px; } /* Service */
         th:nth-child(5), td:nth-child(5) { min-width: 250px; max-width: 300px; } /* Remarks */
         th:nth-child(6), td:nth-child(6) { min-width: 150px; max-width: 180px; } /* Window */
-        th:nth-child(7), td:nth-child(7) { min-width: 100px; max-width: 120px; } /* Status */
-        th:nth-child(8), td:nth-child(8) { min-width: 180px; max-width: 200px; } /* Queueing Time */
-        th:nth-child(9), td:nth-child(9) { min-width: 180px; max-width: 200px; } /* Service Start Time */
-        th:nth-child(10), td:nth-child(10) { min-width: 180px; max-width: 200px; } /* Service End Time */
-        th:nth-child(11), td:nth-child(11) { min-width: 120px; max-width: 140px; text-align: center; } /* Waiting Time */
-        th:nth-child(12), td:nth-child(12) { min-width: 120px; max-width: 140px; text-align: center; } /* Service Time */
+        th:nth-child(7), td:nth-child(7) { min-width: 150px; max-width: 180px; } /* Created At */
+        th:nth-child(8), td:nth-child(8) { min-width: 150px; max-width: 180px; } /* Updated At */
 
         tr:hover {
             background: #e3f2fd;
@@ -379,12 +375,8 @@
                             <th>Service</th>
                             <th>Remarks</th>
                             <th>Window</th>
-                            <th>Status</th>
-                            <th>Queueing Time</th>
-                            <th>Service Start Time</th>
-                            <th>Service End Time</th>
-                            <th>Waiting Time</th>
-                            <th>Service Time</th>
+                            <th>Created At</th>
+                            <th>Updated At</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -423,114 +415,31 @@
                     { data: 'remarks' },
                     { data: 'window_name' },
                     { 
-                        data: 'status',
-                        render: function(data) {
-                            // Only show Completed and Skipped, hide Serving
-                            if (data === 'serving') {
-                                return '<span class="status-badge status-serving">Serving</span>';
-                            }
-                            const statusClass = 'status-' + data.toLowerCase();
-                            return '<span class="status-badge ' + statusClass + '">' + data.charAt(0).toUpperCase() + data.slice(1) + '</span>';
-                        }
-                    },
-                    { 
-                        data: 'queueing_time',
+                        data: 'created_at',
                         render: function(data) {
                             if (!data) return 'N/A';
-                            // Handle time-only format (HH:MM:SS)
-                            if (data.includes(':')) {
-                                const timeParts = data.split(':');
-                                const hours = parseInt(timeParts[0]);
-                                const minutes = timeParts[1];
-                                const ampm = hours >= 12 ? 'PM' : 'AM';
-                                const displayHours = hours > 12 ? hours - 12 : (hours === 0 ? 12 : hours);
-                                return displayHours + ':' + minutes + ' ' + ampm;
-                            }
-                            return data;
+                            const date = new Date(data);
+                            return date.toLocaleString('en-US', { 
+                                month: 'short', 
+                                day: 'numeric', 
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            });
                         }
                     },
                     { 
-                        data: 'start_time',
+                        data: 'updated_at',
                         render: function(data) {
                             if (!data) return 'N/A';
-                            // Handle time-only format (HH:MM:SS)
-                            if (data.includes(':')) {
-                                const timeParts = data.split(':');
-                                const hours = parseInt(timeParts[0]);
-                                const minutes = timeParts[1];
-                                const ampm = hours >= 12 ? 'PM' : 'AM';
-                                const displayHours = hours > 12 ? hours - 12 : (hours === 0 ? 12 : hours);
-                                return displayHours + ':' + minutes + ' ' + ampm;
-                            }
-                            return data;
-                        }
-                    },
-                    { 
-                        data: 'end_time',
-                        render: function(data) {
-                            if (!data) return 'N/A';
-                            // Handle time-only format (HH:MM:SS)
-                            if (data.includes(':')) {
-                                const timeParts = data.split(':');
-                                const hours = parseInt(timeParts[0]);
-                                const minutes = timeParts[1];
-                                const ampm = hours >= 12 ? 'PM' : 'AM';
-                                const displayHours = hours > 12 ? hours - 12 : (hours === 0 ? 12 : hours);
-                                return displayHours + ':' + minutes + ' ' + ampm;
-                            }
-                            return data;
-                        }
-                    },
-                    { 
-                        data: 'waiting_time',
-                        render: function(data) {
-                            if (!data || data === 'N/A') return 'N/A';
-                            
-                            // If it's already in the new format, return as is
-                            if (data.includes('hours') && data.includes('minutes')) {
-                                return data;
-                            }
-                            
-                            // Convert old time format (HH:MM:SS) to minutes
-                            if (data.includes(':')) {
-                                const timeParts = data.split(':');
-                                const hours = parseInt(timeParts[0]) || 0;
-                                const minutes = parseInt(timeParts[1]) || 0;
-                                
-                                if (hours > 0) {
-                                    return hours + ' hours ' + minutes + ' minutes';
-                                } else {
-                                    return minutes + ' minutes';
-                                }
-                            }
-                            
-                            return data;
-                        }
-                    },
-                    { 
-                        data: 'serving_time',
-                        render: function(data) {
-                            if (!data || data === 'N/A') return 'N/A';
-                            
-                            // If it's already in the new format, return as is
-                            if (data.includes('hours') && data.includes('minutes')) {
-                                return data;
-                            }
-                            
-                            // Convert old time format (HH:MM:SS) to minutes
-                            if (data.includes(':')) {
-                                const timeParts = data.split(':');
-                                const hours = parseInt(timeParts[0]) || 0;
-                                const minutes = parseInt(timeParts[1]) || 0;
-                                
-                                if (hours > 0) {
-                                    return hours + ' hours ' + minutes + ' minutes';
-                                } else {
-                                    return minutes + ' minutes';
-                                }
-                            }
-                            
-                            return data;
+                            const date = new Date(data);
+                            return date.toLocaleString('en-US', { 
+                                month: 'short', 
+                                day: 'numeric', 
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            });
                         }
                     }
                 ],
@@ -538,7 +447,7 @@
                 lengthMenu: [[10, 20, 30, 50, 100], [10, 20, 30, 50, 100]],
                 responsive: true,
                 searching: false, // Disable built-in search, use our custom search
-                order: [[3, 'desc']], // Sort by Created At descending
+                order: [[6, 'desc']], // Sort by Created At descending
                 language: {
                     emptyTable: 'No customer records found',
                     zeroRecords: 'No matching records found'

@@ -244,15 +244,21 @@
             border: 2px solid #e1e8ed;
             border-radius: 8px;
             font-size: 1rem;
-            margin-bottom: 25px;
         }
         
-        .form-header {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 25px;
-            text-align: center;
+        .search-container {
+            background: #f8f9fa;
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .form-container {
+            background: #f8f9fa;
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            padding: 20px;
         }
         
         .now-serving-card h2 {
@@ -400,6 +406,95 @@
             padding: 40px;
             font-style: italic;
         }
+        
+        /* New separate card styles for right column */
+        .right-column {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .search-card {
+            background: transparent;
+            padding: 0;
+            box-shadow: none;
+            position: relative;
+        }
+        
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #e1e8ed;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .search-result-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e1e8ed;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .search-result-item:hover {
+            background: #f8f9fa;
+        }
+        
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .search-result-name {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 0.95rem;
+        }
+        
+        .search-result-details {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            margin-top: 3px;
+        }
+        
+        .search-no-results {
+            padding: 15px;
+            text-align: center;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+        
+        .search-card .form-header {
+            display: none;
+        }
+        
+        .form-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            flex: 1;
+        }
+        
+        .form-card .form-header {
+            border-bottom-color: #667eea;
+        }
+        
+        .form-header {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
     </style>
 </head>
 <body>
@@ -431,8 +526,7 @@
                             onclick="callNext()">
                         CALL NEXT
                     </button>
-                    <button class="btn btn-complete" id="completeBtn" 
-                            <?= $now_serving ? '' : 'disabled' ?>
+                    <button class="btn btn-complete" id="completeBtn" disabled
                             onclick="completeCurrent()">
                         COMPLETE
                     </button>
@@ -496,57 +590,62 @@
             </div>
         </div>
 
-        <!-- Right Section - Customer Information Form -->
-        <div class="right-section">
-            <div class="form-header">Customer Information</div>
+        <!-- Right Section - Search and Customer Form -->
+        <div class="right-column">
+            <!-- Search Card -->
+            <div class="search-card">
+                <input type="text" class="search-bar" placeholder="Search by transaction number or name in document..." id="searchBar" autocomplete="off">
+                <!-- Search Results Dropdown -->
+                <div id="searchResults" class="search-results" style="display: none;"></div>
+            </div>
             
-            <!-- Search Bar -->
-            <input type="text" class="search-bar" placeholder="Search by ticket number or transaction number..." id="searchBar">
-            
-            <!-- Customer Form -->
-            <form id="customerForm">
-                <div class="form-group">
-                    <label for="customerName">Name of Customer *</label>
-                    <input type="text" id="customerName" name="customerName" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="documentName">Name in Document *</label>
-                    <input type="text" id="documentName" name="documentName" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="service">Service *</label>
-                    <select id="service" name="service" required>
-                        <option value="">Select Service</option>
-                        <option value="BREQS">BREQS</option>
-                        <option value="BIRTH-REGULAR">Birth Registration - Regular</option>
-                        <option value="BIRTH-DELAYED">Birth Registration - Delayed</option>
-                        <option value="BIRTH-OUT-OF-TOWN">Birth Registration - Out-of-Town</option>
-                        <option value="DEATH-REGULAR">Death Registration - Regular</option>
-                        <option value="DEATH-DELAYED">Death Registration - Delayed</option>
-                        <option value="MARRIAGE-REGULAR">Marriage Registration - Regular</option>
-                        <option value="MARRIAGE-DELAYED">Marriage Registration - Delayed</option>
-                        <option value="MARRIAGE-LICENSE-ENDORSEMENT">Marriage License Endorsement</option>
-                        <option value="MARRIAGE-LICENSE-APPLICATION">Marriage License Application</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="remarks">Remarks</label>
-                    <textarea id="remarks" name="remarks" placeholder="Enter any additional notes..."></textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label for="transactionNumber">Transaction Number</label>
-                    <input type="text" id="transactionNumber" name="transactionNumber" readonly>
-                </div>
-                
-                <div class="btn-group">
-                    <button type="submit" class="btn btn-call">Save Customer Information</button>
-                    <button type="button" class="btn btn-skip" onclick="clearForm()">Clear Form</button>
-                </div>
-            </form>
+            <!-- Customer Form Card -->
+            <div class="form-card">
+                <div class="form-header">Customer Information</div>
+                <form id="customerForm">
+                    <div class="form-group">
+                        <label for="customerName">Name of Customer *</label>
+                        <input type="text" id="customerName" name="customerName" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="documentName">Name in Document *</label>
+                        <input type="text" id="documentName" name="documentName" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="service">Service *</label>
+                        <select id="service" name="service" required>
+                            <option value="">Select Service</option>
+                            <option value="BREQS">BREQS</option>
+                            <option value="BIRTH-REGULAR">Birth Registration - Regular</option>
+                            <option value="BIRTH-DELAYED">Birth Registration - Delayed</option>
+                            <option value="BIRTH-OUT-OF-TOWN">Birth Registration - Out-of-Town</option>
+                            <option value="DEATH-REGULAR">Death Registration - Regular</option>
+                            <option value="DEATH-DELAYED">Death Registration - Delayed</option>
+                            <option value="MARRIAGE-REGULAR">Marriage Registration - Regular</option>
+                            <option value="MARRIAGE-DELAYED">Marriage Registration - Delayed</option>
+                            <option value="MARRIAGE-LICENSE-ENDORSEMENT">Marriage License Endorsement</option>
+                            <option value="MARRIAGE-LICENSE-APPLICATION">Marriage License Application</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="remarks">Remarks</label>
+                        <textarea id="remarks" name="remarks" placeholder="Enter any additional notes..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="transactionNumber">Transaction Number</label>
+                        <input type="text" id="transactionNumber" name="transactionNumber" readonly>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-call">Save Customer Information</button>
+                        <button type="button" class="btn btn-skip" onclick="clearForm()">Clear Form</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -604,11 +703,14 @@
                 const queueId = e.target.dataset.id;
                 const ticketNumber = e.target.dataset.ticket;
                 const isCompleted = e.target.classList.contains('completed');
+                const isWaiting = e.target.classList.contains('waiting');
+                const isSkipped = e.target.classList.contains('skipped');
                 
                 console.log('Queue item clicked:');
                 console.log('- Queue ID:', queueId);
                 console.log('- Ticket Number:', ticketNumber);
                 console.log('- Is Completed:', isCompleted);
+                console.log('- Is Waiting:', isWaiting);
                 console.log('- Classes:', e.target.className);
                 
                 // Check if clicking the same item (unselect)
@@ -621,6 +723,12 @@
                     // Disable call button if no waiting customers
                     const waitingCount = document.querySelectorAll('#waitingList .queue-item').length;
                     document.getElementById('callBtn').disabled = waitingCount === 0;
+                    
+                    // Clear form if unselecting a completed item
+                    if (isCompleted) {
+                        clearForm();
+                        console.log('Cleared form after unselecting completed item:', ticketNumber);
+                    }
                     
                     console.log('Unselected queue item:', ticketNumber);
                 } else {
@@ -636,11 +744,8 @@
                     selectedQueueId = queueId;
                     selectedTicketNumber = ticketNumber;
                     
-                    // Enable call button only if no customer is currently being served
-                    const callBtn = document.getElementById('callBtn');
-                    if (!currentQueueId) {
-                        callBtn.disabled = false;
-                    }
+                    // Enable call button when any waiting/skipped/completed item is selected
+                    document.getElementById('callBtn').disabled = false;
                     
                     // Handle form population based on item status
                     if (isCompleted) {
@@ -670,6 +775,7 @@
         }
 
         function restoreSelection() {
+            console.log('restoreSelection called, selectedQueueId:', selectedQueueId, 'selectedTicketNumber:', selectedTicketNumber);
             if (selectedQueueId) {
                 const selectedItem = document.querySelector(`.queue-item[data-id="${selectedQueueId}"]`);
                 if (selectedItem) {
@@ -677,28 +783,29 @@
                     console.log('Restored selection for:', selectedTicketNumber);
                 } else {
                     // Item no longer exists (was called/served)
+                    console.log('Selected item no longer in DOM, clearing selection');
                     clearSelection();
                 }
+            } else {
+                console.log('No selection to restore (selectedQueueId is null)');
             }
         }
 
         function callNext() {
-            let targetQueueId = currentQueueId;
+            // Must have a selection to call next
+            let targetQueueId = selectedQueueId;
+            let isFromCompleted = false;
             
-            // If a specific queue item is selected, call that one instead
-            if (selectedQueueId) {
-                targetQueueId = selectedQueueId;
-                // Check if selected item is from completed list
-                const selectedItem = document.querySelector(`.queue-item[data-id="${selectedQueueId}"]`);
-                isServingCompleted = selectedItem && selectedItem.classList.contains('completed');
-                console.log('isServingCompleted set to:', isServingCompleted);
-            } else {
-                isServingCompleted = false;
+            if (!targetQueueId) {
+                console.log('No queue item selected to call');
+                return;
             }
             
-            if (!targetQueueId) return;
-            
-            console.log('Calling queue item:', targetQueueId, selectedTicketNumber || 'next in line', 'From completed:', isServingCompleted);
+            // Check if selected item is from completed list
+            const selectedItem = document.querySelector(`.queue-item[data-id="${targetQueueId}"]`);
+            isFromCompleted = selectedItem && selectedItem.classList.contains('completed');
+            isServingCompleted = isFromCompleted;
+            console.log('Calling specific queue item:', targetQueueId, 'Ticket:', selectedTicketNumber, 'From completed:', isFromCompleted);
             
             fetch('<?= base_url('window/callNext/') ?>' + windowId, {
                 method: 'POST',
@@ -719,9 +826,13 @@
                     // Clear selection after successful call
                     clearSelection();
                     refreshData();
-                    // If called from completed list, load customer data
-                    if (data.is_from_completed && data.ticket_number) {
-                        loadCustomerData(data.ticket_number);
+                    // If called from completed list, load customer data using TRANSACTION NUMBER
+                    if (data.is_from_completed && data.transaction_number) {
+                        loadCustomerDataByTransaction(data.transaction_number);
+                    } else if (data.ticket_number) {
+                        // For new customers, just auto-populate service
+                        autoPopulateService(data.ticket_number);
+                        document.getElementById('transactionNumber').value = data.transaction_number || '';
                     }
                 } else {
                     showModal('Error: ' + data.message);
@@ -762,24 +873,92 @@
         function completeCurrent() {
             if (!currentQueueId) return;
             
-            // Complete current transaction without calling next
-            fetch('<?= base_url('window/complete/') ?>' + currentQueueId, {
-                method: 'POST',
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.success) {
-                    isServingCompleted = false; // Reset flag
-                    // Clear from localStorage
-                    localStorage.removeItem('isServingCompleted_' + windowId);
-                    refreshData();
-                    // Enable call next button after completion
-                    document.getElementById('callBtn').disabled = false;
+            console.log('Completing current transaction');
+            
+            // First check if form has required data or there's saved data in DB
+            hasValidTransactionData().then(hasData => {
+                if (!hasData) {
+                    showModal('There is no transaction record can\'t save. Please fill in all required fields (Name of Customer, Name in Document, Service) before completing.');
+                    return;
                 }
+                
+                // If there are unsaved changes, save first
+                const savePromise = hasUnsavedChanges ? saveCustomerData() : Promise.resolve({ success: true });
+                
+                savePromise.then(saveResult => {
+                    if (!saveResult.success && hasUnsavedChanges) {
+                        showModal('Failed to save customer data: ' + (saveResult.message || 'Unknown error') + '. Please try again.');
+                        return;
+                    }
+                    
+                    // Complete current transaction only - do NOT auto-call next
+                    fetch('<?= base_url('window/complete/') ?>' + currentQueueId, {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            isServingCompleted = false; // Reset flag
+                            // Clear from localStorage
+                            localStorage.removeItem('isServingCompleted_' + windowId);
+                            
+                            clearSelection();
+                            clearForm();
+                            hasUnsavedChanges = false;
+                            
+                            refreshData();
+                        } else {
+                            showModal('Error: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Network error:', error);
+                        showModal('Network error: ' + error.message);
+                    });
+                });
             });
         }
         
+        function loadCustomerDataByTransaction(transactionNumber) {
+            console.log('loadCustomerDataByTransaction called for transaction:', transactionNumber);
+            
+            // Fetch customer data by transaction number
+            fetch('<?= base_url('window/getCustomerDataByTransaction/') ?>' + encodeURIComponent(transactionNumber), {
+                method: 'GET',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(r => {
+                console.log('Response status:', r.status);
+                return r.json();
+            })
+            .then(data => {
+                console.log('Received data:', data);
+                
+                if (data.success && data.customer) {
+                    console.log('Customer data found:', data.customer);
+                    
+                    // Populate form with customer data
+                    document.getElementById('customerName').value = data.customer.customer_name || '';
+                    document.getElementById('documentName').value = data.customer.document_name || '';
+                    document.getElementById('service').value = data.customer.service || '';
+                    document.getElementById('remarks').value = data.customer.remarks || '';
+                    document.getElementById('transactionNumber').value = data.customer.transaction_number || transactionNumber;
+                    
+                    console.log('Form populated successfully from existing record');
+                } else {
+                    console.log('No customer data found for transaction:', transactionNumber);
+                }
+            })
+            .catch(error => {
+                console.error('Error loading customer data:', error);
+            });
+        }
+
+        // Keep old function for backward compatibility
         function loadCustomerData(ticketNumber) {
             console.log('loadCustomerData called for ticket:', ticketNumber);
             
@@ -824,6 +1003,33 @@
                 const transactionNumber = generateTransactionNumber(ticketNumber);
                 document.getElementById('transactionNumber').value = transactionNumber;
             });
+        }
+
+        // Auto-serve first customer on page load if none is being served
+        function autoServeFirstIfNeeded() {
+            const nowServing = document.getElementById('nowServing').textContent;
+            if (nowServing === 'None' || nowServing === '' || !currentQueueId) {
+                // Check if there are waiting customers
+                const waitingCount = document.querySelectorAll('#waitingList .queue-item').length;
+                if (waitingCount > 0) {
+                    console.log('Auto-serving first customer on page load...');
+                    // Call the autoServeFirst endpoint
+                    fetch('<?= base_url('window/autoServeFirst/') ?>' + windowId, {
+                        method: 'POST',
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            console.log('Auto-served first customer:', data.ticket_number);
+                            refreshData();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Auto-serve error:', error);
+                    });
+                }
+            }
         }
 
         // Connection state management
@@ -915,9 +1121,10 @@
                         skipBtn.disabled = shouldDisableSkip;
                         console.log('Skip button disabled state:', shouldDisableSkip, 'server:', data.is_serving_from_completed, 'local:', isServingCompleted);
                     } else {
-                        // No current serving, enable Call Next only if there are waiting customers AND a customer is selected
+                        // No current serving, enable Call Next if there are waiting/skipped customers AND a customer is selected
                         const waitingCount = document.querySelectorAll('#waitingList .queue-item').length;
-                        callBtn.disabled = waitingCount === 0 || !selectedQueueId;
+                        const skippedCount = document.querySelectorAll('#skippedList .queue-item').length;
+                        callBtn.disabled = (waitingCount === 0 && skippedCount === 0) || !selectedQueueId;
                         completeBtn.disabled = true;
                         skipBtn.disabled = true;
                         // Reset flag when no customer is being served
@@ -989,7 +1196,165 @@
             }
         }
 
-        // Monitor online/offline status
+        // Track if form has unsaved changes
+        let hasUnsavedChanges = false;
+        let autoSaveInterval;
+        
+        // Monitor form changes
+        const formInputs = document.querySelectorAll('#customerForm input, #customerForm select, #customerForm textarea');
+        formInputs.forEach(input => {
+            input.addEventListener('input', () => {
+                hasUnsavedChanges = true;
+            });
+            input.addEventListener('change', () => {
+                hasUnsavedChanges = true;
+            });
+        });
+        
+        // Check if current serving ticket has saved data in database
+        async function hasSavedDataInDB() {
+            const transactionNumber = document.getElementById('transactionNumber').value.trim();
+            const nowServing = document.getElementById('nowServing').textContent;
+            
+            if (!transactionNumber && nowServing === 'None') {
+                return false;
+            }
+            
+            // Try to get transaction number from form or generate from ticket
+            let txnToCheck = transactionNumber;
+            if (!txnToCheck && nowServing !== 'None') {
+                // Generate expected transaction number
+                txnToCheck = generateTransactionNumber(nowServing);
+            }
+            
+            if (!txnToCheck) {
+                return false;
+            }
+            
+            try {
+                const response = await fetch('<?= base_url('window/getCustomerDataByTransaction/') ?>' + encodeURIComponent(txnToCheck), {
+                    method: 'GET',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.customer) {
+                    // Check if all required fields are present in the record
+                    const customer = data.customer;
+                    const hasRequiredData = customer.customer_name && 
+                                          customer.document_name && 
+                                          customer.service && 
+                                          customer.transaction_number;
+                    
+                    if (hasRequiredData) {
+                        console.log('Found saved customer data in DB for:', txnToCheck);
+                    }
+                    return hasRequiredData;
+                }
+                
+                return false;
+            } catch (error) {
+                console.error('Error checking saved data:', error);
+                return false;
+            }
+        }
+        
+        // Check if form or database has valid transaction data
+        async function hasValidTransactionData() {
+            // First check form
+            if (hasFormData()) {
+                return true;
+            }
+            
+            // If form is empty, check database
+            return await hasSavedDataInDB();
+        }
+        
+        // Check if form has required data filled
+        function hasFormData() {
+            const customerName = document.getElementById('customerName').value.trim();
+            const documentName = document.getElementById('documentName').value.trim();
+            const service = document.getElementById('service').value;
+            const transactionNumber = document.getElementById('transactionNumber').value.trim();
+            
+            return customerName && documentName && service && transactionNumber;
+        }
+        function getFormData() {
+            const windowNameElement = document.querySelector('.header-info h1');
+            let windowName = '';
+            
+            if (windowNameElement) {
+                const fullWindowName = windowNameElement.textContent;
+                windowName = fullWindowName.split(' - ')[1] || '';
+            }
+            
+            return {
+                customerName: document.getElementById('customerName').value.trim(),
+                documentName: document.getElementById('documentName').value.trim(),
+                service: document.getElementById('service').value,
+                remarks: document.getElementById('remarks').value.trim(),
+                transactionNumber: document.getElementById('transactionNumber').value.trim(),
+                window_id: windowId,
+                window_name: windowName
+            };
+        }
+        
+        // Save customer data function
+        async function saveCustomerData() {
+            const data = getFormData();
+            
+            // Validate required fields
+            if (!data.customerName || !data.documentName || !data.service || !data.transactionNumber) {
+                return { success: false, message: 'Required fields missing' };
+            }
+            
+            try {
+                const response = await fetch('<?= base_url('window/saveCustomer') ?>', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: new URLSearchParams(data)
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    hasUnsavedChanges = false;
+                }
+                return result;
+            } catch (error) {
+                console.error('Auto-save error:', error);
+                return { success: false, message: 'Network error' };
+            }
+        }
+        
+        // Auto-save every 30 seconds
+        function startAutoSave() {
+            autoSaveInterval = setInterval(() => {
+                if (hasUnsavedChanges && hasFormData()) {
+                    console.log('Auto-saving form data...');
+                    saveCustomerData().then(result => {
+                        if (result.success) {
+                            console.log('Auto-save successful');
+                        }
+                    });
+                }
+            }, 30000); // 30 seconds
+        }
+        
+        // Start auto-save on page load
+        startAutoSave();
+        
+        // Warn about unsaved changes when leaving page
+        window.addEventListener('beforeunload', (e) => {
+            if (hasUnsavedChanges && hasFormData()) {
+                e.preventDefault();
+                e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+                return e.returnValue;
+            }
+        });
         window.addEventListener('online', () => {
             console.log('Connection restored');
             retryConnection();
@@ -1011,24 +1376,33 @@
             const today = new Date();
             const month = String(today.getMonth() + 1).padStart(2, '0');
             const day = String(today.getDate()).padStart(2, '0');
-            const year = today.getFullYear().toString().slice(-2);
+            const year = today.getFullYear();
+            const date = year + month + day; // YYYYMMDD format matching backend
             
-            // Get window name from the page header
-            const windowNameElement = document.querySelector('.header-info h1');
-            let windowName = 'WINDOW';
-            if (windowNameElement) {
-                const fullWindowName = windowNameElement.textContent;
-                // Extract window name (e.g., "BREQS" from "Window 1 - BREQS")
-                windowName = fullWindowName.split(' - ')[1] || 'WINDOW';
+            // Get service from the form to determine prefix
+            const serviceSelect = document.getElementById('service');
+            const service = serviceSelect ? serviceSelect.value : '';
+            
+            // Determine prefix based on service (must match backend logic in CustomerRecordsModel.php)
+            let prefix = 'BREQS';
+            if (service) {
+                const serviceUpper = service.toUpperCase();
+                if (serviceUpper.includes('BIRTH')) {
+                    prefix = 'BIRTH';
+                } else if (serviceUpper.includes('DEATH')) {
+                    prefix = 'DEATH';
+                } else if (serviceUpper.includes('MARRIAGE')) {
+                    prefix = 'MARRIAGE';
+                }
             }
             
-            // Remove any spaces and convert to uppercase
-            windowName = windowName.replace(/\s+/g, '').toUpperCase();
-            
-            // Extract ticket number from the end
+            // Extract ticket number from the end and pad to 3 digits
             const ticketNum = ticketNumber.split('-').pop();
+            const paddedNumber = String(ticketNum).padStart(3, '0');
             
-            return `${windowName}${year}-${month}${day}-${ticketNum}`;
+            // Format: PREFIX + YYYYMMDD + '-' + 3-digit number
+            // e.g., BREQS20260331-001
+            return `${prefix}${date}-${paddedNumber}`;
         }
 
         function autoPopulateService(ticketNumber) {
@@ -1061,73 +1435,128 @@
         function clearForm() {
             document.getElementById('customerForm').reset();
             document.getElementById('transactionNumber').value = '';
+            hasUnsavedChanges = false;
         }
 
-        function searchCustomer() {
-            const searchTerm = document.getElementById('searchBar').value.toLowerCase().trim();
+        // Customer Search Functionality
+        let searchTimeout;
+        const searchBar = document.getElementById('searchBar');
+        const searchResults = document.getElementById('searchResults');
+
+        // Debounced search function
+        function debouncedSearch() {
+            clearTimeout(searchTimeout);
+            const query = searchBar.value.trim();
             
-            if (!searchTerm || searchTerm.length < 2) {
-                clearForm();
+            if (query.length < 2) {
+                hideSearchResults();
                 return;
             }
             
-            // Search in all queue items (waiting, skipped, completed)
-            const queueItems = document.querySelectorAll('.queue-item');
-            let found = false;
-            
-            queueItems.forEach(item => {
-                const ticketNumber = item.textContent.toLowerCase();
-                if (ticketNumber.includes(searchTerm)) {
-                    const actualTicketNumber = item.textContent;
-                    
-                    // Auto-populate service
-                    autoPopulateService(actualTicketNumber);
-                    
-                    // Generate and set transaction number
-                    const transactionNumber = generateTransactionNumber(actualTicketNumber);
-                    document.getElementById('transactionNumber').value = transactionNumber;
-                    
-                    // Highlight the found item
-                    // Remove previous highlights
-                    document.querySelectorAll('.queue-item.search-highlight').forEach(el => {
-                        el.classList.remove('search-highlight');
-                    });
-                    
-                    // Add highlight to found item
-                    item.classList.add('search-highlight');
-                    
-                    found = true;
-                }
-            });
-            
-            // Also check currently serving
-            const nowServing = document.getElementById('nowServing').textContent;
-            if (nowServing.toLowerCase().includes(searchTerm) && nowServing !== 'None') {
-                autoPopulateService(nowServing);
-                const transactionNumber = generateTransactionNumber(nowServing);
-                document.getElementById('transactionNumber').value = transactionNumber;
-                found = true;
-            }
-            
-            if (!found) {
-                // Remove any existing highlights
-                document.querySelectorAll('.queue-item.search-highlight').forEach(el => {
-                    el.classList.remove('search-highlight');
-                });
-                
-                // Only show alert if user has typed at least 3 characters
-                if (searchTerm.length >= 3) {
-                    // Don't show alert immediately, just clear form
-                    clearForm();
-                }
-            }
+            searchTimeout = setTimeout(() => performSearch(query), 300);
         }
 
-        // Debounced search function to prevent excessive calls
-        let searchTimeout;
-        function debouncedSearch() {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(searchCustomer, 300);
+        // Perform search via AJAX
+        function performSearch(query) {
+            console.log('Searching for:', query);
+            const url = '<?= base_url('window/searchCustomers?q=') ?>' + encodeURIComponent(query);
+            console.log('Search URL:', url);
+            
+            fetch(url, {
+                method: 'GET',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(r => {
+                console.log('Search response status:', r.status);
+                return r.json();
+            })
+            .then(data => {
+                console.log('Search results:', data);
+                if (data.success) {
+                    displaySearchResults(data.customers);
+                }
+            })
+            .catch(error => {
+                console.error('Search error:', error);
+            });
+        }
+
+        // Display search results dropdown
+        function displaySearchResults(customers) {
+            if (!customers || customers.length === 0) {
+                searchResults.innerHTML = '<div class="search-no-results">No customers found</div>';
+                searchResults.style.display = 'block';
+                return;
+            }
+            
+            let html = '';
+            customers.forEach(customer => {
+                const transNum = customer.transaction_number || 'N/A';
+                const docName = customer.document_name || 'N/A';
+                const service = customer.service || 'N/A';
+                
+                html += `
+                    <div class="search-result-item" data-customer='${JSON.stringify(customer).replace(/'/g, "&apos;")}'>
+                        <div class="search-result-name">${escapeHtml(transNum)} | ${escapeHtml(docName)} | ${escapeHtml(service)}</div>
+                    </div>
+                `;
+            });
+            
+            searchResults.innerHTML = html;
+            searchResults.style.display = 'block';
+            
+            // Add click handlers to result items
+            document.querySelectorAll('.search-result-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const customerData = JSON.parse(this.dataset.customer);
+                    populateFormWithCustomer(customerData);
+                    hideSearchResults();
+                    searchBar.value = customerData.document_name || '';
+                });
+            });
+        }
+
+        // Hide search results
+        function hideSearchResults() {
+            searchResults.style.display = 'none';
+        }
+
+        // Populate form with customer data
+        function populateFormWithCustomer(customer) {
+            document.getElementById('customerName').value = customer.customer_name || '';
+            document.getElementById('documentName').value = customer.document_name || '';
+            document.getElementById('service').value = customer.service || '';
+            document.getElementById('remarks').value = customer.remarks || '';
+            document.getElementById('transactionNumber').value = customer.transaction_number || '';
+            
+            console.log('Form populated with customer:', customer.customer_name);
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Close search results when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!searchBar.contains(e.target) && !searchResults.contains(e.target)) {
+                hideSearchResults();
+            }
+        });
+
+        // Search input event listeners
+        searchBar.addEventListener('input', debouncedSearch);
+        searchBar.addEventListener('focus', function() {
+            if (this.value.trim().length >= 2) {
+                debouncedSearch();
+            }
+        });
+
+        function searchCustomer() {
+            debouncedSearch();
         }
 
         // Form submission
@@ -1174,10 +1603,9 @@
             .then(response => response.json())
             .then(result => {
                 if (result.success) {
-                    showModal('Customer information saved successfully!', 'confirm', function(confirmed) {
-                        if (confirmed) {
-                            clearForm();
-                        }
+                    hasUnsavedChanges = false; // Mark as saved
+                    showModal('Customer information saved successfully!', 'alert', function() {
+                        clearForm();
                     });
                 } else {
                     showModal('Error: ' + result.message);
@@ -1189,16 +1617,7 @@
             });
         });
 
-        // Search functionality
-        document.getElementById('searchBar').addEventListener('input', debouncedSearch);
-        document.getElementById('searchBar').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                searchCustomer(); // Immediate search on Enter
-            }
-        });
-
-        // Auto-populate when a customer is called
+        // Form submission
         function updateCustomerInfo() {
             const nowServing = document.getElementById('nowServing').textContent;
             if (nowServing !== 'None') {

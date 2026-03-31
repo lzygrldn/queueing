@@ -37,7 +37,10 @@ $routes->post('window/complete/(:num)', 'Window::complete/$1');
 $routes->post('window/skip/(:num)', 'Window::skip/$1');
 $routes->get('window/data/(:num)', 'Window::getData/$1');
 $routes->get('window/getCustomerData/(:any)', 'Window::getCustomerData/$1');
+$routes->get('window/getCustomerDataByTransaction/(:any)', 'Window::getCustomerDataByTransaction/$1');
+$routes->get('window/searchCustomers', 'Window::searchCustomers');
 $routes->post('window/saveCustomer', 'Window::saveCustomer');
+$routes->post('window/autoServeFirst/(:num)', 'Window::autoServeFirst/$1');
 
 // Queue Routes
 $routes->get('queue', 'QueueController::index');
