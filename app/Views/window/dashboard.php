@@ -548,7 +548,7 @@
                             <div class="empty-state">No customers waiting</div>
                         <?php else: ?>
                             <?php foreach ($waiting_list as $waiting): ?>
-                                <div class="queue-item waiting" data-id="<?= $waiting['id'] ?>" data-ticket="<?= $waiting['ticket_number'] ?>">
+                                <div class="queue-item waiting" data-id="<?= $waiting['id'] ?>" data-ticket="<?= $waiting['ticket_number'] ?>" data-service-type="<?= $waiting['service_type'] ?? '' ?>">
                                     <?= $waiting['ticket_number'] ?>
                                 </div>
                             <?php endforeach; ?>
@@ -564,7 +564,7 @@
                             <div class="empty-state">No skipped customers</div>
                         <?php else: ?>
                             <?php foreach ($skipped_list as $skipped): ?>
-                                <div class="queue-item skipped" data-id="<?= $skipped['id'] ?>" data-ticket="<?= $skipped['ticket_number'] ?>">
+                                <div class="queue-item skipped" data-id="<?= $skipped['id'] ?>" data-ticket="<?= $skipped['ticket_number'] ?>" data-service-type="<?= $skipped['service_type'] ?? '' ?>">
                                     <?= $skipped['ticket_number'] ?>
                                 </div>
                             <?php endforeach; ?>
@@ -580,7 +580,7 @@
                             <div class="empty-state">No completed customers</div>
                         <?php else: ?>
                             <?php foreach ($completed_list as $completed): ?>
-                                <div class="queue-item completed" data-id="<?= $completed['id'] ?>" data-ticket="<?= $completed['ticket_number'] ?>">
+                                <div class="queue-item completed" data-id="<?= $completed['id'] ?>" data-ticket="<?= $completed['ticket_number'] ?>" data-service-type="<?= $completed['service_type'] ?? '' ?>">
                                     <?= $completed['ticket_number'] ?>
                                 </div>
                             <?php endforeach; ?>
@@ -616,17 +616,35 @@
                     <div class="form-group">
                         <label for="service">Service *</label>
                         <select id="service" name="service" required>
-                            <option value="">Select Service</option>
-                            <option value="BREQS">BREQS</option>
-                            <option value="BIRTH-REGULAR">Birth Registration - Regular</option>
-                            <option value="BIRTH-DELAYED">Birth Registration - Delayed</option>
-                            <option value="BIRTH-OUT-OF-TOWN">Birth Registration - Out-of-Town</option>
-                            <option value="DEATH-REGULAR">Death Registration - Regular</option>
-                            <option value="DEATH-DELAYED">Death Registration - Delayed</option>
-                            <option value="MARRIAGE-REGULAR">Marriage Registration - Regular</option>
-                            <option value="MARRIAGE-DELAYED">Marriage Registration - Delayed</option>
-                            <option value="MARRIAGE-LICENSE-ENDORSEMENT">Marriage License Endorsement</option>
-                            <option value="MARRIAGE-LICENSE-APPLICATION">Marriage License Application</option>
+                            <option value="" disabled selected>Select Service</option>
+                            <?php 
+                            $windowPrefix = $window['prefix'] ?? '';
+                            if ($windowPrefix === 'BREQS'): ?>
+                                <option value="BREQS">BREQS</option>
+                            <?php elseif ($windowPrefix === 'BIRTH'): ?>
+                                <option value="BIRTH-REGULAR">Birth - Regular</option>
+                                <option value="BIRTH-DELAYED">Birth - Delayed</option>
+                                <option value="BIRTH-OUT-OF-TOWN">Birth - Out-of-Town</option>
+                            <?php elseif ($windowPrefix === 'DEATH'): ?>
+                                <option value="DEATH-REGULAR">Death - Regular</option>
+                                <option value="DEATH-DELAYED">Death - Delayed</option>
+                            <?php elseif ($windowPrefix === 'MARRIAGE'): ?>
+                                <option value="MARRIAGE-REGULAR">Marriage - Regular</option>
+                                <option value="MARRIAGE-DELAYED">Marriage - Delayed</option>
+                                <option value="MARRIAGE-LICENSE-ENDORSEMENT">Marriage - License Endorsement</option>
+                                <option value="MARRIAGE-LICENSE-APPLICATION">Marriage - License Application</option>
+                            <?php else: ?>
+                                <option value="BREQS">BREQS</option>
+                                <option value="BIRTH-REGULAR">Birth - Regular</option>
+                                <option value="BIRTH-DELAYED">Birth - Delayed</option>
+                                <option value="BIRTH-OUT-OF-TOWN">Birth - Out-of-Town</option>
+                                <option value="DEATH-REGULAR">Death - Regular</option>
+                                <option value="DEATH-DELAYED">Death - Delayed</option>
+                                <option value="MARRIAGE-REGULAR">Marriage - Regular</option>
+                                <option value="MARRIAGE-DELAYED">Marriage - Delayed</option>
+                                <option value="MARRIAGE-LICENSE-ENDORSEMENT">Marriage - License Endorsement</option>
+                                <option value="MARRIAGE-LICENSE-APPLICATION">Marriage - License Application</option>
+                            <?php endif; ?>
                         </select>
                     </div>
                     
@@ -689,19 +707,31 @@
         }
 
         const windowId = <?= $window['id'] ?>;
+        const windowPrefix = '<?= $window['prefix'] ?? '' ?>';
         let currentQueueId = <?= $now_serving ? $now_serving['id'] : 'null' ?>;
         let selectedQueueId = null;
         let selectedTicketNumber = null;
+        let currentServiceType = ''; // Store the service type of current serving customer
         let isSelectionRestored = false; // Track if selection is already restored
         // Load isServingCompleted from localStorage on page load
         let isServingCompleted = localStorage.getItem('isServingCompleted_' + windowId) === 'true';
         console.log('Initial load - isServingCompleted from localStorage:', isServingCompleted, 'key:', 'isServingCompleted_' + windowId);
+
+        // Disable service field for BREQS window and auto-set value
+        if (windowPrefix === 'BREQS') {
+            const serviceSelect = document.getElementById('service');
+            serviceSelect.value = 'BREQS';
+            serviceSelect.disabled = true;
+            serviceSelect.title = 'BREQS window only handles BREQS service';
+            console.log('BREQS window: Service field disabled and set to BREQS');
+        }
 
         // Queue item click handlers
         document.addEventListener('click', function(e) {
             if (e.target.classList.contains('queue-item')) {
                 const queueId = e.target.dataset.id;
                 const ticketNumber = e.target.dataset.ticket;
+                const serviceType = e.target.dataset.serviceType;
                 const isCompleted = e.target.classList.contains('completed');
                 const isWaiting = e.target.classList.contains('waiting');
                 const isSkipped = e.target.classList.contains('skipped');
@@ -709,6 +739,7 @@
                 console.log('Queue item clicked:');
                 console.log('- Queue ID:', queueId);
                 console.log('- Ticket Number:', ticketNumber);
+                console.log('- Service Type:', serviceType);
                 console.log('- Is Completed:', isCompleted);
                 console.log('- Is Waiting:', isWaiting);
                 console.log('- Classes:', e.target.className);
@@ -724,11 +755,9 @@
                     const waitingCount = document.querySelectorAll('#waitingList .queue-item').length;
                     document.getElementById('callBtn').disabled = waitingCount === 0;
                     
-                    // Clear form if unselecting a completed item
-                    if (isCompleted) {
-                        clearForm();
-                        console.log('Cleared form after unselecting completed item:', ticketNumber);
-                    }
+                    // ALWAYS clear form when unselecting any item (not just completed)
+                    clearForm();
+                    console.log('Cleared form after unselecting item:', ticketNumber);
                     
                     console.log('Unselected queue item:', ticketNumber);
                 } else {
@@ -743,9 +772,16 @@
                     // Store selected data
                     selectedQueueId = queueId;
                     selectedTicketNumber = ticketNumber;
+                    // Store service type from clicked item for auto-population
+                    if (serviceType) {
+                        currentServiceType = serviceType;
+                    }
                     
                     // Enable call button when any waiting/skipped/completed item is selected
                     document.getElementById('callBtn').disabled = false;
+                    
+                    // ALWAYS clear form first when switching to a different item
+                    clearForm();
                     
                     // Handle form population based on item status
                     if (isCompleted) {
@@ -801,9 +837,9 @@
                 return;
             }
             
-            // Check if selected item is from completed list
+            // Check if selected item is from completed or skipped list
             const selectedItem = document.querySelector(`.queue-item[data-id="${targetQueueId}"]`);
-            isFromCompleted = selectedItem && selectedItem.classList.contains('completed');
+            isFromCompleted = selectedItem && (selectedItem.classList.contains('completed') || selectedItem.classList.contains('skipped'));
             isServingCompleted = isFromCompleted;
             console.log('Calling specific queue item:', targetQueueId, 'Ticket:', selectedTicketNumber, 'From completed:', isFromCompleted);
             
@@ -823,9 +859,35 @@
                     // Persist to localStorage
                     localStorage.setItem('isServingCompleted_' + windowId, isServingCompleted.toString());
                     console.log('callNext success - isServingCompleted:', isServingCompleted);
+                    
+                    // Store service type from response for form auto-population
+                    if (data.service_type) {
+                        currentServiceType = data.service_type;
+                        console.log('Service type from callNext:', currentServiceType);
+                    }
+                    
                     // Clear selection after successful call
                     clearSelection();
-                    refreshData();
+                    
+                    // Immediately update Now Serving display
+                    if (data.ticket_number) {
+                        document.getElementById('nowServing').textContent = data.ticket_number;
+                        console.log('Updated Now Serving to:', data.ticket_number);
+                    }
+                    
+                    // Immediately update button states
+                    const callBtn = document.getElementById('callBtn');
+                    const completeBtn = document.getElementById('completeBtn');
+                    const skipBtn = document.getElementById('skipBtn');
+                    callBtn.disabled = true;
+                    completeBtn.disabled = false;
+                    skipBtn.disabled = data.is_from_completed || false;
+                    
+                    // Short delay to ensure DB transaction commits before full refresh
+                    setTimeout(() => {
+                        refreshData();
+                    }, 300);
+                    
                     // If called from completed list, load customer data using TRANSACTION NUMBER
                     if (data.is_from_completed && data.transaction_number) {
                         loadCustomerDataByTransaction(data.transaction_number);
@@ -1073,13 +1135,17 @@
                     document.getElementById('nowServing').textContent = data.now_serving || 'None';
                     currentQueueId = data.current_queue_id || null;
                     
+                    // Store service type for form auto-population
+                    currentServiceType = data.now_serving_service_type || '';
+                    console.log('Current service type:', currentServiceType);
+                    
                     // Update waiting list
                     const waitingList = document.getElementById('waitingList');
                     if (data.waiting_list.length === 0) {
                         waitingList.innerHTML = '<div class="empty-state">No customers waiting</div>';
                     } else {
                         waitingList.innerHTML = data.waiting_list.map(w => 
-                            `<div class="queue-item waiting" data-id="${w.id}" data-ticket="${w.ticket_number}">${w.ticket_number}</div>`
+                            `<div class="queue-item waiting" data-id="${w.id}" data-ticket="${w.ticket_number}" data-service-type="${w.service_type || ''}">${w.ticket_number}</div>`
                         ).join('');
                     }
                     
@@ -1089,7 +1155,7 @@
                         skippedList.innerHTML = '<div class="empty-state">No skipped customers</div>';
                     } else {
                         skippedList.innerHTML = data.skipped_list.map(s => 
-                            `<div class="queue-item skipped" data-id="${s.id}" data-ticket="${s.ticket_number}">${s.ticket_number}</div>`
+                            `<div class="queue-item skipped" data-id="${s.id}" data-ticket="${s.ticket_number}" data-service-type="${s.service_type || ''}">${s.ticket_number}</div>`
                         ).join('');
                     }
                     
@@ -1099,7 +1165,7 @@
                         completedList.innerHTML = '<div class="empty-state">No completed customers</div>';
                     } else {
                         completedList.innerHTML = data.completed_list.map(c => 
-                            `<div class="queue-item completed" data-id="${c.id}" data-ticket="${c.ticket_number}">${c.ticket_number}</div>`
+                            `<div class="queue-item completed" data-id="${c.id}" data-ticket="${c.ticket_number}" data-service-type="${c.service_type || ''}">${c.ticket_number}</div>`
                         ).join('');
                     }
                     
@@ -1121,10 +1187,11 @@
                         skipBtn.disabled = shouldDisableSkip;
                         console.log('Skip button disabled state:', shouldDisableSkip, 'server:', data.is_serving_from_completed, 'local:', isServingCompleted);
                     } else {
-                        // No current serving, enable Call Next if there are waiting/skipped customers AND a customer is selected
+                        // No current serving, enable Call Next if there are waiting/skipped/completed customers AND a customer is selected
                         const waitingCount = document.querySelectorAll('#waitingList .queue-item').length;
                         const skippedCount = document.querySelectorAll('#skippedList .queue-item').length;
-                        callBtn.disabled = (waitingCount === 0 && skippedCount === 0) || !selectedQueueId;
+                        const completedCount = document.querySelectorAll('#completedList .queue-item').length;
+                        callBtn.disabled = (waitingCount === 0 && skippedCount === 0 && completedCount === 0) || !selectedQueueId;
                         completeBtn.disabled = true;
                         skipBtn.disabled = true;
                         // Reset flag when no customer is being served
@@ -1275,10 +1342,18 @@
         function hasFormData() {
             const customerName = document.getElementById('customerName').value.trim();
             const documentName = document.getElementById('documentName').value.trim();
-            const service = document.getElementById('service').value;
             const transactionNumber = document.getElementById('transactionNumber').value.trim();
             
-            return customerName && documentName && service && transactionNumber;
+            // For BREQS, service is always valid (auto-set to BREQS)
+            // For other windows, check service field
+            let serviceValid = false;
+            if (windowPrefix === 'BREQS') {
+                serviceValid = true; // BREQS always has service = 'BREQS'
+            } else {
+                serviceValid = !!document.getElementById('service').value;
+            }
+            
+            return customerName && documentName && serviceValid && transactionNumber;
         }
         function getFormData() {
             const windowNameElement = document.querySelector('.header-info h1');
@@ -1289,10 +1364,13 @@
                 windowName = fullWindowName.split(' - ')[1] || '';
             }
             
+            // For BREQS, force service to 'BREQS' since disabled field doesn't submit
+            const serviceValue = windowPrefix === 'BREQS' ? 'BREQS' : document.getElementById('service').value;
+            
             return {
                 customerName: document.getElementById('customerName').value.trim(),
                 documentName: document.getElementById('documentName').value.trim(),
-                service: document.getElementById('service').value,
+                service: serviceValue,
                 remarks: document.getElementById('remarks').value.trim(),
                 transactionNumber: document.getElementById('transactionNumber').value.trim(),
                 window_id: windowId,
@@ -1379,21 +1457,16 @@
             const year = today.getFullYear();
             const date = year + month + day; // YYYYMMDD format matching backend
             
-            // Get service from the form to determine prefix
-            const serviceSelect = document.getElementById('service');
-            const service = serviceSelect ? serviceSelect.value : '';
-            
-            // Determine prefix based on service (must match backend logic in CustomerRecordsModel.php)
+            // Determine prefix from ticket number, NOT from form
             let prefix = 'BREQS';
-            if (service) {
-                const serviceUpper = service.toUpperCase();
-                if (serviceUpper.includes('BIRTH')) {
-                    prefix = 'BIRTH';
-                } else if (serviceUpper.includes('DEATH')) {
-                    prefix = 'DEATH';
-                } else if (serviceUpper.includes('MARRIAGE')) {
-                    prefix = 'MARRIAGE';
-                }
+            if (ticketNumber.startsWith('BIRTH-')) {
+                prefix = 'BIRTH';
+            } else if (ticketNumber.startsWith('DEATH-')) {
+                prefix = 'DEATH';
+            } else if (ticketNumber.startsWith('MARRIAGE-')) {
+                prefix = 'MARRIAGE';
+            } else if (ticketNumber.startsWith('BREQS-')) {
+                prefix = 'BREQS';
             }
             
             // Extract ticket number from the end and pad to 3 digits
@@ -1408,34 +1481,51 @@
         function autoPopulateService(ticketNumber) {
             const serviceSelect = document.getElementById('service');
             
-            // Map ticket numbers to service options
+            // If we have a stored service type from the API, use it
+            if (currentServiceType) {
+                console.log('Using stored service type:', currentServiceType);
+                // Map the full service type to the select option value
+                const serviceMap = {
+                    'BREQS': 'BREQS',
+                    'Birth - Regular': 'BIRTH-REGULAR',
+                    'Birth - Delayed': 'BIRTH-DELAYED',
+                    'Birth - Out-of-Town': 'BIRTH-OUT-OF-TOWN',
+                    'Death - Regular': 'DEATH-REGULAR',
+                    'Death - Delayed': 'DEATH-DELAYED',
+                    'Marriage - Regular': 'MARRIAGE-REGULAR',
+                    'Marriage - Delayed': 'MARRIAGE-DELAYED',
+                    'Marriage - License Endorsement': 'MARRIAGE-LICENSE-ENDORSEMENT',
+                    'Marriage - License Application': 'MARRIAGE-LICENSE-APPLICATION'
+                };
+                
+                const selectValue = serviceMap[currentServiceType];
+                if (selectValue) {
+                    serviceSelect.value = selectValue;
+                    console.log('Service auto-populated to:', selectValue);
+                    return;
+                }
+            }
+            
+            // Fallback to ticket prefix detection if no service type available
             if (ticketNumber.startsWith('BREQS-')) {
                 serviceSelect.value = 'BREQS';
-            } else if (ticketNumber.startsWith('BIRTH-REGULAR-')) {
+            } else if (ticketNumber.startsWith('BIRTH-')) {
                 serviceSelect.value = 'BIRTH-REGULAR';
-            } else if (ticketNumber.startsWith('BIRTH-DELAYED-')) {
-                serviceSelect.value = 'BIRTH-DELAYED';
-            } else if (ticketNumber.startsWith('BIRTH-OUT-OF-TOWN-')) {
-                serviceSelect.value = 'BIRTH-OUT-OF-TOWN';
-            } else if (ticketNumber.startsWith('DEATH-REGULAR-')) {
+            } else if (ticketNumber.startsWith('DEATH-')) {
                 serviceSelect.value = 'DEATH-REGULAR';
-            } else if (ticketNumber.startsWith('DEATH-DELAYED-')) {
-                serviceSelect.value = 'DEATH-DELAYED';
-            } else if (ticketNumber.startsWith('MARRIAGE-REGULAR-')) {
+            } else if (ticketNumber.startsWith('MARRIAGE-')) {
                 serviceSelect.value = 'MARRIAGE-REGULAR';
-            } else if (ticketNumber.startsWith('MARRIAGE-DELAYED-')) {
-                serviceSelect.value = 'MARRIAGE-DELAYED';
-            } else if (ticketNumber.startsWith('MARRIAGE-LICENSE-ENDORSEMENT-')) {
-                serviceSelect.value = 'MARRIAGE-LICENSE-ENDORSEMENT';
-            } else if (ticketNumber.startsWith('MARRIAGE-LICENSE-APPLICATION-')) {
-                serviceSelect.value = 'MARRIAGE-LICENSE-APPLICATION';
             }
         }
 
         function clearForm() {
-            document.getElementById('customerForm').reset();
+            document.getElementById('customerName').value = '';
+            document.getElementById('documentName').value = '';
+            document.getElementById('service').value = '';
+            document.getElementById('remarks').value = '';
             document.getElementById('transactionNumber').value = '';
             hasUnsavedChanges = false;
+            console.log('Form cleared');
         }
 
         // Customer Search Functionality
@@ -1566,10 +1656,17 @@
             // Validate required fields
             const customerName = document.getElementById('customerName').value.trim();
             const documentName = document.getElementById('documentName').value.trim();
-            const service = document.getElementById('service').value;
             const transactionNumber = document.getElementById('transactionNumber').value;
             
-            if (!customerName || !documentName || !service || !transactionNumber) {
+            // For BREQS, service is auto-set; for other windows, validate service
+            let serviceValid = false;
+            if (windowPrefix === 'BREQS') {
+                serviceValid = true;
+            } else {
+                serviceValid = !!document.getElementById('service').value;
+            }
+            
+            if (!customerName || !documentName || !serviceValid || !transactionNumber) {
                 showModal('Please fill in all required fields (marked with *).');
                 return;
             }
@@ -1586,6 +1683,11 @@
             
             const formData = new FormData(this);
             const data = Object.fromEntries(formData);
+            
+            // For BREQS, manually set service since disabled field won't submit
+            if (windowPrefix === 'BREQS') {
+                data.service = 'BREQS';
+            }
             
             // Add window information
             data.window_id = currentWindowId;

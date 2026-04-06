@@ -33,9 +33,10 @@ class CustomerRecords extends BaseController
         $windowId = $this->request->getGet('window_id');
         $startDate = $this->request->getGet('start_date');
         $endDate = $this->request->getGet('end_date');
+        $search = $this->request->getGet('search');
         
         try {
-            $records = $this->customerRecordsModel->getCustomerRecords($windowId, $startDate, $endDate);
+            $records = $this->customerRecordsModel->getCustomerRecords($windowId, $startDate, $endDate, $search);
             
             return $this->response->setJSON([
                 'data' => $records
@@ -82,9 +83,18 @@ class CustomerRecords extends BaseController
                 ]);
             }
 
+            // Map window_id to ticket prefix
+            $prefixMap = [
+                1 => 'BREQS',
+                2 => 'BIRTH',
+                3 => 'DEATH',
+                4 => 'MARRIAGE'
+            ];
+            
             // Generate ticket number
             $nextNumber = ($window['last_released'] ?? 0) + 1;
-            $ticketNumber = strtoupper($service) . '-' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+            $ticketPrefix = $prefixMap[$windowId] ?? 'BREQS';
+            $ticketNumber = $ticketPrefix . '-' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
 
             // Add to queue
             $queueData = [
@@ -120,12 +130,6 @@ class CustomerRecords extends BaseController
             if (!$serving) {
                 $this->queueModel->markAsServing($queueId);
                 $this->windowModel->updateCurrentNumber($windowId, $nextNumber);
-                
-                // Update customer record status to serving and set start time
-                $transactionNumber = $this->customerRecordsModel
-                    ->where('id', $recordId)
-                    ->first()['transaction_number'];
-                $this->customerRecordsModel->startService($transactionNumber);
             }
 
             return $this->response->setJSON([
@@ -170,11 +174,6 @@ class CustomerRecords extends BaseController
             'Remarks',
             'Window',
             'Status',
-            'Queueing Time',
-            'Start Time',
-            'End Time',
-            'Waiting Time',
-            'Serving Time',
         ];
         
         foreach ($records as $record) {
@@ -186,12 +185,6 @@ class CustomerRecords extends BaseController
                 $record['remarks'] ?: '',
                 $record['window_name'] . ' (Window ' . $record['window_number'] . ')',
                 ucfirst($record['status']),
-                $record['queueing_time'] ?: '',
-                $record['start_time'] ?: '',
-                $record['end_time'] ?: '',
-                $record['waiting_time'] ?: '',
-                $record['serving_time'] ?: '',
-               
             ];
         }
         
@@ -208,93 +201,5 @@ class CustomerRecords extends BaseController
         }
         fclose($output);
         exit;
-    }
-
-    /**
-     * Update all existing customer records with new time format
-     */
-    public function updateDatabase()
-    {
-        try {
-            $result = $this->customerRecordsModel->updateAllExistingRecords();
-            
-            if ($result) {
-                echo "Database update started successfully! Processing all records...<br>";
-                echo "Please refresh the customer records page to see the changes.<br>";
-                echo "All time fields (queueing_time, start_time, end_time) should now show time-only format.<br>";
-                echo "Waiting time and serving time should show 'X hours Y minutes' format.";
-            } else {
-                echo "Failed to update database.";
-            }
-        } catch (Exception $e) {
-            echo "Error updating database: " . $e->getMessage();
-        }
-    }
-
-    /**
-     * Run migration to convert existing DATETIME values to TIME-only
-     */
-    public function convertTimeColumns()
-    {
-        try {
-            $db = \Config\Database::connect();
-            
-            // Convert existing DATETIME values to TIME-only
-            $sql = "UPDATE customer_records SET 
-                    queueing_time = TIME(queueing_time),
-                    start_time = TIME(start_time),
-                    end_time = TIME(end_time)
-                    WHERE queueing_time IS NOT NULL OR start_time IS NOT NULL OR end_time IS NOT NULL";
-            
-            $db->query($sql);
-            
-            // Update waiting_time and serving_time to human-readable format
-            $sql = "UPDATE customer_records SET 
-                    waiting_time = CASE 
-                        WHEN waiting_time LIKE '%hours%' THEN waiting_time
-                        WHEN waiting_time IS NOT NULL THEN CONCAT(HOUR(waiting_time), ' hours ', MINUTE(waiting_time), ' minutes')
-                        ELSE waiting_time
-                    END,
-                    serving_time = CASE 
-                        WHEN serving_time LIKE '%hours%' THEN serving_time
-                        WHEN serving_time IS NOT NULL THEN CONCAT(HOUR(serving_time), ' hours ', MINUTE(serving_time), ' minutes')
-                        ELSE serving_time
-                    END";
-            
-            $db->query($sql);
-            
-            echo "Time columns converted successfully!<br>";
-            echo "- queueing_time, start_time, end_time converted to TIME-only format (HH:MM:SS)<br>";
-            echo "- waiting_time, serving_time converted to human-readable format (X hours Y minutes)<br>";
-            echo "<br><strong>New records will now store time-only values!</strong><br>";
-            echo "<a href='" . base_url('customerRecords') . "'>Back to Customer Records</a>";
-            
-        } catch (Exception $e) {
-            echo "❌ Error converting time columns: " . $e->getMessage();
-        }
-    }
-
-    /**
-     * Run migration to convert time columns to TIME type
-     */
-    public function runMigration()
-    {
-        try {
-            $db = \Config\Database::connect();
-            
-            // Alter table columns to TIME type
-            $sql = "ALTER TABLE customer_records 
-                    MODIFY COLUMN queueing_time TIME NULL,
-                    MODIFY COLUMN start_time TIME NULL,
-                    MODIFY COLUMN end_time TIME NULL";
-            
-            $db->query($sql);
-            
-            echo "Migration completed successfully!<br>";
-            echo "Time columns (queueing_time, start_time, end_time) are now TIME type (no date).<br>";
-            echo "Please run the database update again to populate the time-only values.";
-        } catch (Exception $e) {
-            echo "Error running migration: " . $e->getMessage();
-        }
     }
 }

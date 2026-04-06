@@ -24,7 +24,7 @@ class CustomerRecordsModel extends Model
     protected $updatedField = 'updated_at';
 
     // GET RECORDS
-    public function getCustomerRecords($windowId = null, $startDate = null, $endDate = null)
+    public function getCustomerRecords($windowId = null, $startDate = null, $endDate = null, $search = null)
     {
         $builder = $this->select('customer_records.*, windows.window_name, windows.window_number')
             ->join('windows', 'windows.id = customer_records.window_id');
@@ -38,6 +38,19 @@ class CustomerRecordsModel extends Model
                     ->where('DATE(customer_records.created_at) <=', $endDate);
         }
 
+        // Search across all columns
+        if ($search) {
+            $builder->groupStart()
+                ->like('customer_records.transaction_number', $search)
+                ->orLike('customer_records.customer_name', $search)
+                ->orLike('customer_records.document_name', $search)
+                ->orLike('customer_records.service', $search)
+                ->orLike('customer_records.remarks', $search)
+                ->orLike('windows.window_name', $search)
+                ->orLike('windows.window_number', $search)
+                ->groupEnd();
+        }
+
         return $builder->orderBy('customer_records.id', 'DESC')->findAll();
     }
 
@@ -47,23 +60,45 @@ class CustomerRecordsModel extends Model
     }
 
     // GENERATE TRANSACTION NUMBER
-    private function generateTransactionNumber($service, $queueNumber)
+    private function generateTransactionNumber($service, $queueNumber, $windowId = null)
     {
         $date = date('Ymd'); // Format: YYYYMMDD
 
         $number = str_pad($queueNumber, 3, '0', STR_PAD_LEFT);
 
-        if (stripos($service, 'Birth') !== false || stripos($service, 'BIRTH') !== false) {
-            $prefix = 'BIRTH';
-        } elseif (stripos($service, 'Death') !== false || stripos($service, 'DEATH') !== false) {
-            $prefix = 'DEATH';
-        } elseif (stripos($service, 'Marriage') !== false || stripos($service, 'MARRIAGE') !== false) {
-            $prefix = 'MARRIAGE';
+        // First check window_id for correct prefix
+        if ($windowId) {
+            if ($windowId == 1) {
+                $prefix = 'BREQS';
+            } elseif ($windowId == 2) {
+                $prefix = 'BIRTH';
+            } elseif ($windowId == 3) {
+                $prefix = 'DEATH';
+            } elseif ($windowId == 4) {
+                $prefix = 'MARRIAGE';
+            } else {
+                // Fallback to service-based detection
+                $prefix = $this->getPrefixFromService($service);
+            }
         } else {
-            $prefix = 'BREQS';
+            // Fallback to service-based detection
+            $prefix = $this->getPrefixFromService($service);
         }
 
-        return $prefix . $date . '-' . $number; // Format: BREQS20260323-002
+        return $prefix . $date . '-' . $number; // Format: BIRTH20260406-002
+    }
+
+    private function getPrefixFromService($service)
+    {
+        if (stripos($service, 'Birth') !== false || stripos($service, 'BIRTH') !== false) {
+            return 'BIRTH';
+        } elseif (stripos($service, 'Death') !== false || stripos($service, 'DEATH') !== false) {
+            return 'DEATH';
+        } elseif (stripos($service, 'Marriage') !== false || stripos($service, 'MARRIAGE') !== false) {
+            return 'MARRIAGE';
+        } else {
+            return 'BREQS';
+        }
     }
 
     // CREATE RECORD
@@ -71,10 +106,11 @@ class CustomerRecordsModel extends Model
     {
         // Extract service from data or default to BREQS
         $service = $data['service'] ?? 'BREQS';
+        $windowId = $data['window_id'] ?? null;
         
-        // Generate transaction number using queue_number
+        // Generate transaction number using queue_number and window_id
         $queueNumber = $data['queue_number'] ?? 1;
-        $transactionNumber = $this->generateTransactionNumber($service, $queueNumber);
+        $transactionNumber = $this->generateTransactionNumber($service, $queueNumber, $windowId);
 
         $insertData = [
             'transaction_number' => $transactionNumber,

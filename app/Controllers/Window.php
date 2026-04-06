@@ -99,10 +99,6 @@ class Window extends BaseController
             log_message('info', '=== COMPLETING CURRENT SERVING ===');
             log_message('info', 'Current serving ticket: ' . $currentServing['ticket_number']);
             
-            // Set END TIME for current customer (when callNext clicked)
-            $endTime = date('H:i:s');
-            log_message('info', 'Setting end time for current customer to: ' . $endTime);
-            
             // Mark current as completed in queue
             $this->queueModel->markAsCompleted($currentServing['id']);
             log_message('info', 'Marked queue item as completed');
@@ -116,27 +112,13 @@ class Window extends BaseController
                 
             if ($currentRecord) {
                 log_message('info', 'Found customer record: ' . $currentRecord['transaction_number']);
-                log_message('info', 'Current status: ' . $currentRecord['status']);
-                log_message('info', 'Start time: ' . ($currentRecord['start_time'] ?? 'NULL'));
-                log_message('info', 'Queueing time: ' . ($currentRecord['queueing_time'] ?? 'NULL'));
                 
-                // Calculate serving time before completing
-                $servingTime = '0 hours 0 minutes';
-                if ($currentRecord['start_time']) {
-                    $startDateTime = date('Y-m-d') . ' ' . $currentRecord['start_time'];
-                    $endDateTime = date('Y-m-d') . ' ' . $endTime;
-                    $servingTime = $this->calculateDuration($startDateTime, $endDateTime);
-                    log_message('info', 'Calculated serving time: ' . $servingTime);
-                }
-                
-                // Update record with end time and serving time
+                // Update record status to completed
                 $this->customerRecordsModel->update($currentRecord['id'], [
-                    'status' => 'completed',
-                    'end_time' => $endTime,
-                    'serving_time' => $servingTime
+                    'status' => 'completed'
                 ]);
                 
-                log_message('info', '✓ SUCCESSFULLY completed customer record with end_time: ' . $endTime . ' and serving_time: ' . $servingTime);
+                log_message('info', '✓ SUCCESSFULLY completed customer record');
             } else {
                 log_message('error', '✗ NO CUSTOMER RECORD found for window: ' . $windowId . ' - but continuing to serve next');
             }
@@ -160,57 +142,15 @@ class Window extends BaseController
         $this->queueModel->markAsServing($targetQueue['id']);
         $this->windowModel->updateCurrentNumber($windowId, $targetQueue['queue_number']);
         
-        // Check if there's an existing customer record with this transaction number
-        // (for completed tickets being called again)
-        $existingRecord = null;
-        if ($isFromCompleted) {
-            // Try to find existing record by transaction number pattern
-            $transactionPattern = '%' . date('Ymd') . '-' . str_pad($targetQueue['queue_number'], 3, '0', STR_PAD_LEFT);
-            $existingRecord = $this->customerRecordsModel
-                ->like('transaction_number', $transactionPattern, 'before')
-                ->orderBy('id', 'DESC')
-                ->first();
-        }
-        
-        if ($existingRecord) {
-            log_message('info', 'Found existing customer record for ticket: ' . $targetQueue['ticket_number']);
-            $transactionNumber = $existingRecord['transaction_number'];
-        } else {
-            // Create new customer record
-            log_message('info', 'Creating new customer record for ticket: ' . $targetQueue['ticket_number']);
-            
-            $customerRecordData = [
-                'window_id' => $windowId,
-                'window_name' => $window['window_name'],
-                'queue_number' => $targetQueue['queue_number'],
-                'customer_name' => '',
-                'document_name' => '',
-                'service' => '',
-                'remarks' => ''
-            ];
-            
-            $recordId = $this->customerRecordsModel->createCustomerRecord($customerRecordData);
-            
-            if (!$recordId) {
-                log_message('error', 'Failed to create customer record for ticket: ' . $targetQueue['ticket_number']);
-                return $this->response->setJSON(['success' => false, 'message' => 'Failed to create customer record']);
-            }
-            
-            $newRecord = $this->customerRecordsModel->find($recordId);
-            if (!$newRecord) {
-                log_message('error', 'Failed to find newly created record ID: ' . $recordId);
-                return $this->response->setJSON(['success' => false, 'message' => 'Failed to find customer record']);
-            }
-            
-            $transactionNumber = $newRecord['transaction_number'];
-            log_message('info', 'Created customer record with transaction: ' . $transactionNumber);
-        }
+        // Do NOT create customer record here - only create when customer data is actually saved via saveCustomer()
+        // This prevents skipped tickets from appearing in customer records
         
         $response = [
             'success' => true,
             'window_number' => $window['window_number'],
             'ticket_number' => $targetQueue['ticket_number'],
-            'transaction_number' => $transactionNumber,
+            'transaction_number' => null, // Will be generated when customer data is saved
+            'service_type' => $targetQueue['service_type'] ?? '',
             'is_from_completed' => $isFromCompleted
         ];
         
@@ -323,31 +263,13 @@ class Window extends BaseController
         $this->queueModel->markAsServing($queueItem['id']);
         $this->windowModel->updateCurrentNumber($windowId, $queueItem['queue_number']);
         
-        // Create customer record
-        $customerRecordData = [
-            'window_id' => $windowId,
-            'window_name' => $window['window_name'],
-            'queue_number' => $queueItem['queue_number'],
-            'customer_name' => '',
-            'document_name' => '',
-            'service' => '',
-            'remarks' => ''
+        // Do NOT create customer record here - only create when customer data is actually saved
+        // This prevents skipped tickets from appearing in customer records
+        
+        return [
+            'ticket_number' => $queueItem['ticket_number'],
+            'transaction_number' => null // Will be generated when customer data is saved
         ];
-        
-        $recordId = $this->customerRecordsModel->createCustomerRecord($customerRecordData);
-        
-        if ($recordId) {
-            $newRecord = $this->customerRecordsModel->find($recordId);
-            
-            log_message('info', 'Auto-started service for: ' . $newRecord['transaction_number']);
-            
-            return [
-                'ticket_number' => $queueItem['ticket_number'],
-                'transaction_number' => $newRecord['transaction_number']
-            ];
-        }
-        
-        return null;
     }
 
     public function skip($queueId)
@@ -451,6 +373,7 @@ class Window extends BaseController
         return $this->response->setJSON([
             'success' => true,
             'now_serving' => $nowServing ? $nowServing['ticket_number'] : 'None',
+            'now_serving_service_type' => $nowServing ? ($nowServing['service_type'] ?? '') : '',
             'current_queue_id' => $nowServing ? $nowServing['id'] : null,
             'waiting_count' => count($waitingList),
             'waiting_list' => $waitingList,
@@ -636,9 +559,7 @@ class Window extends BaseController
         ]);
     }
     
-    /**
-     * Generate transaction number pattern from ticket number for matching
-     */
+    // Generate transaction number pattern from ticket number for matching
     private function generateTransactionPattern($ticketNumber)
     {
         // Extract the number from ticket (e.g., BREQS-001 -> 001)

@@ -46,6 +46,11 @@ class CreateQueuesTable extends Migration
                 'type' => 'DATETIME',
                 'null' => true
                 ],
+            'service_type' => [
+                'type' => 'VARCHAR',
+                'constraint' => 50,
+                'null' => true
+                ],
         ]);
         $this->forge->addKey('id', true);
         $this->forge->addForeignKey('window_id', 'windows', 'id', 'CASCADE', 'CASCADE');

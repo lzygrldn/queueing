@@ -8,7 +8,7 @@ class QueueModel extends Model
 {
     protected $table = 'queues';
     protected $primaryKey = 'id';
-    protected $allowedFields = ['window_id', 'ticket_number', 'queue_number', 'status', 'created_at', 'served_at', 'completed_at'];
+    protected $allowedFields = ['window_id', 'ticket_number', 'queue_number', 'status', 'created_at', 'served_at', 'completed_at', 'service_type'];
     protected $useTimestamps = false;
 
     public function getWaitingByWindow($windowId)

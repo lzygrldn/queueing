@@ -23,45 +23,30 @@ class QueueController extends BaseController
 
     public function printTicket()
     {
+        // Set timezone FIRST before any date operations
+        date_default_timezone_set('Asia/Manila');
+        
         $service = $this->request->getPost('service');
         
-        // Map service to window
+        // Map service to window, ticket prefix, and full service type
         $serviceMap = [
-            'breqs' => 1,
-            'birth-regular' => 2,
-            'birth-delayed' => 2,
-            'birth-out-of-town' => 2,
-            'death-regular' => 3,
-            'death-delayed' => 3,
-            'marriage-regular' => 4,
-            'marriage-delayed' => 4,
-            'marriage-license-endorsement' => 4,
-            'marriage-license-application' => 4
+            'breqs' => ['window' => 1, 'prefix' => 'BREQS', 'service_name' => 'BREQS', 'service_type' => 'BREQS'],
+            'birth-regular' => ['window' => 2, 'prefix' => 'BIRTH', 'service_name' => 'REGULAR', 'service_type' => 'Birth - Regular'],
+            'birth-delayed' => ['window' => 2, 'prefix' => 'BIRTH', 'service_name' => 'DELAYED', 'service_type' => 'Birth - Delayed'],
+            'birth-out-of-town' => ['window' => 2, 'prefix' => 'BIRTH', 'service_name' => 'OUT OF TOWN', 'service_type' => 'Birth - Out-of-Town'],
+            'death-regular' => ['window' => 3, 'prefix' => 'DEATH', 'service_name' => 'REGULAR', 'service_type' => 'Death - Regular'],
+            'death-delayed' => ['window' => 3, 'prefix' => 'DEATH', 'service_name' => 'DELAYED', 'service_type' => 'Death - Delayed'],
+            'marriage-regular' => ['window' => 4, 'prefix' => 'MARRIAGE', 'service_name' => 'REGULAR', 'service_type' => 'Marriage - Regular'],
+            'marriage-delayed' => ['window' => 4, 'prefix' => 'MARRIAGE', 'service_name' => 'DELAYED', 'service_type' => 'Marriage - Delayed'],
+            'marriage-license-endorsement' => ['window' => 4, 'prefix' => 'MARRIAGE', 'service_name' => 'LICENSE ENDORSEMENT', 'service_type' => 'Marriage - License Endorsement'],
+            'marriage-license-application' => ['window' => 4, 'prefix' => 'MARRIAGE', 'service_name' => 'LICENSE APPLICATION', 'service_type' => 'Marriage - License Application']
         ];
         
-        // Determine ticket prefix based on service type
-        $ticketPrefix = '';
-        if (strpos($service, 'birth-') === 0) {
-            $type = substr($service, 6); // Get 'regular', 'delayed', or 'out-of-town'
-            $ticketPrefix = 'BIRTH-' . strtoupper(str_replace('-', '', $type));
-        } elseif (strpos($service, 'death-') === 0) {
-            $type = substr($service, 6); // Get 'regular' or 'delayed'
-            $ticketPrefix = 'DEATH-' . strtoupper(str_replace('-', '', $type));
-        } elseif (strpos($service, 'marriage-') === 0) {
-            $type = substr($service, 9); // Get 'regular', 'delayed', 'license-endorsement', or 'license-application'
-            $ticketPrefix = 'MARRIAGE-' . strtoupper(str_replace('-', '', $type));
-        } else {
-            // Use existing prefixes for other services
-            $prefixMap = [
-                'breqs' => 'BREQS'
-            ];
-            $ticketPrefix = $prefixMap[$service] ?? 'MARRIAGE';
-        }
+        $windowId = $serviceMap[$service]['window'] ?? 1;
+        $ticketPrefix = $serviceMap[$service]['prefix'] ?? 'BREQS';
+        $serviceName = $serviceMap[$service]['service_name'] ?? 'BREQS';
         
-        $windowId = $serviceMap[$service] ?? 1;
-        
-        // Set timezone first
-        date_default_timezone_set('Asia/Manila');
+        $serviceType = $serviceMap[$service]['service_type'] ?? 'BREQS';
         
         // Get next number
         $window = $this->windowModel->find($windowId);
@@ -74,6 +59,7 @@ class QueueController extends BaseController
             'ticket_number' => $ticketNumber,
             'queue_number' => $nextNumber,
             'status' => 'waiting',
+            'service_type' => $serviceType,
             'created_at' => date('Y-m-d H:i:s')
         ];
 
@@ -97,7 +83,9 @@ class QueueController extends BaseController
             'ticket' => [
                 'number' => $ticketNumber,
                 'datetime' => $dateTimeStamp,
-                'window_number' => $window['window_number']
+                'window_number' => $window['window_number'],
+                'service' => $serviceName,
+                'service_type' => $serviceType
             ]
         ]);
     }

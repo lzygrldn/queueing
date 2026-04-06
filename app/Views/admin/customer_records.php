@@ -329,9 +329,9 @@
         <header>
             <h1><?= $title ?></h1>
             <div class="header-actions">
-                <button class="btn btn-export" onclick="exportData()">📥 Export CSV</button>
+                <button class="btn btn-export" onclick="exportData()">Export CSV</button>
                 <a href="<?= base_url('admin') ?>" class="btn btn-secondary">
-                    ← Back to Dashboard
+                    Back to Dashboard
                 </a>
             </div>
         </header>
@@ -339,7 +339,7 @@
         <div class="filters-section">
             <div class="search-section">
                 <div class="search-group">
-                    <input type="text" id="tableSearch" placeholder="🔍 Search across all columns" style="width: 100%; max-width: none;">
+                    <input type="text" id="tableSearch" placeholder="Search across all columns" style="width: 100%; max-width: none;">
                 </div>
             </div>
             <div class="filter-row">
@@ -348,9 +348,9 @@
                     <select id="windowFilter">
                         <option value="">All Windows</option>
                         <option value="1">Window 1 - BREQS</option>
-                        <option value="2">Window 2 - Birth Registration</option>
-                        <option value="3">Window 3 - Death Registration</option>
-                        <option value="4">Window 4 - Marriage Registration</option>
+                        <option value="2">Window 2 - Birth</option>
+                        <option value="3">Window 3 - Death</option>
+                        <option value="4">Window 4 - Marriage</option>
                     </select>
                 </div>
                 <div class="filter-group">
@@ -400,6 +400,10 @@
                         d.start_date = document.getElementById('startDate').value;
                         d.end_date = document.getElementById('endDate').value;
                         d.search = document.getElementById('tableSearch').value;
+                    },
+                    dataSrc: function(json) {
+                        // Return data - empty array is handled by language.emptyTable
+                        return json.data || [];
                     }
                 },
                 columns: [
@@ -446,11 +450,11 @@
                 pageLength: 25,
                 lengthMenu: [[10, 20, 30, 50, 100], [10, 20, 30, 50, 100]],
                 responsive: true,
-                searching: false, // Disable built-in search, use our custom search
+                searching: false, // Disable built-in search, use our custom server-side search
                 order: [[6, 'desc']], // Sort by Created At descending
                 language: {
-                    emptyTable: 'No customer records found',
-                    zeroRecords: 'No matching records found'
+                    emptyTable: 'No customer records found for the selected filters',
+                    zeroRecords: 'No search results found'
                 },
                 initComplete: function() {
                     // Add Excel-like row selection
@@ -464,10 +468,9 @@
                 }
             });
 
-            // Custom search functionality
+            // Function to reload table with current filters
             function performSearch() {
-                const searchTerm = document.getElementById('tableSearch').value;
-                table.search(searchTerm).draw();
+                table.ajax.reload();
             }
 
             // Auto-refresh when filters change
