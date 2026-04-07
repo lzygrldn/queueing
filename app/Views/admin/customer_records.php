@@ -4,392 +4,216 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $title ?> - Queueing System</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body {
+        * {
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f5f5;
-            color: #333;
-        }
-
-        .admin-container {
-            width: 100%;
-            margin: 0;
-            padding: 20px;
-            background: #f5f5f5;
-            min-height: 100vh;
             box-sizing: border-box;
         }
 
-        header {
-            background: white;
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #fff;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
+        }
+
+        header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 20px;
         }
 
         header h1 {
-            margin: 0;
-            color: #333;
-            font-size: 1.8rem;
-            font-weight: 600;
+            font-size: 24px;
+            font-weight: 500;
         }
 
-        .header-actions {
+        .actions {
             display: flex;
             gap: 10px;
-            align-items: center;
         }
 
         .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s ease;
-        }
-
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background: #5a6268;
-        }
-
-        .search-section {
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-        }
-
-        .search-group {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            flex: 1;
-        }
-
-        .search-group label {
-            font-weight: 600;
-            color: #495057;
-            white-space: nowrap;
-        }
-
-        .search-group input {
-            flex: 1;
-            padding: 10px 15px;
-            border: 1px solid #ced4da;
-            border-radius: 6px;
-            font-size: 0.95rem;
-            transition: border-color 0.2s ease;
-            width: 100%;
-            max-width: none;
-        }
-
-        .search-group input:focus {
-            outline: none;
-            border-color: #007bff;
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
-        }
-
-        .filters-section {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-
-        .filters-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .filters-header h2 {
-            margin: 0;
+            padding: 8px 16px;
+            border: 1px solid #333;
+            background: #fff;
             color: #333;
-            font-size: 1.3rem;
-            font-weight: 600;
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
         }
 
-        .filter-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        .btn:hover {
+            background: #333;
+            color: #fff;
+        }
+
+        .filters {
+            display: flex;
             gap: 15px;
             margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: end;
         }
 
         .filter-group {
             display: flex;
             flex-direction: column;
+            gap: 4px;
         }
 
         .filter-group label {
-            margin-bottom: 5px;
-            font-weight: 500;
-            color: #555;
-            font-size: 0.9rem;
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
         }
 
-        .filter-group input, .filter-group select {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 0.9rem;
-            transition: border-color 0.2s ease;
+        .filter-group input,
+        .filter-group select {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+            min-width: 150px;
         }
 
-        .filter-group input:focus, .filter-group select:focus {
+        .filter-group input:focus,
+        .filter-group select:focus {
             outline: none;
-            border-color: #007bff;
+            border-color: #333;
         }
 
-        .filter-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn-filter {
-            background: #007bff;
-            color: white;
-        }
-
-        .btn-filter:hover {
-            background: #0056b3;
-        }
-
-        .btn-clear {
-            background: #6c757d;
-            color: white;
-        }
-
-        .btn-clear:hover {
-            background: #5a6268;
-        }
-
-        .data-table {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-
-        .table-header {
-            padding: 15px 20px;
-            background: #f8f9fa;
-            border-bottom: 1px solid #dee2e6;
-        }
-
-        .table-header h2 {
-            margin: 0;
-            color: #333;
-            font-size: 1.3rem;
-            font-weight: 600;
-        }
-
-        .table-container {
-            overflow-x: auto;
-            background: white;
+        #tableSearch {
+            min-width: 250px;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            table-layout: auto;
+            font-size: 14px;
         }
 
         th, td {
-            padding: 14px 12px;
+            padding: 12px;
             text-align: left;
-            border-bottom: 1px solid #dee2e6;
-            font-size: 1rem;
-            vertical-align: top;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            white-space: nowrap;
-            line-height: 1.4;
+            border-bottom: 1px solid #ddd;
         }
 
         th {
-            background: #f8f9fa;
+            background: #f5f5f5;
             font-weight: 600;
-            color: #495057;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            font-size: 1.1rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            border-top: 1px solid #ddd;
         }
-
-        /* Column widths for new table structure */
-        th:nth-child(1), td:nth-child(1) { min-width: 200px; max-width: 250px; } /* Transaction No. */
-        th:nth-child(2), td:nth-child(2) { min-width: 200px; max-width: 250px; } /* Name of Customer */
-        th:nth-child(3), td:nth-child(3) { min-width: 200px; max-width: 250px; } /* Name in Document */
-        th:nth-child(4), td:nth-child(4) { min-width: 180px; max-width: 220px; } /* Service */
-        th:nth-child(5), td:nth-child(5) { min-width: 250px; max-width: 300px; } /* Remarks */
-        th:nth-child(6), td:nth-child(6) { min-width: 150px; max-width: 180px; } /* Window */
-        th:nth-child(7), td:nth-child(7) { min-width: 150px; max-width: 180px; } /* Created At */
-        th:nth-child(8), td:nth-child(8) { min-width: 150px; max-width: 180px; } /* Updated At */
 
         tr:hover {
-            background: #e3f2fd;
-            cursor: pointer;
+            background: #f9f9f9;
         }
 
-        tr.selected {
-            background: #bbdefb;
-            border-left: 4px solid #2196f3;
+        .dataTables_wrapper .dataTables_length,
+        .dataTables_wrapper .dataTables_info,
+        .dataTables_wrapper .dataTables_paginate {
+            font-size: 14px;
+            margin-top: 15px;
         }
 
-        tr.selected:hover {
-            background: #90caf9;
-        }
-
-        .status-badge {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            display: inline-block;
-        }
-
-        .status-serving { background: #d1ecf1; color: #0c5460; }
-        .status-completed { background: #d4edda; color: #155724; }
-        .status-pending { background: #fff3cd; color: #856404; }
-
-        .btn-export {
-            background: #28a745;
-            color: white;
-        }
-
-        .btn-export:hover {
-            background: #1e7e34;
-        }
-
-        .nav-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin: 15px 0;
-        }
-
-        .nav-btn {
-            padding: 8px 16px;
-            border: 1px solid #007bff;
-            background: white;
-            color: #007bff;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9rem;
+        .dataTables_wrapper .dataTables_paginate a {
+            border: 1px solid #ddd;
+            padding: 6px 12px;
+            margin: 0 2px;
             text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s ease;
+            color: #333;
         }
 
-        .nav-btn:hover {
-            background: #007bff;
-            color: white;
+        .dataTables_wrapper .dataTables_paginate a:hover {
+            background: #f5f5f5;
         }
 
-        .nav-btn:active {
-            transform: translateY(1px);
+        .dataTables_wrapper .dataTables_paginate .current {
+            background: #333;
+            color: #fff;
+            border-color: #333;
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 40px;
+            color: #666;
         }
 
         @media (max-width: 768px) {
-            .admin-container { padding: 10px; }
-            header { flex-direction: column; gap: 15px; text-align: center; }
-            .filter-row { grid-template-columns: 1fr; }
-            .filters-header { flex-direction: column; gap: 10px; text-align: center; }
+            .filters {
+                flex-direction: column;
+            }
+            .filter-group input,
+            .filter-group select {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="admin-container">
+    <div class="container">
         <header>
             <h1><?= $title ?></h1>
-            <div class="header-actions">
-                <button class="btn btn-export" onclick="exportData()">Export CSV</button>
-                <a href="<?= base_url('admin') ?>" class="btn btn-secondary">
-                    Back to Dashboard
-                </a>
+            <div class="actions">
+                <button class="btn" onclick="exportData()">Export CSV</button>
+                <a href="<?= base_url('admin') ?>" class="btn">Back</a>
             </div>
         </header>
 
-        <div class="filters-section">
-            <div class="search-section">
-                <div class="search-group">
-                    <input type="text" id="tableSearch" placeholder="Search across all columns" style="width: 100%; max-width: none;">
-                </div>
+        <div class="filters">
+            <div class="filter-group">
+                <label>Search</label>
+                <input type="text" id="tableSearch" placeholder="Search all columns...">
             </div>
-            <div class="filter-row">
-                <div class="filter-group">
-                    <label for="windowFilter">Window</label>
-                    <select id="windowFilter">
-                        <option value="">All Windows</option>
-                        <option value="1">Window 1 - BREQS</option>
-                        <option value="2">Window 2 - Birth</option>
-                        <option value="3">Window 3 - Death</option>
-                        <option value="4">Window 4 - Marriage</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label for="startDate">Start Date</label>
-                    <input type="date" id="startDate" value="<?= date('Y-m-d') ?>">
-                </div>
-                <div class="filter-group">
-                    <label for="endDate">End Date</label>
-                    <input type="date" id="endDate" value="<?= date('Y-m-d') ?>">
-                </div>
+            <div class="filter-group">
+                <label>Window</label>
+                <select id="windowFilter">
+                    <option value="">All Windows</option>
+                    <option value="1">Window 1 - BREQS</option>
+                    <option value="2">Window 2 - Birth</option>
+                    <option value="3">Window 3 - Death</option>
+                    <option value="4">Window 4 - Marriage</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Start Date</label>
+                <input type="date" id="startDate" value="<?= date('Y-m-d') ?>">
+            </div>
+            <div class="filter-group">
+                <label>End Date</label>
+                <input type="date" id="endDate" value="<?= date('Y-m-d') ?>">
             </div>
         </div>
 
-        <div class="data-table">
-            <div class="table-container">
-                <table id="customerRecordsTable" class="table table-striped table-hover">
-                    <thead>
-                        <tr>
-                            <th>Transaction No.</th>
-                            <th>Name of Customer</th>
-                            <th>Name in Document</th>
-                            <th>Service</th>
-                            <th>Remarks</th>
-                            <th>Window</th>
-                            <th>Created At</th>
-                            <th>Updated At</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Data will be loaded via DataTables AJAX -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        <table id="customerRecordsTable">
+            <thead>
+                <tr>
+                    <th>Transaction No.</th>
+                    <th>Customer Name</th>
+                    <th>Document Name</th>
+                    <th>Service</th>
+                    <th>Remarks</th>
+                    <th>Window</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <script>
         $(document).ready(function() {
             const table = $('#customerRecordsTable').DataTable({
@@ -402,17 +226,11 @@
                         d.search = document.getElementById('tableSearch').value;
                     },
                     dataSrc: function(json) {
-                        // Return data - empty array is handled by language.emptyTable
                         return json.data || [];
                     }
                 },
                 columns: [
-                    { 
-                        data: 'transaction_number',
-                        render: function(data) {
-                            return '<strong>' + data + '</strong>';
-                        }
-                    },
+                    { data: 'transaction_number' },
                     { data: 'customer_name' },
                     { data: 'document_name' },
                     { data: 'service' },
@@ -431,99 +249,30 @@
                                 minute: '2-digit'
                             });
                         }
-                    },
-                    { 
-                        data: 'updated_at',
-                        render: function(data) {
-                            if (!data) return 'N/A';
-                            const date = new Date(data);
-                            return date.toLocaleString('en-US', { 
-                                month: 'short', 
-                                day: 'numeric', 
-                                year: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                            });
-                        }
                     }
                 ],
                 pageLength: 25,
-                lengthMenu: [[10, 20, 30, 50, 100], [10, 20, 30, 50, 100]],
-                responsive: true,
-                searching: false, // Disable built-in search, use our custom server-side search
-                order: [[6, 'desc']], // Sort by Created At descending
+                lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
+                searching: false,
+                order: [[6, 'desc']],
                 language: {
-                    emptyTable: 'No customer records found for the selected filters',
-                    zeroRecords: 'No search results found'
-                },
-                initComplete: function() {
-                    // Add Excel-like row selection
-                    $('#customerRecordsTable tbody').on('click', 'tr', function() {
-                        // Remove selected class from other rows
-                        $('#customerRecordsTable tbody tr').removeClass('selected');
-                        
-                        // Add selected class to clicked row
-                        $(this).addClass('selected');
-                    });
+                    emptyTable: 'No records found',
+                    zeroRecords: 'No matching records'
                 }
             });
 
-            // Function to reload table with current filters
             function performSearch() {
                 table.ajax.reload();
             }
 
-            // Auto-refresh when filters change
-            document.getElementById('windowFilter').addEventListener('change', function() {
-                performSearch();
-            });
+            document.getElementById('windowFilter').addEventListener('change', performSearch);
+            document.getElementById('startDate').addEventListener('change', performSearch);
+            document.getElementById('endDate').addEventListener('change', performSearch);
 
-            document.getElementById('startDate').addEventListener('change', function() {
-                performSearch();
-            });
-
-            document.getElementById('endDate').addEventListener('change', function() {
-                performSearch();
-            });
-
-            // Search on input with debounce
             let searchTimeout;
             document.getElementById('tableSearch').addEventListener('input', function() {
                 clearTimeout(searchTimeout);
                 searchTimeout = setTimeout(performSearch, 300);
-            });
-
-            // Keyboard navigation for Excel-like experience
-            $(document).on('keydown', function(e) {
-                if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-                    e.preventDefault();
-                    const $selected = $('#customerRecordsTable tbody tr.selected');
-                    let $target;
-                    
-                    if (e.key === 'ArrowUp') {
-                        $target = $selected.length ? $selected.prev() : $('#customerRecordsTable tbody tr:last');
-                    } else {
-                        $target = $selected.length ? $selected.next() : $('#customerRecordsTable tbody tr:first');
-                    }
-                    
-                    if ($target.length) {
-                        $('#customerRecordsTable tbody tr').removeClass('selected');
-                        $target.addClass('selected');
-                        
-                        // Scroll to selected row if needed
-                        const tableContainer = $('.table-container');
-                        const targetTop = $target.position().top;
-                        const containerScroll = tableContainer.scrollTop();
-                        const containerHeight = tableContainer.height();
-                        const targetHeight = $target.height();
-                        
-                        if (targetTop < 0) {
-                            tableContainer.scrollTop(containerScroll + targetTop);
-                        } else if (targetTop + targetHeight > containerHeight) {
-                            tableContainer.scrollTop(containerScroll + targetTop + targetHeight - containerHeight);
-                        }
-                    }
-                }
             });
         });
 
@@ -535,7 +284,7 @@
             let url = '<?= base_url('customerRecords/export') ?>?';
             if (windowId) url += 'window_id=' + windowId + '&';
             if (startDate) url += 'start_date=' + startDate + '&';
-            if (endDate) url += 'end_date=' + endDate + '&';
+            if (endDate) url += 'end_date=' + endDate;
             
             window.location.href = url;
         }

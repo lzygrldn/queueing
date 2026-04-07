@@ -173,7 +173,8 @@ class CustomerRecords extends BaseController
             'Service',
             'Remarks',
             'Window',
-            'Status',
+            'Created At',
+            'Updated At',
         ];
         
         foreach ($records as $record) {
@@ -184,7 +185,8 @@ class CustomerRecords extends BaseController
                 $record['service'],
                 $record['remarks'] ?: '',
                 $record['window_name'] . ' (Window ' . $record['window_number'] . ')',
-                ucfirst($record['status']),
+                $record['created_at'],
+                $record['updated_at'] ?: '',
             ];
         }
         

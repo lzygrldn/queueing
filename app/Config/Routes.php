@@ -11,6 +11,8 @@ $routes->get('update-psa-to-breqs', 'UpdateController::updatePsaToBreqs');
 
 // Landing page
 $routes->get('/', 'Home::index');
+$routes->post('login', 'Login::index');
+$routes->get('logout', 'Login::logout');
 
 // Admin Routes
 $routes->get('admin', 'Admin::index');

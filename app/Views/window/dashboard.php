@@ -13,161 +13,108 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #f0f0f0;
             min-height: 100vh;
-            padding: 20px;
+            padding: 15px;
+            font-size: 16px;
         }
         
         .header {
             background: white;
-            border-radius: 15px;
-            padding: 20px 30px;
+            padding: 15px 25px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
         }
         
         .header-info h1 {
-            color: #667eea;
-            font-size: 1.8rem;
-            margin-bottom: 5px;
-        }
-        
-        .header-info p {
-            color: #7f8c8d;
-            font-size: 1rem;
+            color: #333;
+            font-size: 28px;
+            font-weight: 600;
         }
         
         .back-btn {
-            padding: 12px 25px;
-            background: #e74c3c;
+            padding: 10px 20px;
+            background: #666;
             color: white;
             border: none;
-            border-radius: 8px;
-            font-size: 1rem;
+            font-size: 16px;
             cursor: pointer;
             text-decoration: none;
-            transition: all 0.3s;
         }
         
         .back-btn:hover {
-            background: #c0392b;
+            background: #555;
         }
         
         .main-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            max-width: 1400px;
-            margin: 0 auto;
+            grid-template-columns: 1fr 3fr;
+            gap: 20px;
+            width: 100%;
         }
         
         .left-section {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 15px;
         }
         
         .three-column-layout {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
-            gap: 20px;
-            margin-top: 20px;
+            gap: 15px;
+            margin-top: 15px;
         }
         
         .list-section {
             background: white;
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border: 1px solid #ddd;
+            padding: 15px;
         }
         
         .list-section h3 {
-            color: #2c3e50;
-            margin-bottom: 15px;
+            color: #333;
+            margin-bottom: 12px;
             text-align: center;
-            font-size: 1.1rem;
+            font-size: 16px;
+            font-weight: 600;
+            border-bottom: 2px solid #333;
+            padding-bottom: 8px;
         }
         
         .queue-list {
-            max-height: 300px;
+            max-height: 250px;
             overflow-y: auto;
         }
         
         .queue-item {
-            padding: 10px;
-            margin: 5px 0;
-            background: #f8f9fa;
-            border-radius: 8px;
+            padding: 12px;
+            margin: 6px 0;
+            background: #f5f5f5;
+            border: 1px solid #ddd;
             cursor: pointer;
-            border: 2px solid transparent;
-            position: relative;
+            font-size: 15px;
+            font-weight: 500;
         }
         
         .queue-item:hover {
-            background: #e8f4fd;
-            border-color: #667eea;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+            background: #e8e8e8;
+            border-color: #666;
         }
         
         .queue-item.selected {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #333;
             color: white;
-            border: 3px solid #5568d3;
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-            transform: translateY(-3px);
-            font-weight: 600;
+            border-color: #333;
         }
         
         .queue-item.selected::before {
             content: '✓';
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 1.2rem;
+            float: right;
             font-weight: bold;
-            background: rgba(255, 255, 255, 0.2);
-            width: 25px;
-            height: 25px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-        }
-
-        .queue-item.search-highlight {
-            border: 3px solid #f39c12;
-            box-shadow: 0 0 15px rgba(243, 156, 18, 0.4);
-            transform: translateY(-2px);
-        }
-
-        .queue-item.search-highlight::after {
-            content: '🔍';
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 16px;
-        }
-
-        .queue-item.selected.waiting {
-            border-color: #27ae60;
-            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
-        }
-        
-        .queue-item.selected.skipped {
-            border-color: #e67e22;
-            background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
-        }
-        
-        .queue-item.selected.completed {
-            border-color: #3498db;
-            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
         }
         
         .queue-item.waiting {
@@ -184,7 +131,7 @@
         
         .actions-inline {
             display: flex;
-            gap: 15px;
+            gap: 12px;
             justify-content: center;
         }
         
@@ -193,44 +140,41 @@
             max-width: 200px;
         }
         
-        .right-section {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        .right-column {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
         
         .now-serving-card {
             background: white;
-            border-radius: 20px;
-            padding: 40px;
+            border: 2px solid #333;
+            padding: 30px;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
         
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 18px;
         }
         
         .form-group label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             font-weight: 600;
-            color: #2c3e50;
+            color: #333;
+            font-size: 15px;
         }
         
         .form-group input, .form-group select, .form-group textarea {
             width: 100%;
             padding: 12px;
-            border: 2px solid #e1e8ed;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border-color 0.3s;
+            border: 1px solid #ccc;
+            font-size: 16px;
         }
         
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #333;
         }
         
         .form-group textarea {
@@ -240,95 +184,87 @@
         
         .search-bar {
             width: 100%;
-            padding: 15px;
-            border: 2px solid #e1e8ed;
-            border-radius: 8px;
-            font-size: 1rem;
+            padding: 14px;
+            border: 1px solid #ccc;
+            font-size: 16px;
         }
         
         .search-container {
-            background: #f8f9fa;
-            border: 2px solid #e1e8ed;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
+            background: white;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 15px;
         }
         
         .form-container {
-            background: #f8f9fa;
-            border: 2px solid #e1e8ed;
-            border-radius: 12px;
-            padding: 20px;
+            background: white;
+            border: 1px solid #ddd;
+            padding: 15px;
         }
         
         .now-serving-card h2 {
-            color: #7f8c8d;
-            font-size: 1.5rem;
-            margin-bottom: 20px;
+            color: #666;
+            font-size: 20px;
+            margin-bottom: 15px;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
         }
         
         .ticket-number {
-            font-size: 5rem;
+            font-size: 64px;
             font-weight: bold;
             color: #27ae60;
-            margin: 20px 0;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            margin: 15px 0;
         }
         
         .waiting-card {
             background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border: 1px solid #ddd;
+            padding: 20px;
         }
         
         .waiting-card h3 {
-            color: #2c3e50;
-            font-size: 1.3rem;
-            margin-bottom: 20px;
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 15px;
             padding-bottom: 10px;
-            border-bottom: 3px solid #e74c3c;
+            border-bottom: 2px solid #e74c3c;
         }
         
         .waiting-count {
-            font-size: 4rem;
+            font-size: 48px;
             font-weight: bold;
             color: #e74c3c;
             text-align: center;
-            margin: 20px 0;
+            margin: 15px 0;
         }
         
         .actions-card {
             background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border: 1px solid #ddd;
+            padding: 20px;
         }
         
         .actions-card h3 {
-            color: #2c3e50;
-            font-size: 1.3rem;
-            margin-bottom: 20px;
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 15px;
             padding-bottom: 10px;
-            border-bottom: 3px solid #667eea;
+            border-bottom: 2px solid #333;
         }
         
         .btn-group {
             display: flex;
-            gap: 15px;
+            gap: 12px;
             flex-direction: column;
         }
         
         .btn {
-            padding: 20px;
+            padding: 18px;
             border: none;
-            border-radius: 12px;
-            font-size: 1.2rem;
-            font-weight: bold;
+            font-size: 18px;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
         }
         
         .btn-call {
@@ -338,23 +274,12 @@
         
         .btn-call:hover {
             background: #2980b9;
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
         }
-
+        
         .btn-call:disabled {
             background: #95a5a6;
-            color: #ecf0f1;
             cursor: not-allowed;
             opacity: 0.6;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .btn-call:disabled:hover {
-            background: #95a5a6;
-            transform: none;
-            box-shadow: none;
         }
         
         .btn-skip {
@@ -363,8 +288,7 @@
         }
         
         .btn-skip:hover {
-            background: #c0392b;
-            transform: translateY(-3px);
+            background: #d35400;
         }
         
         .btn-complete {
@@ -374,50 +298,39 @@
         
         .btn-complete:hover {
             background: #229954;
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
         }
         
         .btn:disabled {
             background: #bdc3c7;
             cursor: not-allowed;
-            transform: none;
         }
         
         .waiting-list {
-            max-height: 300px;
+            max-height: 250px;
             overflow-y: auto;
-            margin-top: 20px;
+            margin-top: 15px;
         }
         
         .waiting-item {
-            background: #f8f9fa;
+            background: #f5f5f5;
             padding: 15px;
             margin-bottom: 10px;
-            border-radius: 10px;
-            font-size: 1.1rem;
-            color: #2c3e50;
-            border-left: 4px solid #667eea;
+            font-size: 16px;
+            color: #333;
+            border-left: 4px solid #666;
         }
         
         .empty-state {
             text-align: center;
-            color: #7f8c8d;
-            padding: 40px;
+            color: #999;
+            padding: 30px;
             font-style: italic;
-        }
-        
-        /* New separate card styles for right column */
-        .right-column {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+            font-size: 15px;
         }
         
         .search-card {
             background: transparent;
             padding: 0;
-            box-shadow: none;
             position: relative;
         }
         
@@ -427,73 +340,67 @@
             left: 0;
             right: 0;
             background: white;
-            border: 2px solid #e1e8ed;
+            border: 1px solid #ccc;
             border-top: none;
-            border-radius: 0 0 8px 8px;
             max-height: 300px;
             overflow-y: auto;
             z-index: 1000;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
         
         .search-result-item {
-            padding: 12px 15px;
-            border-bottom: 1px solid #e1e8ed;
+            padding: 14px 16px;
+            border-bottom: 1px solid #ddd;
             cursor: pointer;
-            transition: background 0.2s;
         }
         
         .search-result-item:hover {
-            background: #f8f9fa;
-        }
-        
-        .search-result-item:last-child {
-            border-bottom: none;
+            background: #f5f5f5;
         }
         
         .search-result-name {
             font-weight: 600;
-            color: #2c3e50;
-            font-size: 0.95rem;
+            color: #333;
+            font-size: 15px;
         }
         
         .search-result-details {
-            font-size: 0.8rem;
-            color: #7f8c8d;
-            margin-top: 3px;
+            font-size: 13px;
+            color: #666;
+            margin-top: 4px;
         }
         
         .search-no-results {
             padding: 15px;
             text-align: center;
-            color: #7f8c8d;
+            color: #666;
             font-style: italic;
-        }
-        
-        .search-card .form-header {
-            display: none;
         }
         
         .form-card {
             background: white;
-            border-radius: 15px;
+            border: 1px solid #ddd;
             padding: 25px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             flex: 1;
         }
         
-        .form-card .form-header {
-            border-bottom-color: #667eea;
-        }
-        
         .form-header {
-            font-size: 1.3rem;
-            font-weight: bold;
-            color: #2c3e50;
+            font-size: 22px;
+            font-weight: 600;
+            color: #333;
             margin-bottom: 20px;
             text-align: center;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #667eea;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #333;
+        }
+        
+        /* Remove uneccessary styles */
+        .queue-item.search-highlight,
+        .queue-item.search-highlight::after,
+        .queue-item.selected.waiting,
+        .queue-item.selected.skipped,
+        .queue-item.selected.completed {
+            display: none;
         }
     </style>
 </head>
