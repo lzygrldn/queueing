@@ -1,10 +1,33 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Display Monitor - Queueing System</title>
     <style>
+        /* CSS Variables for Theme Support */
+        :root {
+            --accent-color: #667eea;
+            --accent-hover: #5568d3;
+            --header-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-bg: white;
+            --text-primary: #2c3e50;
+            --text-muted: #7f8c8d;
+            --border-color: #ecf0f1;
+            --bg-light: #f8f9fa;
+        }
+        
+        [data-theme="dark"] {
+            --accent-color: #666666;
+            --accent-hover: #808080;
+            --header-gradient: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+            --card-bg: rgba(30, 30, 30, 0.85);
+            --text-primary: #eaeaea;
+            --text-muted: #a0a0a0;
+            --border-color: #404040;
+            --bg-light: #1a1a1a;
+        }
+        
         * {
             margin: 0;
             padding: 0;
@@ -181,7 +204,7 @@
         }
         
         .sort-btn {
-            background: #667eea;
+            background: var(--accent-color);
             color: white;
             border: none;
             border-radius: 8px;
@@ -192,9 +215,9 @@
         }
         
         .sort-btn:hover {
-            background: #5568d3;
+            background: var(--accent-hover);
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
         
         .waiting-list {
@@ -235,7 +258,7 @@
         }
         
         .service-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--header-gradient);
             color: white;
             padding: 15px 20px;
             display: flex;
@@ -373,7 +396,7 @@
         }
         
         .window-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--header-gradient);
             color: white;
             padding: 15px;
             border-radius: 10px;
@@ -707,7 +730,6 @@
             }
         }
         
-        // Test function - you can run this in console to test blinking
         window.testBlink = function(windowNumber) {
             console.log('Test blink called for window:', windowNumber);
             blinkTicket(windowNumber);

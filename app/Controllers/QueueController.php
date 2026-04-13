@@ -18,7 +18,8 @@ class QueueController extends BaseController
 
     public function index()
     {
-        return view('queue/index');
+        $data['from_admin'] = $this->request->getGet('from_admin') === 'true';
+        return view('queue/index', $data);
     }
 
     public function printTicket()

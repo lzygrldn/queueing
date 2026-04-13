@@ -24,7 +24,7 @@ class Window extends BaseController
     public function index($windowNumber = null)
     {
         if ($windowNumber === null) {
-            return view('window/select');
+            return redirect()->to('index.php/admin');
         }
 
         // Validate window number

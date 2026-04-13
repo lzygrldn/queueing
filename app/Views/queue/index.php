@@ -233,16 +233,6 @@
             line-height: 1;
         }
         
-        .preview-service {
-            font-size: 14px;
-            font-weight: bold;
-            color: #000;
-            text-align: center;
-            margin: 4px 0;
-            line-height: 1;
-            text-transform: uppercase;
-        }
-        
         .preview-datetime {
             font-size: 9px;
             color: #333;
@@ -375,7 +365,6 @@
                 <div class="preview-city">GENERAL SANTOS CITY</div>
                 <div class="preview-window" id="previewWindow"></div>
                 <div class="preview-number" id="previewNumber"></div>
-                <div class="preview-service" id="previewService"></div>
                 <div class="preview-datetime" id="previewDateTime"></div>
             </div>
             <button class="btn-primary" onclick="printAndClose()">Print Ticket</button>
@@ -473,7 +462,6 @@
                     currentTicketData = data.ticket;
                     document.getElementById('previewWindow').textContent = 'Window ' + data.ticket.window_number;
                     document.getElementById('previewNumber').textContent = data.ticket.number;
-                    document.getElementById('previewService').textContent = data.ticket.service;
                     document.getElementById('previewDateTime').textContent = data.ticket.datetime;
                     document.getElementById('ticketModal').classList.add('active');
                 } else {
@@ -520,13 +508,7 @@
                             font-size: 30px;
                             font-weight: bold;
                             margin: 6px 0;
-                            line-height: 1;
-                        }
-                        .service {
-                            font-size: 25px;
-                            font-weight: bold;
-                            margin: 4px 0;
-                            text-transform: uppercase;
+                            font-family: 'Courier New', monospace;
                             line-height: 1;
                         }
                         .datetime {
@@ -540,7 +522,6 @@
                     <div class="city">GENERAL SANTOS CITY</div>
                     <div class="window-info">Window ${currentTicketData.window_number}</div>
                     <div class="number">${currentTicketData.number}</div>
-                    <div class="service">${currentTicketData.service}</div>
                     <div class="datetime">${currentTicketData.datetime}</div>
                 </body>
                 </html>
@@ -600,7 +581,6 @@
                     currentTicketData = data.ticket;
                     document.getElementById('previewWindow').textContent = 'Window ' + data.ticket.window_number;
                     document.getElementById('previewNumber').textContent = data.ticket.number;
-                    document.getElementById('previewService').textContent = data.ticket.service;
                     document.getElementById('previewDateTime').textContent = data.ticket.datetime;
                     document.getElementById('marriageOptionsModal').classList.remove('active');
                     document.getElementById('ticketModal').classList.add('active');
@@ -625,7 +605,6 @@
                     currentTicketData = data.ticket;
                     document.getElementById('previewWindow').textContent = 'Window ' + data.ticket.window_number;
                     document.getElementById('previewNumber').textContent = data.ticket.number;
-                    document.getElementById('previewService').textContent = data.ticket.service;
                     document.getElementById('previewDateTime').textContent = data.ticket.datetime;
                     document.getElementById('deathOptionsModal').classList.remove('active');
                     document.getElementById('ticketModal').classList.add('active');
@@ -650,7 +629,6 @@
                     currentTicketData = data.ticket;
                     document.getElementById('previewWindow').textContent = 'Window ' + data.ticket.window_number;
                     document.getElementById('previewNumber').textContent = data.ticket.number;
-                    document.getElementById('previewService').textContent = data.ticket.service;
                     document.getElementById('previewDateTime').textContent = data.ticket.datetime;
                     document.getElementById('birthOptionsModal').classList.remove('active');
                     document.getElementById('ticketModal').classList.add('active');
