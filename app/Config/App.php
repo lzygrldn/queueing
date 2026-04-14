@@ -16,7 +16,18 @@ class App extends BaseConfig
      *
      * E.g., http://example.com/
      */
-    public string $baseURL = 'http://localhost/queueing/public/';
+    public string $baseURL = 'http://localhost/queueing/';
+
+    public function __construct()
+    {
+        parent::__construct();
+        
+        // Dynamically detect the host from the current request
+        if (isset($_SERVER['HTTP_HOST'])) {
+            $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https://' : 'http://';
+            $this->baseURL = $protocol . $_SERVER['HTTP_HOST'] . '/queueing/';
+        }
+    }
 
     /**
      * Allowed Hostnames in the Site URL other than the hostname in the baseURL.

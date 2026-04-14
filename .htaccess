@@ -1,5 +1,10 @@
 RewriteEngine On
-RewriteBase /queueing/public
+RewriteBase /queueing/
+
+# Route assets to public folder
+RewriteRule ^assets/(.*)$ public/assets/$1 [L]
+
+# Route to public index.php for everything else
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.php/$1 [L,QSA]
+RewriteRule ^(.*)$ public/index.php/$1 [L,QSA]

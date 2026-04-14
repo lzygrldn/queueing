@@ -650,6 +650,8 @@
         // Fetch queue data every 2 seconds
         let currentSortOrder = 'newest'; // 'newest' or 'oldest'
         let allWaitingData = [];
+        let previousNowServing = {}; // Track previous values to detect changes
+        let isFirstLoad = true; // Track first load
         
         function refreshData() {
             fetch('<?= base_url('display/data') ?>', {
@@ -658,12 +660,36 @@
             .then(r => r.json())
             .then(data => {
                 if (data.success) {
+                    console.log('Refresh data - windows:', data.windows.length, 'First load:', isFirstLoad);
+                    
                     // Update window displays
                     data.windows.forEach(window => {
                         const element = document.getElementById('window' + window.window_number);
+                        const windowNum = window.window_number;
+                        const currentServing = window.now_serving;
+                        
+                        // Skip on first load, just store values
+                        if (isFirstLoad) {
+                            previousNowServing[windowNum] = currentServing;
+                            console.log('First load - Window', windowNum, 'set to:', currentServing);
+                        } else {
+                            console.log('Window', windowNum, 'previous:', previousNowServing[windowNum], 'current:', currentServing);
+                            
+                            // Check if now_serving changed
+                            if (element && 
+                                previousNowServing[windowNum] !== currentServing && 
+                                currentServing !== 'None') {
+                                console.log('>>> TRIGGER BLINK for window', windowNum);
+                                blinkTicket(windowNum);
+                            }
+                            
+                            // Store current value for next comparison
+                            previousNowServing[windowNum] = currentServing;
+                        }
+                        
                         if (element) {
-                            element.textContent = window.now_serving;
-                            if (window.now_serving === 'None') {
+                            element.textContent = currentServing;
+                            if (currentServing === 'None') {
                                 element.classList.add('none');
                             } else {
                                 element.classList.remove('none');
@@ -681,19 +707,64 @@
                             }
                         }
                     });
+                    
+                    // Mark first load complete
+                    if (isFirstLoad) {
+                        isFirstLoad = false;
+                        console.log('First load complete - watching for changes');
+                    }
                 }
             });
         }
         
-        // Function to handle blinking when called
+        // Function to handle blinking and sound when called
         function blinkTicket(windowNumber) {
             const ticketElement = document.getElementById('window' + windowNumber);
             if (ticketElement && ticketElement.textContent !== 'None') {
                 ticketElement.classList.add('blink');
+                // Play 2-second notification sound
+                playNotificationSound(2000);
                 setTimeout(() => {
                     ticketElement.classList.remove('blink');
-                }, 3000);
+                }, 5000);
             }
+        }
+        
+        // Play notification sound for specified duration (ms)
+        function playNotificationSound(duration) {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            // Create a pleasant beep tone (880Hz = A5 note)
+            oscillator.frequency.value = 880;
+            oscillator.type = 'sine';
+            
+            // Fade in quickly, then fade out
+            gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 0.1);
+            gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration / 1000);
+            
+            oscillator.start(audioCtx.currentTime);
+            oscillator.stop(audioCtx.currentTime + duration / 1000);
+            
+            // Double beep effect - second beep after 400ms
+            setTimeout(() => {
+                const osc2 = audioCtx.createOscillator();
+                const gain2 = audioCtx.createGain();
+                osc2.connect(gain2);
+                gain2.connect(audioCtx.destination);
+                osc2.frequency.value = 880;
+                osc2.type = 'sine';
+                gain2.gain.setValueAtTime(0, audioCtx.currentTime);
+                gain2.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 0.1);
+                gain2.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.4);
+                osc2.start(audioCtx.currentTime);
+                osc2.stop(audioCtx.currentTime + 0.5);
+            }, 400);
         }
         
         // Listen for blink events using localStorage

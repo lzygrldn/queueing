@@ -17,13 +17,19 @@
 <?php $this->endSection() ?>
 
 <?php $this->section('content') ?>
-<meta name="base-url" content="<?= base_url() ?>">
+<?php 
+// Ensure base_url is never empty
+$baseUrl = base_url();
+if (empty($baseUrl)) {
+    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https://' : 'http://';
+    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+    $baseUrl = $protocol . $host . '/queueing/';
+}
+?>
+<meta name="base-url" content="<?= $baseUrl ?>">
 
 <!-- System Controls Drawer -->
 <div class="container" id="system-controls-container">
-    <div class="dev-warning">
-        <i class="bi bi-exclamation-triangle-fill"></i> <strong>Development Use Only</strong> - These controls are for development/testing purposes and should not be used when the system is deployed.
-    </div>
     <div class="reset-buttons">
         <button class="btn-reset btn-reset-windows" onclick="confirmResetWindows()">Reset Windows & Queues</button>
         <button class="btn-reset btn-reset-numbers" onclick="confirmResetNumbers()">Reset Released Numbers</button>

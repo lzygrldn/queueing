@@ -1,7 +1,7 @@
-/* ============================================
-   MAIN.CSS - Consolidated Styles
-   Sections: Global → Admin → Window → Login
-   ============================================ */
+/* 
+    CSS included here:
+    Admin, Window, Login
+*/
 
 /* 1. CSS VARIABLES(Global) */
 :root {
@@ -35,7 +35,7 @@
     /* Dark Theme Colors */
     --bg-primary: #1a1a1a;
     --bg-secondary: #2d2d2d;
-    --bg-card: rgba(30, 30, 30, 0.9);
+    --bg-card: rgba(30, 30, 30, 0.846);
     --text-primary: #eaeaea;
     --text-secondary: #a0a0a0;
     --text-muted: #6a6a6a;
@@ -519,7 +519,6 @@ tr:hover {
 .admin-modal p {
     margin-bottom: 25px;
     color: var(--text-primary);
-    opacity: 0.7;
 }
 
 .modal-buttons {
@@ -1216,7 +1215,7 @@ tr:hover {
 .modal p {
     margin-bottom: 25px;
     color: var(--text-primary);
-    opacity: 0.7;
+    font-weight: 500;
 }
 
 .modal-buttons {
@@ -1484,18 +1483,35 @@ body.admin-dashboard {
 
 /* System Controls Drawer */
 #system-controls-container {
-    background: var(--card-bg);
+    background: var(--bg-primary);
     border: 1px solid var(--border-color);
     border-radius: 12px;
     padding: 20px;
-    margin-bottom: 30px;
     display: none;
-    box-shadow: var(--shadow);
+    box-shadow: var(--shadow-lg);
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    z-index: 200;
+    margin-top: 20px;
 }
 
 #system-controls-container.show {
     display: block;
-    animation: slideDown 0.3s ease;
+    animation: slideDownFixed 0.3s ease;
+}
+
+@keyframes slideDownFixed {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
 }
 
 /* Reduce space between system controls and window status */
@@ -1544,8 +1560,8 @@ body.admin-dashboard {
     background: var(--card-bg);
     border-radius: 8px;
     padding: 30px;
-    max-width: 400px;
-    width: 90%;
+    width: 400px;
+    max-width: 90%;
     box-shadow: var(--shadow-lg);
 }
 
@@ -1556,7 +1572,9 @@ body.admin-dashboard {
 
 .modal p {
     margin-bottom: 20px;
-    color: var(--text-secondary);
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 16px;
 }
 
 .modal-actions {

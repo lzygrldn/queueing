@@ -1,10 +1,19 @@
 let confirmCallback = null;
 
-// Initialize baseUrl from meta tag
-window.baseUrl = document.querySelector('meta[name="base-url"]')?.content || '';
-if (window.baseUrl && !window.baseUrl.endsWith('/')) {
-    window.baseUrl += '/';
-}
+// Initialize baseUrl - ALWAYS use current host
+window.baseUrl = window.location.protocol + '//' + window.location.host + '/queueing/';
+console.log('baseUrl set to:', window.baseUrl);
+
+// Real-time polling - auto refresh data every 3 seconds
+document.addEventListener('DOMContentLoaded', function() {
+    // Initial data load
+    refreshData();
+    
+    // Set up polling interval (3 seconds)
+    setInterval(refreshData, 3000);
+    
+    console.log('Real-time sync enabled - polling every 3 seconds');
+});
 
 // Smooth scrolling for navigation links
 document.addEventListener('DOMContentLoaded', function() {
@@ -324,10 +333,10 @@ function updateWindows(windows) {
             }
 
             if (goToWindowBtn) {
+                // Ensure baseUrl is defined with fallback
+                const baseUrl = window.baseUrl || (window.location.protocol + '//' + window.location.host + '/queueing/');
                 goToWindowBtn.outerHTML = `
-                    <button class="btn btn-call-next btn-small" onclick="callNext(${window.id})">Call Next</button>
-                    ${window.serving_queue_id ? `<button class="btn btn-danger btn-small" onclick="skipQueue(${window.serving_queue_id})">Skip</button>` : ''}
-                    <a href="${window.baseUrl}window/${window.window_number}?from_admin=true" class="btn-go-window btn-small">Go to Window ${window.window_number}</a>
+                    <a href="${baseUrl}window/${window.window_number}?from_admin=true" class="btn-go-window btn-small">Go to Window ${window.window_number}</a>
                 `;
             }
         }
@@ -404,8 +413,8 @@ function updateStats(dailyStats, monthlyStats) {
     }
 }
 
-// Auto refresh disabled to prevent spam
-// setInterval(refreshData, 3000);
+// Auto refresh every 3 seconds for real-time updates
+setInterval(refreshData, 3000);
 
 // Toggle System Controls drawer
 function toggleSystemControls(event) {

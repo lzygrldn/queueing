@@ -23,7 +23,7 @@ class Admin extends BaseController
     {
         // Check if admin is logged in
         if (!session()->get('admin_logged_in')) {
-            return redirect()->to('index.php/');
+            return redirect()->to(base_url());
         }
 
         $data['windows'] = $this->getWindowData();
@@ -48,22 +48,22 @@ class Admin extends BaseController
 
         if ($username === 'admin' && $password === 'admin123') {
             session()->set('admin_logged_in', true);
-            return redirect()->to('index.php/admin');
+            return redirect()->to(base_url('admin'));
         }
 
-        return redirect()->to('index.php/')->with('error', 'Invalid credentials');
+        return redirect()->to(base_url())->with('error', 'Invalid credentials');
     }
 
     public function logout()
     {
         session()->destroy();
-        return redirect()->to('index.php/');
+        return redirect()->to(base_url());
     }
 
     public function kiosk()
     {
         if (!session()->get('admin_logged_in')) {
-            return redirect()->to('index.php/');
+            return redirect()->to(base_url());
         }
         
         $data['from_admin'] = true;
@@ -73,7 +73,7 @@ class Admin extends BaseController
     public function display()
     {
         if (!session()->get('admin_logged_in')) {
-            return redirect()->to('index.php/');
+            return redirect()->to(base_url());
         }
         
         $data['windows'] = $this->getWindowData();

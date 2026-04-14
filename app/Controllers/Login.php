@@ -33,14 +33,14 @@ class Login extends BaseController
             session()->set('admin_logged_in', true);
             session()->set('user_id', $user['id']);
             session()->set('username', $user['username']);
-            return redirect()->to('index.php/admin');
+            return redirect()->to(base_url('admin'));
         } else {
             // Window staff - redirect to their assigned window
             session()->set('window_logged_in', true);
             session()->set('user_id', $user['id']);
             session()->set('username', $user['username']);
             session()->set('window_id', $user['window_id']);
-            return redirect()->to('index.php/window/' . $user['window_id']);
+            return redirect()->to(base_url('window/' . $user['window_id']));
         }
     }
 

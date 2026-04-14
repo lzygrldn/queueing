@@ -24,13 +24,13 @@ class Window extends BaseController
     public function index($windowNumber = null)
     {
         if ($windowNumber === null) {
-            return redirect()->to('index.php/admin');
+            return redirect()->to(base_url('admin'));
         }
 
         // Validate window number
         $window = $this->windowModel->getWindowByNumber($windowNumber);
         if (!$window) {
-            return redirect()->to('index.php/window')->with('error', 'Invalid window number');
+            return redirect()->to(base_url('window'))->with('error', 'Invalid window number');
         }
 
         $data['window'] = $window;

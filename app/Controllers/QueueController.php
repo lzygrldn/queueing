@@ -31,16 +31,64 @@ class QueueController extends BaseController
         
         // Map service to window, ticket prefix, and full service type
         $serviceMap = [
-            'breqs' => ['window' => 1, 'prefix' => 'BREQS', 'service_name' => 'BREQS', 'service_type' => 'BREQS'],
-            'birth-regular' => ['window' => 2, 'prefix' => 'BIRTH', 'service_name' => 'REGULAR', 'service_type' => 'Birth - Regular'],
-            'birth-delayed' => ['window' => 2, 'prefix' => 'BIRTH', 'service_name' => 'DELAYED', 'service_type' => 'Birth - Delayed'],
-            'birth-out-of-town' => ['window' => 2, 'prefix' => 'BIRTH', 'service_name' => 'OUT OF TOWN', 'service_type' => 'Birth - Out-of-Town'],
-            'death-regular' => ['window' => 3, 'prefix' => 'DEATH', 'service_name' => 'REGULAR', 'service_type' => 'Death - Regular'],
-            'death-delayed' => ['window' => 3, 'prefix' => 'DEATH', 'service_name' => 'DELAYED', 'service_type' => 'Death - Delayed'],
-            'marriage-regular' => ['window' => 4, 'prefix' => 'MARRIAGE', 'service_name' => 'REGULAR', 'service_type' => 'Marriage - Regular'],
-            'marriage-delayed' => ['window' => 4, 'prefix' => 'MARRIAGE', 'service_name' => 'DELAYED', 'service_type' => 'Marriage - Delayed'],
-            'marriage-license-endorsement' => ['window' => 4, 'prefix' => 'MARRIAGE', 'service_name' => 'LICENSE ENDORSEMENT', 'service_type' => 'Marriage - License Endorsement'],
-            'marriage-license-application' => ['window' => 4, 'prefix' => 'MARRIAGE', 'service_name' => 'LICENSE APPLICATION', 'service_type' => 'Marriage - License Application']
+            'breqs' => [
+                'window' => 1,
+                'prefix' => 'BREQS',
+                'service_name' => 'BREQS',
+                'service_type' => 'BREQS'
+            ],
+            'birth-regular' => [
+                'window' => 2, 'prefix' => 'BIRTH',
+                'service_name' => 'REGULAR',
+                'service_type' => 'Birth - Regular'
+            ],
+            'birth-delayed' => [
+                'window' => 2,
+                'prefix' => 'BIRTH',
+                'service_name' => 'DELAYED', 
+                'service_type' => 'Birth - Delayed'
+            ],
+            'birth-out-of-town' => [
+                'window' => 2,
+                'prefix' => 'BIRTH',
+                'service_name' => 'OUT OF TOWN',
+                'service_type' => 'Birth - Out-of-Town'
+            ],
+            'death-regular' => [
+                'window' => 3, 'prefix' => 'DEATH',
+                'service_name' => 'REGULAR',
+                'service_type' => 'Death - Regular'
+            ],
+            'death-delayed' => [
+                'window' => 3,
+                'prefix' => 'DEATH',
+                'service_name' => 'DELAYED',
+                'service_type' => 'Death - Delayed'
+            ],
+            'marriage-regular' => [
+                'window' => 4,
+                'prefix' => 'MARRIAGE',
+                'service_name' => 'REGULAR',
+                'service_type' => 'Marriage - Regular'
+            ],
+            'marriage-delayed' => [
+                'window' => 4,
+                'prefix' => 'MARRIAGE',
+                'service_name' => 'DELAYED',
+                'service_type' => 'Marriage - Delayed'
+            ],
+            'marriage-license-endorsement' => [
+                'window' => 4,
+                'prefix' => 'MARRIAGE',
+                'service_name' => 'LICENSE ENDORSEMENT',
+                'service_type' => 'Marriage - License Endorsement'
+            ],
+            'marriage-license-application' => [
+                'window' => 4,
+                'prefix' => 'MARRIAGE',
+                'service_name' => 'LICENSE APPLICATION',
+                'service_type' => 'Marriage - License Application'
+            ]
         ];
         
         $windowId = $serviceMap[$service]['window'] ?? 1;

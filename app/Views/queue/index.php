@@ -460,10 +460,7 @@
             .then(data => {
                 if (data.success) {
                     currentTicketData = data.ticket;
-                    document.getElementById('previewWindow').textContent = 'Window ' + data.ticket.window_number;
-                    document.getElementById('previewNumber').textContent = data.ticket.number;
-                    document.getElementById('previewDateTime').textContent = data.ticket.datetime;
-                    document.getElementById('ticketModal').classList.add('active');
+                    printAndClose();
                 } else {
                     alert('Error: ' + data.message);
                 }
@@ -485,6 +482,7 @@
                             font-family: Arial, sans-serif;
                             text-align: center;
                             width: 288px;
+                            position: absolute;
                         }
                         .window-info {
                             font-size: 40px;
@@ -579,11 +577,8 @@
             .then(data => {
                 if (data.success) {
                     currentTicketData = data.ticket;
-                    document.getElementById('previewWindow').textContent = 'Window ' + data.ticket.window_number;
-                    document.getElementById('previewNumber').textContent = data.ticket.number;
-                    document.getElementById('previewDateTime').textContent = data.ticket.datetime;
                     document.getElementById('marriageOptionsModal').classList.remove('active');
-                    document.getElementById('ticketModal').classList.add('active');
+                    printAndClose();
                 } else {
                     alert('Error: ' + data.message);
                 }
@@ -603,11 +598,8 @@
             .then(data => {
                 if (data.success) {
                     currentTicketData = data.ticket;
-                    document.getElementById('previewWindow').textContent = 'Window ' + data.ticket.window_number;
-                    document.getElementById('previewNumber').textContent = data.ticket.number;
-                    document.getElementById('previewDateTime').textContent = data.ticket.datetime;
                     document.getElementById('deathOptionsModal').classList.remove('active');
-                    document.getElementById('ticketModal').classList.add('active');
+                    printAndClose();
                 } else {
                     alert('Error: ' + data.message);
                 }
@@ -627,11 +619,8 @@
             .then(data => {
                 if (data.success) {
                     currentTicketData = data.ticket;
-                    document.getElementById('previewWindow').textContent = 'Window ' + data.ticket.window_number;
-                    document.getElementById('previewNumber').textContent = data.ticket.number;
-                    document.getElementById('previewDateTime').textContent = data.ticket.datetime;
                     document.getElementById('birthOptionsModal').classList.remove('active');
-                    document.getElementById('ticketModal').classList.add('active');
+                    printAndClose();
                 } else {
                     alert('Error: ' + data.message);
                 }

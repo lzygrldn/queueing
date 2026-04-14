@@ -236,6 +236,14 @@ function callNext() {
                 console.log('Updated Now Serving to:', data.ticket_number);
             }
             
+            // Trigger blink on display dashboard
+            const blinkData = {
+                windowNumber: WindowData.windowNumber,
+                timestamp: Date.now()
+            };
+            localStorage.setItem('blinkTicket', JSON.stringify(blinkData));
+            console.log('Blink triggered for window:', WindowData.windowNumber);
+            
             // Immediately update button states
             const callBtn = document.getElementById('callBtn');
             const completeBtn = document.getElementById('completeBtn');
